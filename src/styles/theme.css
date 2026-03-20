@@ -1,0 +1,266 @@
+/* Design Tokens - Brand Colors derived from logo */
+:root {
+  /* Primary - Natural Green from logo (#7EC752) */
+  --farm-green-50: #f4fcf1;
+  --farm-green-100: #e7f8dd;
+  --farm-green-200: #d0f1bc;
+  --farm-green-300: #afe690;
+  --farm-green-400: #90d865;
+  --farm-green-500: #7ec752;
+  --farm-green-600: #62a73a;
+  --farm-green-700: #4d8430;
+  --farm-green-800: #3f6928;
+  --farm-green-900: #355824;
+
+  /* Secondary - Warm Earth tones from logo */
+  --farm-earth-50: #faf8f5;
+  --farm-earth-100: #f5f1eb;
+  --farm-earth-200: #ebe3d7;
+  --farm-earth-300: #dccfbb;
+  --farm-earth-400: #c9b599;
+  --farm-earth-500: #b39a7a;
+  --farm-earth-600: #9d8466;
+  --farm-earth-700: #826b54;
+  --farm-earth-800: #6b5846;
+  --farm-earth-900: #584a3b;
+
+  /* Accent - Golden Harvest */
+  --farm-gold-50: #fefaed;
+  --farm-gold-100: #fcf3d1;
+  --farm-gold-200: #f9e6a1;
+  --farm-gold-300: #f5d567;
+  --farm-gold-400: #f1c33c;
+  --farm-gold-500: #eba51e;
+  --farm-gold-600: #d07f14;
+  --farm-gold-700: #ac5b14;
+  --farm-gold-800: #8c4618;
+  --farm-gold-900: #733b19;
+
+  /* Neutral - Soft backgrounds */
+  --farm-neutral-50: #fafaf9;
+  --farm-neutral-100: #f5f5f4;
+  --farm-neutral-200: #e7e5e4;
+  --farm-neutral-300: #d6d3d1;
+  --farm-neutral-400: #a8a29e;
+  --farm-neutral-500: #78716c;
+  --farm-neutral-600: #57534e;
+  --farm-neutral-700: #44403c;
+  --farm-neutral-800: #292524;
+  --farm-neutral-900: #1c1917;
+
+  /* Semantic Colors - Application tokens with bright logo green */
+  --farm-primary: #7ec752;
+  --farm-primary-hover: #62a73a;
+  --farm-primary-light: var(--farm-green-100);
+  
+  --farm-secondary: var(--farm-earth-600);
+  --farm-secondary-hover: var(--farm-earth-700);
+  --farm-secondary-light: var(--farm-earth-100);
+  
+  --farm-accent: var(--farm-gold-500);
+  --farm-accent-hover: var(--farm-gold-600);
+  --farm-accent-light: var(--farm-gold-100);
+  
+  /* Background colors */
+  --farm-bg-primary: #fafaf9;
+  --farm-bg-secondary: #f5f1eb;
+  --farm-bg-tertiary: #e7f8dd;
+  
+  /* Text colors */
+  --farm-text-primary: var(--farm-neutral-900);
+  --farm-text-secondary: var(--farm-neutral-600);
+  --farm-text-muted: var(--farm-neutral-500);
+  
+  /* Border colors */
+  --farm-border-light: var(--farm-neutral-200);
+  --farm-border-medium: var(--farm-neutral-300);
+  
+  /* Shadows - soft and natural */
+  --farm-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  --farm-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+  --farm-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.07);
+  --farm-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+  
+  /* Transitions */
+  --farm-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --farm-transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --farm-transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Border radius */
+  --farm-radius-sm: 0.5rem;
+  --farm-radius-md: 0.75rem;
+  --farm-radius-lg: 1rem;
+  --farm-radius-xl: 1.5rem;
+  --farm-radius-2xl: 2rem;
+  
+  /* Legacy color tokens for backwards compatibility */
+  --farm-page-bg: var(--farm-bg-primary);
+  --farm-section-alt-bg: var(--farm-bg-secondary);
+  --farm-accent-green: var(--farm-primary);
+  --farm-warm-brown: var(--farm-secondary);
+  --farm-primary-text: var(--farm-text-primary);
+  --farm-secondary-text: var(--farm-text-secondary);
+  --farm-footer-bg: var(--farm-neutral-900);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply text-foreground;
+    background-color: #fafaf9;
+  }
+
+  /**
+  * Default typography styles for HTML elements (h1-h4, p, label, button, input).
+  * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
+  */
+
+  html {
+    font-size: var(--font-size);
+  }
+
+  h1 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h2 {
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h4 {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  label {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  button {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  input {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.5;
+  }
+
+  /* Prose styles for legal pages */
+  .prose-farm h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--farm-text-primary);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .prose-farm h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--farm-text-primary);
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .prose-farm p {
+    color: var(--farm-text-primary);
+    margin-bottom: 1rem;
+    line-height: 1.75;
+  }
+
+  .prose-farm ul {
+    color: var(--farm-text-primary);
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+    list-style-type: disc;
+  }
+
+  .prose-farm li {
+    color: var(--farm-text-primary);
+    margin-bottom: 0.5rem;
+    line-height: 1.75;
+  }
+
+  .prose-farm strong {
+    color: var(--farm-text-primary);
+    font-weight: 600;
+  }
+
+  .prose-farm a {
+    color: var(--farm-primary);
+    text-decoration: underline;
+  }
+
+  .prose-farm a:hover {
+    color: var(--farm-primary-hover);
+  }
+
+  .prose-farm em {
+    color: var(--farm-text-secondary);
+    font-style: italic;
+  }
+
+  .legal-content {
+    color: var(--farm-text-primary);
+  }
+}
