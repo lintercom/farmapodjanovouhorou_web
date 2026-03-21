@@ -9,6 +9,7 @@ import { FloatingCard } from '../../components/FloatingCard';
 import { Button } from '../../components/Button';
 import { pagesApi } from '../../utils/api';
 import { defaultPageContent } from '../../utils/defaultPageContent';
+import { setCachedPage } from '../../utils/siteDataCache';
 
 interface Page {
   id: string;
@@ -83,6 +84,7 @@ export function PageEditorSimple() {
       
       // Save to database
       await pagesApi.save(selectedPageId, parsedContent);
+      setCachedPage(selectedPageId, parsedContent);
       
       setSaveStatus('success');
       setTimeout(() => setSaveStatus('idle'), 3000);

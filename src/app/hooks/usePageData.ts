@@ -1,29 +1,43 @@
 import { useState, useEffect } from 'react';
-import { pagesApi } from '../utils/api';
+import { getCachedPage, hasCachedPage, preloadPage } from '../utils/siteDataCache';
 
 export function usePageData(pageId: string) {
-  const [data, setData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const hasCachedData = hasCachedPage(pageId);
+  const [data, setData] = useState<any>(() => (hasCachedData ? getCachedPage(pageId) : null));
+  const [isLoading, setIsLoading] = useState(!hasCachedData);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
+    const hasCachedData = hasCachedPage(pageId);
+
     const loadData = async () => {
-      setIsLoading(true);
+      if (!hasCachedData) {
+        setIsLoading(true);
+      }
       setError(null);
       try {
-        const response = await pagesApi.get(pageId);
-        if (response.page) {
-          setData(response.page);
+        const page = await preloadPage(pageId);
+        if (isMounted) {
+          setData(page);
         }
       } catch (err) {
-        setError(err as Error);
+        if (isMounted) {
+          setError(err as Error);
+        }
         console.error(`Error loading page data for ${pageId}:`, err);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     loadData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [pageId]);
 
   return { data, isLoading, error };

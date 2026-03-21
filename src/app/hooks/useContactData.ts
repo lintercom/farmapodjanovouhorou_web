@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { pagesApi } from '../utils/api';
+import { getCachedPage, hasCachedPage, preloadPage } from '../utils/siteDataCache';
 
 export interface ContactData {
   phone: string;
@@ -33,42 +33,54 @@ const defaultContactData: ContactData = {
   },
 };
 
+function normalizeContactData(page: any): ContactData {
+  const fromContactData = page?.contactData;
+  const fromContact = page?.contact;
+
+  if (fromContactData) {
+    return { ...defaultContactData, ...fromContactData };
+  }
+
+  if (fromContact) {
+    return {
+      ...defaultContactData,
+      phone: fromContact.phone ?? defaultContactData.phone,
+      email: fromContact.email ?? defaultContactData.email,
+      address: fromContact.address?.street ?? defaultContactData.address,
+      city: fromContact.address?.city ?? defaultContactData.city,
+      postalCode: fromContact.address?.zip ?? defaultContactData.postalCode,
+      openingHours: {
+        weekdays: fromContact.openingHours ?? defaultContactData.openingHours.weekdays,
+        weekend: defaultContactData.openingHours.weekend,
+      },
+      socialMedia: {
+        facebook: fromContact.facebook ?? defaultContactData.socialMedia.facebook,
+        instagram: fromContact.instagram ?? defaultContactData.socialMedia.instagram,
+      },
+    };
+  }
+
+  return defaultContactData;
+}
+
 export function useContactData() {
-  const [contactData, setContactData] = useState<ContactData>(defaultContactData);
-  const [isLoading, setIsLoading] = useState(true);
+  const hasCachedData = hasCachedPage('kontakt');
+  const [contactData, setContactData] = useState<ContactData>(() => (
+    hasCachedData ? normalizeContactData(getCachedPage('kontakt')) : defaultContactData
+  ));
+  const [isLoading, setIsLoading] = useState(!hasCachedData);
 
   useEffect(() => {
+    const hasCachedData = hasCachedPage('kontakt');
+
     async function loadContactData() {
+      if (!hasCachedData) {
+        setIsLoading(true);
+      }
+
       try {
-        const data = await pagesApi.get('kontakt');
-        const page = data?.page;
-        const fromContactData = page?.contactData;
-        const fromContact = page?.contact;
-
-        if (fromContactData) {
-          setContactData({ ...defaultContactData, ...fromContactData });
-          return;
-        }
-
-        // Backwards compatibility for data shape used in seeded CMS content.
-        if (fromContact) {
-          setContactData({
-            ...defaultContactData,
-            phone: fromContact.phone ?? defaultContactData.phone,
-            email: fromContact.email ?? defaultContactData.email,
-            address: fromContact.address?.street ?? defaultContactData.address,
-            city: fromContact.address?.city ?? defaultContactData.city,
-            postalCode: fromContact.address?.zip ?? defaultContactData.postalCode,
-            openingHours: {
-              weekdays: fromContact.openingHours ?? defaultContactData.openingHours.weekdays,
-              weekend: defaultContactData.openingHours.weekend,
-            },
-            socialMedia: {
-              facebook: fromContact.facebook ?? defaultContactData.socialMedia.facebook,
-              instagram: fromContact.instagram ?? defaultContactData.socialMedia.instagram,
-            },
-          });
-        }
+        const page = await preloadPage('kontakt');
+        setContactData(normalizeContactData(page));
       } catch (error) {
         console.error('Error loading contact data:', error);
         // Pokračujeme s defaultními hodnotami

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { settingsApi } from '../utils/api';
+import { getCachedSettings, hasCachedSettings, preloadSettings } from '../utils/siteDataCache';
 
 interface GlobalSettings {
   siteName?: string;
@@ -19,17 +19,25 @@ interface GlobalSettings {
 }
 
 export function useGlobalSettings() {
-  const [settings, setSettings] = useState<GlobalSettings | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const hasCachedData = hasCachedSettings();
+  const [settings, setSettings] = useState<GlobalSettings | null>(() => (
+    hasCachedData ? getCachedSettings() : null
+  ));
+  const [isLoading, setIsLoading] = useState(!hasCachedData);
 
   useEffect(() => {
     let isMounted = true;
+    const hasCachedData = hasCachedSettings();
 
     async function loadSettings() {
+      if (!hasCachedData) {
+        setIsLoading(true);
+      }
+
       try {
-        const response = await settingsApi.get();
+        const cachedSettings = await preloadSettings();
         if (isMounted) {
-          setSettings(response?.settings || null);
+          setSettings(cachedSettings || null);
         }
       } catch (error) {
         console.error('Error loading global settings:', error);

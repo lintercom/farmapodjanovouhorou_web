@@ -5,6 +5,7 @@ import { FloatingCard } from '../../components/FloatingCard';
 import { Button } from '../../components/Button';
 import { ImageUpload } from '../../components/admin/ImageUpload';
 import { projectId, publicAnonKey } from '/utils/supabase/info';
+import { setCachedSettings } from '../../utils/siteDataCache';
 
 interface GlobalSettingsData {
   // Obecné
@@ -127,6 +128,7 @@ export function GlobalSettings() {
       }
 
       setSaveStatus('success');
+      setCachedSettings(settings);
       setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (err: any) {
       console.error('Error saving settings:', err);

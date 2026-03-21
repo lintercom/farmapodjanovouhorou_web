@@ -127,8 +127,8 @@ export function Blog() {
                       {event.description}
                     </p>
 
-                    <div className="text-sm text-[var(--farm-accent-green)] font-medium mt-auto">
-                      Zobrazit detail â†’
+                    <div className="relative mt-auto inline-flex w-fit text-sm font-medium text-[var(--farm-accent-green)] after:absolute after:left-0 after:-bottom-1 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-300 hover:after:scale-x-100">
+                      Číst článek
                     </div>
                   </div>
                 </div>

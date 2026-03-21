@@ -268,8 +268,8 @@ export function Horses() {
                   {horse.description}
                 </p>
                 
-                <div className="mt-5 text-sm text-[var(--farm-accent-green)] font-medium">
-                  Klikněte pro více informací →
+                <div className="relative mt-5 inline-flex w-fit text-sm font-medium text-[var(--farm-accent-green)] after:absolute after:left-0 after:-bottom-1 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-300 hover:after:scale-x-100">
+                  Zobrazit koně
                 </div>
               </FloatingCard>
             ))}

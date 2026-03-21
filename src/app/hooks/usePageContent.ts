@@ -1,25 +1,35 @@
 import { useState, useEffect } from 'react';
-import { pagesApi } from '../utils/api';
 import { defaultPageContent } from '../utils/defaultPageContent';
+import { getCachedPage, hasCachedPage, preloadPage } from '../utils/siteDataCache';
 
 export function usePageContent(pageId: string) {
-  const [content, setContent] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const hasCachedData = hasCachedPage(pageId);
+  const [content, setContent] = useState<any>(() => {
+    if (!hasCachedData) {
+      return null;
+    }
+
+    return getCachedPage(pageId) || defaultPageContent[pageId] || {};
+  });
+  const [isLoading, setIsLoading] = useState(!hasCachedData);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
+    const hasCachedData = hasCachedPage(pageId);
 
     const loadContent = async () => {
-      setIsLoading(true);
+      if (!hasCachedData) {
+        setIsLoading(true);
+      }
       setError(null);
 
       try {
-        const response = await pagesApi.get(pageId);
+        const page = await preloadPage(pageId);
         
         if (isMounted) {
-          if (response.page) {
-            setContent(response.page);
+          if (page) {
+            setContent(page);
           } else {
             // Use default content if not found in database
             setContent(defaultPageContent[pageId] || {});

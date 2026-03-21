@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
 import { FloatingCard } from './FloatingCard';
-import { pagesApi } from '../utils/api';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useGlobalSettings } from '../hooks/useGlobalSettings';
+import { usePageData } from '../hooks/usePageData';
 import { resolveCmsImageUrl } from '../utils/media';
 
 interface LegalPageContentProps {
@@ -12,27 +11,8 @@ interface LegalPageContentProps {
 }
 
 export function LegalPageContent({ pageId, defaultTitle, defaultContent }: LegalPageContentProps) {
-  const [pageData, setPageData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: pageData, isLoading } = usePageData(pageId);
   const { settings } = useGlobalSettings();
-
-  useEffect(() => {
-    const loadContent = async () => {
-      setIsLoading(true);
-      try {
-        const response = await pagesApi.get(pageId);
-        if (response.page) {
-          setPageData(response.page);
-        }
-      } catch (error) {
-        console.error('Error loading legal page content:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadContent();
-  }, [pageId]);
 
   const title = pageData?.title || defaultTitle;
   const resolvedHeroImage = resolveCmsImageUrl(pageData?.hero?.image, settings?.heroImage);
