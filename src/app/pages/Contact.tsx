@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { FloatingCard } from '../components/FloatingCard';
 import { Button } from '../components/Button';
@@ -13,7 +13,7 @@ import {
   defaultContactReservationTabs,
   defaultContactSection,
   getContactTabIcon,
-  getReenioEmbedSrc,
+  parseReenioEmbedConfig,
 } from '../utils/contactPageConfig';
 import { resolveCmsImageUrl } from '../utils/media';
 
@@ -92,7 +92,8 @@ export function Contact() {
   const activeTabConfig = reservationTabs.find((tab: any) => tab.slug === activeTab) ?? null;
   const activeTabIcon = getContactTabIcon(activeTabConfig?.icon);
   const ActiveTabIcon = activeTabIcon;
-  const reenioEmbedSrc = getReenioEmbedSrc(activeTabConfig?.reenioUrl);
+  const reenioEmbedConfig = parseReenioEmbedConfig(activeTabConfig?.reenioUrl);
+  const reenioWidgetHostRef = useRef<HTMLDivElement | null>(null);
   const locationParagraphs = locationContent.description
     .split(/\n{2,}/)
     .map((paragraph: string) => paragraph.trim())
@@ -110,6 +111,30 @@ export function Contact() {
     const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
     return `${basePath}${trimmed}`;
   };
+
+  useEffect(() => {
+    if (activeTabConfig?.type !== 'embed' || reenioEmbedConfig.mode !== 'widget' || !reenioWidgetHostRef.current) {
+      return;
+    }
+
+    const host = reenioWidgetHostRef.current;
+    host.innerHTML = '';
+
+    const widgetContainer = document.createElement('div');
+    widgetContainer.className = reenioEmbedConfig.widgetClassName || 'reenio-iframe';
+    widgetContainer.setAttribute('data-size', reenioEmbedConfig.widgetDataSize || 'auto');
+    host.appendChild(widgetContainer);
+
+    const script = document.createElement('script');
+    script.src = reenioEmbedConfig.widgetScriptSrc || '';
+    script.async = true;
+    script.defer = true;
+    host.appendChild(script);
+
+    return () => {
+      host.innerHTML = '';
+    };
+  }, [activeTabConfig?.type, reenioEmbedConfig]);
 
   return (
     <div>
@@ -432,11 +457,15 @@ export function Contact() {
                       {activeTabConfig.description}
                     </p>
                   ) : null}
-                  {reenioEmbedSrc ? (
+                  {reenioEmbedConfig.mode === 'widget' ? (
+                    <div className="overflow-hidden rounded-3xl border border-[var(--farm-border)] bg-white p-4 shadow-[var(--farm-shadow-md)]">
+                      <div ref={reenioWidgetHostRef} />
+                    </div>
+                  ) : reenioEmbedConfig.mode === 'iframe' ? (
                     <>
                       <div className="overflow-hidden rounded-3xl border border-[var(--farm-border)] bg-white shadow-[var(--farm-shadow-md)]">
                         <iframe
-                          src={reenioEmbedSrc}
+                          src={reenioEmbedConfig.iframeSrc}
                           width="100%"
                           height={String(activeTabConfig.embedHeight || 1100)}
                           style={{ border: 0 }}
@@ -446,7 +475,7 @@ export function Contact() {
                       </div>
                       <div className="mt-6 text-center">
                         <a
-                          href={reenioEmbedSrc}
+                          href={reenioEmbedConfig.iframeSrc}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-sm font-medium text-[var(--farm-accent-green)] transition-colors hover:text-[var(--farm-primary-hover)]"
@@ -455,6 +484,19 @@ export function Contact() {
                         </a>
                       </div>
                     </>
+                  ) : reenioEmbedConfig.mode === 'link' ? (
+                    <div className="rounded-3xl border border-[var(--farm-border)] bg-white px-6 py-10 text-center shadow-[var(--farm-shadow-md)]">
+                      <p className="mx-auto mb-6 max-w-2xl text-[var(--farm-secondary-text)]">
+                        Tento rezervační formulář nejde vložit přímo do stránky jako iframe. Otevřete ho prosím v novém okně.
+                      </p>
+                      <a
+                        href={reenioEmbedConfig.iframeSrc}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button variant="primary">Otevřít rezervační formulář</Button>
+                      </a>
+                    </div>
                   ) : (
                     <div className="text-sm text-[var(--farm-secondary-text)]">
                       {activeTabConfig.helperText || 'Zatím nás prosím kontaktujte na e-mailu nebo telefonu.'}

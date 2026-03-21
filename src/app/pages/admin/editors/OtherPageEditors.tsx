@@ -867,9 +867,9 @@ export function ContactPageEditor({ data, updateField }: any) {
               {draft.type === 'embed' ? (
                 <>
                   <div>
-                    <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Reenio URL nebo iframe embed kód</label>
+                    <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Reenio URL, iframe embed nebo widget snippet</label>
                     <textarea
-                      placeholder="Vložte odkaz na formulář nebo celý iframe kód z Reenia"
+                      placeholder="Vložte odkaz na formulář, iframe kód nebo snippet s div + script z Reenia"
                       value={draft.reenioUrl || ''}
                       onChange={(e) => setDraft((prev) => (prev ? { ...prev, reenioUrl: e.target.value } : prev))}
                       rows={4}

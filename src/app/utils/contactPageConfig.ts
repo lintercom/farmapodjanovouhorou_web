@@ -84,6 +84,63 @@ export function getReenioEmbedSrc(value?: string) {
   return trimmed;
 }
 
+export interface ReenioEmbedConfig {
+  mode: 'none' | 'iframe' | 'widget' | 'link';
+  rawValue: string;
+  iframeSrc?: string;
+  widgetClassName?: string;
+  widgetDataSize?: string;
+  widgetScriptSrc?: string;
+}
+
+export function parseReenioEmbedConfig(value?: string): ReenioEmbedConfig {
+  const trimmed = value?.trim() ?? '';
+
+  if (!trimmed) {
+    return {
+      mode: 'none',
+      rawValue: '',
+    };
+  }
+
+  const widgetScriptMatch = trimmed.match(/<script[^>]+src=(['"])(.*?)\1/i);
+  const widgetDivMatch = trimmed.match(/<div[^>]+class=(['"])(.*?)\1[^>]*>/i);
+  const widgetDataSizeMatch = trimmed.match(/data-size=(['"])(.*?)\1/i);
+
+  if (widgetScriptMatch?.[2] && widgetDivMatch?.[2]) {
+    return {
+      mode: 'widget',
+      rawValue: trimmed,
+      widgetClassName: widgetDivMatch[2],
+      widgetDataSize: widgetDataSizeMatch?.[2] ?? 'auto',
+      widgetScriptSrc: widgetScriptMatch[2],
+    };
+  }
+
+  const iframeSrcMatch = trimmed.match(/<iframe[^>]+src=(['"])(.*?)\1/i);
+  if (iframeSrcMatch?.[2]) {
+    return {
+      mode: 'iframe',
+      rawValue: trimmed,
+      iframeSrc: iframeSrcMatch[2],
+    };
+  }
+
+  if (/^https?:\/\//i.test(trimmed)) {
+    return {
+      mode: 'link',
+      rawValue: trimmed,
+      iframeSrc: trimmed,
+    };
+  }
+
+  return {
+    mode: 'link',
+    rawValue: trimmed,
+    iframeSrc: trimmed,
+  };
+}
+
 export const defaultContactReservationTabs: ContactReservationTab[] = [
   {
     id: 'tabor',
