@@ -2,9 +2,31 @@ import { Plus, Trash2 } from 'lucide-react';
 import { FloatingCard } from '../../../components/FloatingCard';
 import { Button } from '../../../components/Button';
 import { ImageUpload } from '../../../components/admin/ImageUpload';
+import { CmsCollectionEditor } from '../../../components/admin/CmsCollectionEditor';
 import { LinkSelector } from '../../../components/admin/LinkSelector';
 
-export function ServicesPageEditor({ data, updateField, updateArrayItem, addArrayItem, removeArrayItem }: any) {
+export function ServicesPageEditor({ data, updateField, addArrayItem, setArrayItem, removeArrayItem }: any) {
+  const services = data?.services || [];
+
+  const createService = () => ({
+    id: '',
+    title: 'Nová služba',
+    description: '',
+    image: '',
+    details: [],
+    buttonText: 'Zjistit více',
+    buttonLink: '/kontakt',
+  });
+
+  const saveService = (draft: any, editingIndex: number | null) => {
+    if (editingIndex === null) {
+      addArrayItem(['services'], draft);
+      return;
+    }
+
+    setArrayItem(['services'], editingIndex, draft);
+  };
+
   return (
     <>
       {/* Hero Section */}
@@ -30,147 +52,151 @@ export function ServicesPageEditor({ data, updateField, updateArrayItem, addArra
 
       {/* Services List */}
       <FloatingCard hover={false}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-[var(--farm-primary-text)]">Seznam služeb</h3>
-          <Button 
-            variant="primary" 
-            size="sm"
-            onClick={() => addArrayItem(['services'], { 
-              title: 'Nová služba', 
-              description: '', 
-              image: '',
-              details: [],
-              buttonText: 'Zjistit více',
-              buttonLink: '/kontakt'
-            })}
-            className="gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Přidat službu
-          </Button>
-        </div>
-        <div className="space-y-6">
-          {data?.services?.map((service: any, index: number) => (
-            <div key={service.id || index} className="p-6 border-2 border-[var(--farm-border)] rounded-2xl bg-[var(--farm-section-alt-bg)]">
-              <div className="flex items-center justify-between mb-5">
-                <h4 className="font-semibold text-[var(--farm-primary-text)] text-lg">Služba #{index + 1}</h4>
-                <button
-                  onClick={() => removeArrayItem(['services'], index)}
-                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">ID služby (pro odkazy)</label>
-                  <input
-                    type="text"
-                    placeholder="např. tabory, vyjizky, hipoterapie"
-                    value={service.id || ''}
-                    onChange={(e) => updateArrayItem(['services'], index, 'id', e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all bg-white text-[var(--farm-primary-text)]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Název služby</label>
-                  <input
-                    type="text"
-                    placeholder="Název služby"
-                    value={service.title || ''}
-                    onChange={(e) => updateArrayItem(['services'], index, 'title', e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all bg-white text-[var(--farm-primary-text)]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Popis služby</label>
-                  <textarea
-                    placeholder="Popis služby"
-                    value={service.description || ''}
-                    onChange={(e) => updateArrayItem(['services'], index, 'description', e.target.value)}
-                    rows={3}
-                    className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all resize-none bg-white text-[var(--farm-primary-text)]"
-                  />
-                </div>
-                <ImageUpload
-                  label="Obrázek služby"
-                  value={service.image || ''}
-                  onChange={(url) => updateArrayItem(['services'], index, 'image', url)}
+        <CmsCollectionEditor
+          title="Seznam služeb"
+          addLabel="Přidat službu"
+          items={services}
+          createItem={createService}
+          getItemTitle={(service: any, index) => service.title || `Služba #${index + 1}`}
+          getItemSubtitle={(service: any) => service.description || 'Bez popisu'}
+          emptyStateText="Zatím jste nepřidali žádnou službu."
+          dialogTitle={{
+            create: 'Přidat službu',
+            edit: 'Upravit službu',
+          }}
+          onSaveItem={saveService}
+          onDeleteItem={(index) => removeArrayItem(['services'], index)}
+          renderForm={({ draft, setDraft }) => (
+            <div className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">ID služby (pro odkazy)</label>
+                <input
+                  type="text"
+                  placeholder="např. tabory, vyjizky, hipoterapie"
+                  value={draft.id || ''}
+                  onChange={(e) => setDraft((prev) => prev ? { ...prev, id: e.target.value } : prev)}
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all bg-white text-[var(--farm-primary-text)]"
                 />
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Text tlačítka</label>
-                    <input
-                      type="text"
-                      placeholder="Text tlačítka"
-                      value={service.buttonText || ''}
-                      onChange={(e) => updateArrayItem(['services'], index, 'buttonText', e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all bg-white text-[var(--farm-primary-text)]"
-                    />
-                  </div>
-                  <LinkSelector
-                    label="Odkaz tlačítka"
-                    value={service.buttonLink || ''}
-                    onChange={(value) => updateArrayItem(['services'], index, 'buttonLink', value)}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Název služby</label>
+                <input
+                  type="text"
+                  placeholder="Název služby"
+                  value={draft.title || ''}
+                  onChange={(e) => setDraft((prev) => prev ? { ...prev, title: e.target.value } : prev)}
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all bg-white text-[var(--farm-primary-text)]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Popis služby</label>
+                <textarea
+                  placeholder="Popis služby"
+                  value={draft.description || ''}
+                  onChange={(e) => setDraft((prev) => prev ? { ...prev, description: e.target.value } : prev)}
+                  rows={3}
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all resize-none bg-white text-[var(--farm-primary-text)]"
+                />
+              </div>
+
+              <ImageUpload
+                label="Obrázek služby"
+                value={draft.image || ''}
+                onChange={(url) => setDraft((prev) => prev ? { ...prev, image: url } : prev)}
+              />
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Text tlačítka</label>
+                  <input
+                    type="text"
+                    placeholder="Text tlačítka"
+                    value={draft.buttonText || ''}
+                    onChange={(e) => setDraft((prev) => prev ? { ...prev, buttonText: e.target.value } : prev)}
+                    className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all bg-white text-[var(--farm-primary-text)]"
                   />
                 </div>
 
-                {/* Details */}
-                <div className="mt-4 p-4 bg-white rounded-xl border border-[var(--farm-border)]">
-                  <div className="flex items-center justify-between mb-3">
-                    <h5 className="font-medium text-[var(--farm-primary-text)]">Detaily služby</h5>
-                    <button
-                      onClick={() => {
-                        const newDetails = [...(service.details || []), { title: '', description: '' }];
-                        updateArrayItem(['services'], index, 'details', newDetails);
-                      }}
-                      className="text-sm px-3 py-1.5 rounded-lg bg-[var(--farm-accent-green)] text-white hover:bg-[var(--farm-accent-green)]/90 transition-colors"
-                    >
-                      + Přidat detail
-                    </button>
-                  </div>
-                  <div className="space-y-2">
-                    {service.details?.map((detail: any, detailIndex: number) => (
-                      <div key={detailIndex} className="flex gap-2 p-2 bg-[var(--farm-section-alt-bg)] rounded-lg">
+                <LinkSelector
+                  label="Odkaz tlačítka"
+                  value={draft.buttonLink || ''}
+                  onChange={(value) => setDraft((prev) => prev ? { ...prev, buttonLink: value } : prev)}
+                />
+              </div>
+
+              <div className="rounded-2xl border border-[var(--farm-border)] bg-white p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <h5 className="font-medium text-[var(--farm-primary-text)]">Detaily služby</h5>
+                  <button
+                    type="button"
+                    onClick={() => setDraft((prev) => prev ? {
+                      ...prev,
+                      details: [...(prev.details || []), { title: '', description: '' }],
+                    } : prev)}
+                    className="rounded-lg bg-[var(--farm-accent-green)] px-3 py-1.5 text-sm text-white transition-colors hover:bg-[var(--farm-accent-green)]/90"
+                  >
+                    + Přidat detail
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {(draft.details || []).map((detail: any, detailIndex: number) => (
+                    <div key={detailIndex} className="rounded-xl bg-[var(--farm-section-alt-bg)] p-3">
+                      <div className="mb-3 flex items-center justify-between">
+                        <span className="text-sm font-medium text-[var(--farm-primary-text)]">Detail #{detailIndex + 1}</span>
+                        <button
+                          type="button"
+                          onClick={() => setDraft((prev) => prev ? {
+                            ...prev,
+                            details: (prev.details || []).filter((_: any, idx: number) => idx !== detailIndex),
+                          } : prev)}
+                          className="p-2 text-red-600 transition-colors hover:bg-red-50 rounded-lg"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                         <input
                           type="text"
                           placeholder="Nadpis"
                           value={detail.title || ''}
-                          onChange={(e) => {
-                            const newDetails = [...service.details];
-                            newDetails[detailIndex].title = e.target.value;
-                            updateArrayItem(['services'], index, 'details', newDetails);
-                          }}
-                          className="flex-1 px-3 py-2 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all text-sm bg-white text-[var(--farm-primary-text)]"
+                          onChange={(e) => setDraft((prev) => {
+                            if (!prev) return prev;
+                            const details = [...(prev.details || [])];
+                            details[detailIndex] = { ...details[detailIndex], title: e.target.value };
+                            return { ...prev, details };
+                          })}
+                          className="w-full px-3 py-2.5 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all text-sm bg-white text-[var(--farm-primary-text)]"
                         />
                         <input
                           type="text"
                           placeholder="Popis"
                           value={detail.description || ''}
-                          onChange={(e) => {
-                            const newDetails = [...service.details];
-                            newDetails[detailIndex].description = e.target.value;
-                            updateArrayItem(['services'], index, 'details', newDetails);
-                          }}
-                          className="flex-1 px-3 py-2 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all text-sm bg-white text-[var(--farm-primary-text)]"
+                          onChange={(e) => setDraft((prev) => {
+                            if (!prev) return prev;
+                            const details = [...(prev.details || [])];
+                            details[detailIndex] = { ...details[detailIndex], description: e.target.value };
+                            return { ...prev, details };
+                          })}
+                          className="w-full px-3 py-2.5 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all text-sm bg-white text-[var(--farm-primary-text)]"
                         />
-                        <button
-                          onClick={() => {
-                            const newDetails = service.details.filter((_: any, i: number) => i !== detailIndex);
-                            updateArrayItem(['services'], index, 'details', newDetails);
-                          }}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
+
+                  {(!draft.details || draft.details.length === 0) && (
+                    <div className="rounded-xl border-2 border-dashed border-[var(--farm-border)] py-6 text-center text-sm text-[var(--farm-secondary-text)]">
+                      Zatím nejsou přidané žádné detaily služby.
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+          )}
+        />
       </FloatingCard>
     </>
   );

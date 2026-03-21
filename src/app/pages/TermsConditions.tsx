@@ -68,7 +68,7 @@ export function TermsConditions() {
     </ul>
 
     <h2>8. Ochrana osobních údajů</h2>
-    <p>Poskytovatel zpracovává osobní údaje zákazníků v souladu se zákonem o ochraně osobních údajů a GDPR. Více informací naleznete v <a href="/ochrana-osobnich-udaju">dokumentu o ochraně osobních údajů</a>.</p>
+    <p>Poskytovatel zpracovává osobní údaje zákazníků v souladu se zákonem o ochraně osobních údajů a GDPR. Více informací naleznete v <a href="ochrana-osobnich-udaju">dokumentu o ochraně osobních údajů</a>.</p>
 
     <h2>9. Závěrečná ustanovení</h2>
     <p>Tyto obchodní podmínky nabývají účinnosti dnem jejich zveřejnění na webových stránkách. Poskytovatel si vyhrazuje právo tyto podmínky změnit.</p>

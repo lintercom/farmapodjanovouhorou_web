@@ -136,7 +136,7 @@ export function Home() {
                   </Button>
                 </Link>
                 <Link to={hero.secondaryButtonLink || '/kontakt'}>
-                  <Button variant="outline" className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 bg-white/15 backdrop-blur-md border-2 border-white/40 text-white hover:bg-white hover:text-[var(--farm-primary)] shadow-xl">
+                  <Button variant="outline" className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 bg-white/15 backdrop-blur-md border-2 border-white/40 text-white hover:bg-white/15 hover:text-white hover:border-white/40 hover:shadow-xl">
                     {hero.secondaryButtonText || 'Kontaktujte nás'}
                   </Button>
                 </Link>

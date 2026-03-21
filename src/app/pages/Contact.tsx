@@ -2,22 +2,48 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router';
 import { FloatingCard } from '../components/FloatingCard';
 import { Button } from '../components/Button';
-import { Phone, Mail, MapPin, Clock, Facebook, Instagram, MessageCircle, Calendar, Users, Compass, Gift, Landmark, Share2 } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, Facebook, Instagram, Landmark, Share2 } from 'lucide-react';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { useContactData } from '../hooks/useContactData';
 import { usePageData } from '../hooks/usePageData';
 import { useGlobalSettings } from '../hooks/useGlobalSettings';
+import {
+  defaultContactFormContent,
+  defaultContactLocation,
+  defaultContactReservationTabs,
+  defaultContactSection,
+  getContactTabIcon,
+  getReenioEmbedSrc,
+} from '../utils/contactPageConfig';
 import { resolveCmsImageUrl } from '../utils/media';
 
-type TabType = 'kontakt' | 'tabor' | 'krouzek' | 'vyjizdy' | 'poukaz';
-
 export function Contact() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState<TabType>('kontakt');
-  const { contactData, isLoading } = useContactData();
+  const [searchParams] = useSearchParams();
+  const { contactData } = useContactData();
   const { data: pageData } = usePageData('kontakt');
   const { settings } = useGlobalSettings();
   const resolvedHeroImage = resolveCmsImageUrl(pageData?.hero?.image, settings?.heroImage);
+
+  const reservationTabs = Array.isArray(pageData?.reservationTabs)
+    ? pageData.reservationTabs
+    : defaultContactReservationTabs;
+  const contactSection = {
+    ...defaultContactSection,
+    ...(pageData?.contactSection ?? {}),
+  };
+  const contactFormContent = {
+    ...defaultContactFormContent,
+    ...(pageData?.contactForm ?? {}),
+  };
+  const locationContent = {
+    ...defaultContactLocation,
+    ...(pageData?.location ?? {}),
+    directions: Array.isArray(pageData?.location?.directions)
+      ? pageData.location.directions
+      : defaultContactLocation.directions,
+  };
+  const defaultActiveTab = reservationTabs.find((tab: any) => tab.type === 'contact')?.slug ?? reservationTabs[0]?.slug ?? null;
+  const [activeTab, setActiveTab] = useState<string | null>(defaultActiveTab);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -28,19 +54,24 @@ export function Contact() {
 
   // Read tab from URL on mount
   useEffect(() => {
-    const tab = searchParams.get('tab') as TabType;
-    if (tab && ['kontakt', 'tabor', 'krouzek', 'vyjizdy', 'poukaz'].includes(tab)) {
-      setActiveTab(tab);
-    }
-  }, [searchParams]);
+    const tab = searchParams.get('tab');
+    const isKnownTab = reservationTabs.some((item: any) => item.slug === tab);
 
-  const handleTabChange = (tab: TabType) => {
+    if (tab && isKnownTab) {
+      setActiveTab(tab);
+      return;
+    }
+
+    setActiveTab(defaultActiveTab);
+  }, [defaultActiveTab, reservationTabs, searchParams]);
+
+  const handleTabChange = (tab: string) => {
     setActiveTab(tab);
     // Update URL without triggering scroll
     window.history.replaceState(null, '', `?tab=${tab}`);
   };
 
-  const handleTabClick = (e: React.MouseEvent, tab: TabType) => {
+  const handleTabClick = (e: React.MouseEvent, tab: string) => {
     e.preventDefault();
     e.stopPropagation();
     handleTabChange(tab);
@@ -48,7 +79,7 @@ export function Contact() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert('Děkujeme za vaĹˇi zprávu! Ozveme se vám co nejdĹ™íve.');
+    alert(contactFormContent.successMessage);
     setFormData({ name: '', email: '', phone: '', message: '' });
   };
 
@@ -58,14 +89,27 @@ export function Contact() {
       [e.target.name]: e.target.value,
     });
   };
+  const activeTabConfig = reservationTabs.find((tab: any) => tab.slug === activeTab) ?? null;
+  const activeTabIcon = getContactTabIcon(activeTabConfig?.icon);
+  const ActiveTabIcon = activeTabIcon;
+  const reenioEmbedSrc = getReenioEmbedSrc(activeTabConfig?.reenioUrl);
+  const locationParagraphs = locationContent.description
+    .split(/\n{2,}/)
+    .map((paragraph: string) => paragraph.trim())
+    .filter(Boolean);
+  const resolveAppHref = (href?: string) => {
+    const trimmed = href?.trim() ?? '';
+    if (!trimmed) {
+      return '#';
+    }
 
-  const tabs = [
-    { id: 'tabor' as TabType, label: 'Rezervace tábora', icon: Calendar },
-    { id: 'krouzek' as TabType, label: 'Rezervace krouĹľku', icon: Users },
-    { id: 'vyjizdy' as TabType, label: 'Rezervace vyjíĹľďky', icon: Compass },
-    { id: 'poukaz' as TabType, label: 'Poukaz', icon: Gift },
-    { id: 'kontakt' as TabType, label: 'Kontakt', icon: MessageCircle },
-  ];
+    if (!trimmed.startsWith('/')) {
+      return trimmed;
+    }
+
+    const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+    return `${basePath}${trimmed}`;
+  };
 
   return (
     <div>
@@ -93,59 +137,65 @@ export function Contact() {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-24 md:pt-32">
           <div className="max-w-3xl">
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 md:mb-7 drop-shadow-2xl leading-tight">
-              Kontakt a rezervace
+              {pageData?.hero?.title || 'Kontakt a rezervace'}
             </h1>
             <p className="text-lg sm:text-xl md:text-2xl text-white/95 mb-8 md:mb-10 drop-shadow-lg leading-relaxed max-w-2xl">
-              NapiĹˇte nám nebo se rovnou pĹ™ihlaste na naĹˇe aktivity
+              {pageData?.hero?.subtitle || 'Napište nám nebo se rovnou přihlaste na naše aktivity'}
             </p>
           </div>
         </div>
       </section>
 
       {/* Tabs Navigation */}
-      <section className="py-12 bg-[var(--farm-page-bg)] relative overflow-hidden -mt-[1px]">
-        {/* Blurred gradient transition from previous section */}
-        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-page-bg)] to-transparent backdrop-blur-sm" />
-        
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={(e) => handleTabClick(e, tab.id)}
-                  className={`relative p-6 rounded-2xl transition-all duration-300 ${
-                    isActive
-                      ? 'bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] scale-105'
-                      : 'bg-white/60 hover:bg-white/80 hover:shadow-md'
-                  }`}
-                >
-                  <div className="flex flex-col items-center gap-3">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                      isActive 
-                        ? 'bg-[var(--farm-accent-green)] text-white' 
-                        : 'bg-[var(--farm-accent-green)]/10 text-[var(--farm-accent-green)]'
-                    }`}>
-                      <Icon className="w-6 h-6" />
+      {reservationTabs.length > 0 ? (
+        <section className="py-12 bg-[var(--farm-page-bg)] relative overflow-hidden -mt-[1px]">
+          <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-page-bg)] to-transparent backdrop-blur-sm" />
+          
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+              {reservationTabs.map((tab: any) => {
+                const Icon = getContactTabIcon(tab.icon);
+                const isActive = activeTab === tab.slug;
+
+                return (
+                  <button
+                    key={tab.id || tab.slug}
+                    type="button"
+                    onClick={(e) => handleTabClick(e, tab.slug)}
+                    className={`relative rounded-2xl p-6 transition-all duration-300 ${
+                      isActive
+                        ? 'bg-white scale-105 shadow-[0_8px_30px_rgb(0,0,0,0.12)]'
+                        : 'bg-white/60 hover:bg-white/80 hover:shadow-md'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center gap-3">
+                      <div
+                        className={`flex h-12 w-12 items-center justify-center rounded-xl ${
+                          isActive
+                            ? 'bg-[var(--farm-accent-green)] text-white'
+                            : 'bg-[var(--farm-accent-green)]/10 text-[var(--farm-accent-green)]'
+                        }`}
+                      >
+                        <Icon className="h-6 w-6" />
+                      </div>
+                      <span
+                        className={`text-center text-sm font-medium ${
+                          isActive ? 'text-[var(--farm-primary-text)]' : 'text-[var(--farm-secondary-text)]'
+                        }`}
+                      >
+                        {tab.label}
+                      </span>
                     </div>
-                    <span className={`text-sm font-medium text-center ${
-                      isActive ? 'text-[var(--farm-primary-text)]' : 'text-[var(--farm-secondary-text)]'
-                    }`}>
-                      {tab.label}
-                    </span>
-                  </div>
-                  {isActive && (
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-1 bg-[var(--farm-accent-green)] rounded-t-full" />
-                  )}
-                </button>
-              );
-            })}
+                    {isActive ? (
+                      <div className="absolute bottom-0 left-1/2 h-1 w-16 -translate-x-1/2 rounded-t-full bg-[var(--farm-accent-green)]" />
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       {/* Tab Content */}
       <section className="py-24 bg-[var(--farm-section-alt-bg)] relative overflow-hidden">
@@ -154,16 +204,13 @@ export function Contact() {
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           
-          {/* Kontakt Tab */}
-          {activeTab === 'kontakt' && (
+          {activeTabConfig?.type === 'contact' && (
             <div className="space-y-16">
-              {/* Contact Info & Form */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-                {/* Left - Contact Info */}
                 <div>
                   <FloatingCard hover={false}>
                     <h2 className="text-2xl md:text-3xl font-bold text-[var(--farm-primary-text)] mb-8">
-                      Kontaktujte nás
+                      {contactSection.title}
                     </h2>
 
                     <div className="space-y-6">
@@ -173,7 +220,7 @@ export function Contact() {
                         </div>
                         <div>
                           <h3 className="font-semibold text-[var(--farm-primary-text)] mb-2">
-                            Telefon
+                            {contactSection.phoneLabel}
                           </h3>
                           <a
                             href={`tel:${contactData.phone.replace(/\s/g, '')}`}
@@ -190,7 +237,7 @@ export function Contact() {
                         </div>
                         <div>
                           <h3 className="font-semibold text-[var(--farm-primary-text)] mb-2">
-                            Email
+                            {contactSection.emailLabel}
                           </h3>
                           <a
                             href={`mailto:${contactData.email}`}
@@ -207,7 +254,7 @@ export function Contact() {
                         </div>
                         <div>
                           <h3 className="font-semibold text-[var(--farm-primary-text)] mb-2">
-                            Adresa
+                            {contactSection.addressLabel}
                           </h3>
                           <p className="text-[var(--farm-secondary-text)]">
                             {contactData.address}<br />
@@ -222,7 +269,7 @@ export function Contact() {
                         </div>
                         <div>
                           <h3 className="font-semibold text-[var(--farm-primary-text)] mb-2">
-                            Otevírací doba
+                            {contactSection.openingHoursLabel}
                           </h3>
                           <div className="text-[var(--farm-secondary-text)] space-y-1">
                             <p>{contactData.openingHours.weekdays}</p>
@@ -237,7 +284,7 @@ export function Contact() {
                         </div>
                         <div>
                           <h3 className="font-semibold text-[var(--farm-primary-text)] mb-2">
-                            Sociální sítě
+                            {contactSection.socialTitle}
                           </h3>
                           <div className="flex gap-3">
                             <a
@@ -270,17 +317,17 @@ export function Contact() {
                           </div>
                           <div>
                             <h3 className="font-semibold text-[var(--farm-primary-text)] mb-2">
-                              Nezisková organizace
+                              {contactSection.nonprofitTitle}
                             </h3>
                             <p className="text-[var(--farm-secondary-text)] text-sm mb-3 leading-relaxed">
-                              Od 14. bĹ™ezna 2025 jsme neziskovou organizací, budeme rádi za vaĹˇe pĹ™íspěvky a dary. Dary spolku si mĹŻĹľete odeÄŤíst z daní.
+                              {contactSection.nonprofitDescription}
                             </p>
                             <div>
                               <p className="text-sm font-medium text-[var(--farm-primary-text)] mb-1">
-                                Transparentní úÄŤet:
+                                {contactSection.nonprofitAccountLabel}
                               </p>
                               <p className="text-lg font-bold text-[var(--farm-accent-green)]" style={{ fontFamily: 'var(--font-heading)' }}>
-                                2003148579/2010
+                                {contactSection.nonprofitAccountNumber}
                               </p>
                             </div>
                           </div>
@@ -290,17 +337,16 @@ export function Contact() {
                   </FloatingCard>
                 </div>
 
-                {/* Right - Contact Form */}
                 <div>
                   <FloatingCard hover={false}>
                     <h2 className="text-2xl md:text-3xl font-bold text-[var(--farm-primary-text)] mb-8">
-                      NapiĹˇte nám
+                      {contactFormContent.title}
                     </h2>
 
                     <form onSubmit={handleSubmit} className="space-y-5">
                       <div>
                         <label htmlFor="name" className="block text-sm font-medium text-[var(--farm-primary-text)] mb-2">
-                          Jméno a pĹ™íjmení *
+                          {contactFormContent.nameLabel}
                         </label>
                         <input
                           type="text"
@@ -310,13 +356,13 @@ export function Contact() {
                           value={formData.name}
                           onChange={handleChange}
                           className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--farm-accent-green)] transition-all"
-                          placeholder="Jan Novák"
+                          placeholder={contactFormContent.namePlaceholder}
                         />
                       </div>
 
                       <div>
                         <label htmlFor="email" className="block text-sm font-medium text-[var(--farm-primary-text)] mb-2">
-                          Email *
+                          {contactFormContent.emailLabel}
                         </label>
                         <input
                           type="email"
@@ -326,13 +372,13 @@ export function Contact() {
                           value={formData.email}
                           onChange={handleChange}
                           className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--farm-accent-green)] transition-all"
-                          placeholder="jan.novak@email.cz"
+                          placeholder={contactFormContent.emailPlaceholder}
                         />
                       </div>
 
                       <div>
                         <label htmlFor="phone" className="block text-sm font-medium text-[var(--farm-primary-text)] mb-2">
-                          Telefon
+                          {contactFormContent.phoneLabel}
                         </label>
                         <input
                           id="phone"
@@ -341,13 +387,13 @@ export function Contact() {
                           value={formData.phone}
                           onChange={handleChange}
                           className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--farm-accent-green)] transition-all"
-                          placeholder="+420 123 456 789"
+                          placeholder={contactFormContent.phonePlaceholder}
                         />
                       </div>
 
                       <div>
                         <label htmlFor="message" className="block text-sm font-medium text-[var(--farm-primary-text)] mb-2">
-                          VaĹˇe zpráva *
+                          {contactFormContent.messageLabel}
                         </label>
                         <textarea
                           id="message"
@@ -357,12 +403,12 @@ export function Contact() {
                           onChange={handleChange}
                           rows={5}
                           className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--farm-accent-green)] transition-all resize-none"
-                          placeholder="NapiĹˇte nám svĹŻj dotaz nebo poĹľadavek..."
+                          placeholder={contactFormContent.messagePlaceholder}
                         />
                       </div>
 
                       <Button type="submit" variant="primary" className="w-full">
-                        Odeslat zprávu
+                        {contactFormContent.submitLabel}
                       </Button>
                     </form>
                   </FloatingCard>
@@ -371,89 +417,83 @@ export function Contact() {
             </div>
           )}
 
-          {/* Tábor Tab */}
-          {activeTab === 'tabor' && (
-            <div className="max-w-3xl mx-auto">
+          {activeTabConfig?.type === 'embed' && (
+            <div className="max-w-5xl mx-auto">
               <FloatingCard hover={false}>
-                <div className="text-center py-16">
-                  <div className="w-20 h-20 rounded-2xl bg-[var(--farm-accent-green)]/10 mx-auto mb-6 flex items-center justify-center">
-                    <Calendar className="w-10 h-10 text-[var(--farm-accent-green)]" />
+                <div className="py-4 text-center">
+                  <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-[var(--farm-accent-green)]/10">
+                    <ActiveTabIcon className="h-10 w-10 text-[var(--farm-accent-green)]" />
                   </div>
-                  <h2 className="text-3xl font-bold text-[var(--farm-primary-text)] mb-4">
-                    Rezervace jezdeckého tábora
+                  <h2 className="mb-4 text-3xl font-bold text-[var(--farm-primary-text)]">
+                    {activeTabConfig.title}
                   </h2>
-                  <p className="text-lg text-[var(--farm-secondary-text)] mb-8">
-                    FormuláĹ™ pro rezervaci tábora bude brzy k dispozici
-                  </p>
-                  <div className="text-sm text-[var(--farm-secondary-text)]">
-                    Zatím nás prosím kontaktujte na emailu nebo telefonu
-                  </div>
+                  {activeTabConfig.description ? (
+                    <p className="mx-auto mb-8 max-w-2xl text-lg text-[var(--farm-secondary-text)]">
+                      {activeTabConfig.description}
+                    </p>
+                  ) : null}
+                  {reenioEmbedSrc ? (
+                    <>
+                      <div className="overflow-hidden rounded-3xl border border-[var(--farm-border)] bg-white shadow-[var(--farm-shadow-md)]">
+                        <iframe
+                          src={reenioEmbedSrc}
+                          width="100%"
+                          height={String(activeTabConfig.embedHeight || 1100)}
+                          style={{ border: 0 }}
+                          loading="lazy"
+                          title={activeTabConfig.title}
+                        />
+                      </div>
+                      <div className="mt-6 text-center">
+                        <a
+                          href={reenioEmbedSrc}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm font-medium text-[var(--farm-accent-green)] transition-colors hover:text-[var(--farm-primary-hover)]"
+                        >
+                          Otevřít formulář v novém okně
+                        </a>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-sm text-[var(--farm-secondary-text)]">
+                      {activeTabConfig.helperText || 'Zatím nás prosím kontaktujte na e-mailu nebo telefonu.'}
+                    </div>
+                  )}
                 </div>
               </FloatingCard>
             </div>
           )}
 
-          {/* KrouĹľek Tab */}
-          {activeTab === 'krouzek' && (
+          {activeTabConfig?.type === 'content' && (
             <div className="max-w-3xl mx-auto">
               <FloatingCard hover={false}>
                 <div className="text-center py-16">
-                  <div className="w-20 h-20 rounded-2xl bg-[var(--farm-accent-green)]/10 mx-auto mb-6 flex items-center justify-center">
-                    <Users className="w-10 h-10 text-[var(--farm-accent-green)]" />
+                  <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-[var(--farm-accent-green)]/10">
+                    <ActiveTabIcon className="h-10 w-10 text-[var(--farm-accent-green)]" />
                   </div>
-                  <h2 className="text-3xl font-bold text-[var(--farm-primary-text)] mb-4">
-                    Rezervace jezdeckého krouĹľku
+                  <h2 className="mb-4 text-3xl font-bold text-[var(--farm-primary-text)]">
+                    {activeTabConfig.title}
                   </h2>
-                  <p className="text-lg text-[var(--farm-secondary-text)] mb-8">
-                    FormuláĹ™ pro rezervaci krouĹľku bude brzy k dispozici
-                  </p>
-                  <div className="text-sm text-[var(--farm-secondary-text)]">
-                    Zatím nás prosím kontaktujte na emailu nebo telefonu
-                  </div>
-                </div>
-              </FloatingCard>
-            </div>
-          )}
-
-          {/* VyjíĹľďky Tab */}
-          {activeTab === 'vyjizdy' && (
-            <div className="max-w-3xl mx-auto">
-              <FloatingCard hover={false}>
-                <div className="text-center py-16">
-                  <div className="w-20 h-20 rounded-2xl bg-[var(--farm-accent-green)]/10 mx-auto mb-6 flex items-center justify-center">
-                    <Compass className="w-10 h-10 text-[var(--farm-accent-green)]" />
-                  </div>
-                  <h2 className="text-3xl font-bold text-[var(--farm-primary-text)] mb-4">
-                    Rezervace vyjíĹľďky
-                  </h2>
-                  <p className="text-lg text-[var(--farm-secondary-text)] mb-8">
-                    FormuláĹ™ pro rezervaci vyjíĹľďky bude brzy k dispozici
-                  </p>
-                  <div className="text-sm text-[var(--farm-secondary-text)]">
-                    Zatím nás prosím kontaktujte na emailu nebo telefonu
-                  </div>
-                </div>
-              </FloatingCard>
-            </div>
-          )}
-
-          {/* Poukaz Tab */}
-          {activeTab === 'poukaz' && (
-            <div className="max-w-3xl mx-auto">
-              <FloatingCard hover={false}>
-                <div className="text-center py-16">
-                  <div className="w-20 h-20 rounded-2xl bg-[var(--farm-accent-green)]/10 mx-auto mb-6 flex items-center justify-center">
-                    <Gift className="w-10 h-10 text-[var(--farm-accent-green)]" />
-                  </div>
-                  <h2 className="text-3xl font-bold text-[var(--farm-primary-text)] mb-4">
-                    Poukaz
-                  </h2>
-                  <p className="text-lg text-[var(--farm-secondary-text)] mb-8">
-                    Informace o poukazech bude brzy k dispozici
-                  </p>
-                  <div className="text-sm text-[var(--farm-secondary-text)]">
-                    Zatím nás prosím kontaktujte na emailu nebo telefonu
-                  </div>
+                  {activeTabConfig.description ? (
+                    <p className="mb-8 text-lg text-[var(--farm-secondary-text)]">
+                      {activeTabConfig.description}
+                    </p>
+                  ) : null}
+                  {activeTabConfig.buttonText && activeTabConfig.buttonLink ? (
+                    <a
+                      href={resolveAppHref(activeTabConfig.buttonLink)}
+                      target={activeTabConfig.openInNewTab ? '_blank' : undefined}
+                      rel={activeTabConfig.openInNewTab ? 'noopener noreferrer' : undefined}
+                    >
+                      <Button variant="primary">{activeTabConfig.buttonText}</Button>
+                    </a>
+                  ) : null}
+                  {activeTabConfig.helperText ? (
+                    <div className="mt-6 text-sm text-[var(--farm-secondary-text)]">
+                      {activeTabConfig.helperText}
+                    </div>
+                  ) : null}
                 </div>
               </FloatingCard>
             </div>
@@ -471,31 +511,26 @@ export function Contact() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div>
               <h2 className="text-3xl md:text-5xl font-bold text-[var(--farm-primary-text)] mb-8">
-                Kde nás najdete
+                {locationContent.title}
               </h2>
               
               <div className="space-y-4 text-lg text-[var(--farm-secondary-text)] leading-relaxed mb-8">
-                <p>
-                  Nacházíme se v malebné krajině na Janova HoĹ™e u Vizovic. Okolí farmy nabízí ideální podmínky pro vyjíĹľďky – lesy, louky a krásné výhledy.
-                </p>
-                <p>
-                  NaĹˇe adresa: Janova Hora 466, 763 12 Vizovice
-                </p>
+                {locationParagraphs.map((paragraph: string, index: number) => (
+                  <p key={index}>{paragraph}</p>
+                ))}
               </div>
 
               <div className="mt-8 bg-white rounded-3xl p-8 shadow-lg">
                 <h4 className="font-semibold text-[var(--farm-primary-text)] mb-5">
-                  Jak se k nám dostat
+                  {locationContent.directionsTitle}
                 </h4>
                 <ul className="space-y-3 text-[var(--farm-secondary-text)]">
-                  <li className="flex items-start gap-3">
-                    <div className="w-2 h-2 rounded-full bg-[var(--farm-accent-green)] mt-2 flex-shrink-0" />
-                    <span>Ze směru Zlín: navigace mapy.cz, cesta vede pĹ™es ZádveĹ™ice Trávník, cca 100m za novým srubem odboÄŤit doleva pĹ™es potok</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <div className="w-2 h-2 rounded-full bg-[var(--farm-accent-green)] mt-2 flex-shrink-0" />
-                    <span>Od Vizovic: navigace mapy.cz, ulice LázeĹská, ValaĹˇský Ĺˇenk, od něj nastavit adresu Janova Hora 466 a spustit jako cyklotrasu</span>
-                  </li>
+                  {locationContent.directions.map((direction: any, index: number) => (
+                    <li key={direction.id || index} className="flex items-start gap-3">
+                      <div className="w-2 h-2 rounded-full bg-[var(--farm-accent-green)] mt-2 flex-shrink-0" />
+                      <span>{direction.text}</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>
@@ -504,28 +539,28 @@ export function Contact() {
               <FloatingCard hover={false} className="p-0 overflow-hidden">
                 <div className="relative w-full h-[400px] lg:h-[500px]">
                   <iframe
-                    src="https://en.mapy.cz/zakladni?x=17.866389&y=49.222222&z=15&source=coor&id=17.866389%2C49.222222"
+                    src={locationContent.mapEmbedUrl}
                     width="100%"
                     height="100%"
                     style={{ border: 0 }}
                     allowFullScreen
                     loading="lazy"
-                    title="Mapa - Farma pod Janovou horou"
+                    title={`Mapa - ${locationContent.mapCardTitle}`}
                   />
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6 pointer-events-none">
                     <p className="text-white font-semibold mb-1">
-                      Farma pod Janovou horou
+                      {locationContent.mapCardTitle}
                     </p>
                     <p className="text-white/90 text-sm mb-3">
-                      Janova Hora 466, 763 12 Vizovice
+                      {locationContent.mapCardAddress}
                     </p>
                     <a
-                      href="https://mapy.cz/zakladni?x=17.866389&y=49.222222&z=15&source=coor&id=17.866389%2C49.222222"
+                      href={locationContent.mapLink}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-block text-white hover:text-[var(--farm-accent-green)] font-medium transition-colors pointer-events-auto"
                     >
-                      OtevĹ™ít v Mapy.cz →
+                      {locationContent.mapLinkLabel} →
                     </a>
                   </div>
                 </div>

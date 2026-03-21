@@ -2,10 +2,36 @@
 import { Plus, Trash2 } from 'lucide-react';
 import { FloatingCard } from '../../../components/FloatingCard';
 import { Button } from '../../../components/Button';
+import { CmsCollectionEditor } from '../../../components/admin/CmsCollectionEditor';
 import { ImageUpload } from '../../../components/admin/ImageUpload';
+import {
+  CONTACT_TAB_ICON_OPTIONS,
+  defaultContactFormContent,
+  defaultContactLocation,
+  defaultContactReservationTabs,
+  defaultContactSection,
+} from '../../../utils/contactPageConfig';
 
 // Events Page Editor
-export function EventsPageEditor({ data, updateField, updateArrayItem, addArrayItem, removeArrayItem }: any) {
+export function EventsPageEditor({ data, updateField, addArrayItem, setArrayItem, removeArrayItem }: any) {
+  const events = data?.events || [];
+
+  const createEvent = () => ({
+    title: 'Nový článek',
+    description: '',
+    fullDescription: '',
+    image: '',
+  });
+
+  const saveEvent = (draft: any, editingIndex: number | null) => {
+    if (editingIndex === null) {
+      addArrayItem(['events'], draft);
+      return;
+    }
+
+    setArrayItem(['events'], editingIndex, draft);
+  };
+
   return (
     <>
       <FloatingCard hover={false}>
@@ -17,72 +43,88 @@ export function EventsPageEditor({ data, updateField, updateArrayItem, addArrayI
       </FloatingCard>
 
       <FloatingCard hover={false}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-[var(--farm-primary-text)]">Příspěvky</h3>
-          <Button variant="primary" size="sm" onClick={() => addArrayItem(['events'], { title: 'Nový článek', description: '', fullDescription: '', images: [] })} className="gap-2">
-            <Plus className="w-4 h-4" />Přidat
-          </Button>
-        </div>
-        <div className="space-y-4">
-          {data?.events?.map((event: any, index: number) => (
-            <div key={event.id || index} className="p-6 border-2 border-[var(--farm-border)] rounded-2xl bg-[var(--farm-section-alt-bg)]">
-              <div className="flex items-center justify-between mb-5">
-                <h4 className="font-semibold text-[var(--farm-primary-text)]">Článek #{index + 1}</h4>
-                <button onClick={() => removeArrayItem(['events'], index)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
-                  <Trash2 className="w-4 h-4" />
-                </button>
+        <CmsCollectionEditor
+          title="Příspěvky"
+          addLabel="Přidat článek"
+          items={events}
+          createItem={createEvent}
+          getItemTitle={(event: any, index) => event.title || `Článek #${index + 1}`}
+          getItemSubtitle={(event: any) => event.description || 'Bez úvodního textu'}
+          emptyStateText="Zatím jste nepřidali žádný článek."
+          dialogTitle={{ create: 'Přidat článek', edit: 'Upravit článek' }}
+          dialogDescription="Vyplňte článek v modalu a do seznamu se přidá až po uložení."
+          onSaveItem={saveEvent}
+          onDeleteItem={(index) => removeArrayItem(['events'], index)}
+          renderForm={({ draft, setDraft }) => (
+            <div className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Název článku</label>
+                <input
+                  type="text"
+                  placeholder="Název článku"
+                  value={draft.title || ''}
+                  onChange={(e) => setDraft((prev) => prev ? { ...prev, title: e.target.value } : prev)}
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all bg-white text-[var(--farm-primary-text)]"
+                />
               </div>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Název článku</label>
-                  <input type="text" placeholder="Název článku" value={event.title || ''} onChange={(e) => updateArrayItem(['events'], index, 'title', e.target.value)} className="w-full px-3 py-2.5 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all text-sm bg-white text-[var(--farm-primary-text)]" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Krátký úvod (perex)</label>
-                  <textarea placeholder="Krátký úvodní text článku" value={event.description || ''} onChange={(e) => updateArrayItem(['events'], index, 'description', e.target.value)} rows={2} className="w-full px-3 py-2.5 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all text-sm bg-white resize-none text-[var(--farm-primary-text)]" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Hlavní obsah článku</label>
-                  <textarea placeholder="Hlavní obsah článku" value={event.fullDescription || ''} onChange={(e) => updateArrayItem(['events'], index, 'fullDescription', e.target.value)} rows={6} className="w-full px-3 py-2.5 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all text-sm bg-white resize-none text-[var(--farm-primary-text)]" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">URL obrázku</label>
-                  <ImageUpload
-                    value={event.image || ''}
-                    onChange={(url) => updateArrayItem(['events'], index, 'image', url)}
-                  />
-                </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Krátký úvod (perex)</label>
+                <textarea
+                  placeholder="Krátký úvodní text článku"
+                  value={draft.description || ''}
+                  onChange={(e) => setDraft((prev) => prev ? { ...prev, description: e.target.value } : prev)}
+                  rows={3}
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all bg-white resize-none text-[var(--farm-primary-text)]"
+                />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Hlavní obsah článku</label>
+                <textarea
+                  placeholder="Hlavní obsah článku"
+                  value={draft.fullDescription || ''}
+                  onChange={(e) => setDraft((prev) => prev ? { ...prev, fullDescription: e.target.value } : prev)}
+                  rows={8}
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all bg-white resize-none text-[var(--farm-primary-text)]"
+                />
+              </div>
+
+              <ImageUpload
+                label="Obrázek článku"
+                value={draft.image || ''}
+                onChange={(url) => setDraft((prev) => prev ? { ...prev, image: url } : prev)}
+              />
             </div>
-          ))}
-        </div>
+          )}
+        />
       </FloatingCard>
     </>
   );
 }
 
 // Horses Page Editor
-export function HorsesPageEditor({ data, updateField, updateArrayItem, addArrayItem, removeArrayItem }: any) {
-  // Helper function to add image to horse gallery
-  const addImageToHorse = (horseIndex: number) => {
-    const currentImages = data?.horses?.[horseIndex]?.images || [];
-    const updatedImages = [...currentImages, ''];
-    updateArrayItem(['horses'], horseIndex, 'images', updatedImages);
-  };
+export function HorsesPageEditor({ data, updateField, addArrayItem, setArrayItem, removeArrayItem }: any) {
+  const horses = data?.horses || [];
 
-  // Helper function to update specific image in horse gallery
-  const updateHorseImage = (horseIndex: number, imageIndex: number, url: string) => {
-    const currentImages = data?.horses?.[horseIndex]?.images || [];
-    const updatedImages = [...currentImages];
-    updatedImages[imageIndex] = url;
-    updateArrayItem(['horses'], horseIndex, 'images', updatedImages);
-  };
+  const createHorse = () => ({
+    name: 'Nový kůň',
+    breed: '',
+    age: '',
+    color: '',
+    temperament: '',
+    description: '',
+    specialSkills: [],
+    images: [],
+  });
 
-  // Helper function to remove image from horse gallery
-  const removeHorseImage = (horseIndex: number, imageIndex: number) => {
-    const currentImages = data?.horses?.[horseIndex]?.images || [];
-    const updatedImages = currentImages.filter((_: any, idx: number) => idx !== imageIndex);
-    updateArrayItem(['horses'], horseIndex, 'images', updatedImages);
+  const saveHorse = (draft: any, editingIndex: number | null) => {
+    if (editingIndex === null) {
+      addArrayItem(['horses'], draft);
+      return;
+    }
+
+    setArrayItem(['horses'], editingIndex, draft);
   };
 
   return (
@@ -114,210 +156,202 @@ export function HorsesPageEditor({ data, updateField, updateArrayItem, addArrayI
       </FloatingCard>
 
       <FloatingCard hover={false}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-[var(--farm-primary-text)]">Naši koně</h3>
-          <Button 
-            variant="primary" 
-            size="sm" 
-            onClick={() => addArrayItem(['horses'], { 
-              name: 'Nový kůň', 
-              breed: '', 
-              age: '', 
-              color: '', 
-              temperament: '', 
-              description: '', 
-              specialSkills: [], 
-              images: [] 
-            })} 
-            className="gap-2"
-          >
-            <Plus className="w-4 h-4" />Přidat koně
-          </Button>
-        </div>
-        <div className="space-y-6">
-          {data?.horses?.map((horse: any, index: number) => (
-            <div key={horse.id || index} className="p-6 border-2 border-[var(--farm-border)] rounded-2xl bg-[var(--farm-section-alt-bg)]">
-              <div className="flex items-center justify-between mb-5">
-                <h4 className="font-semibold text-lg text-[var(--farm-primary-text)]">{horse.name || `Kůň #${index + 1}`}</h4>
-                <button 
-                  onClick={() => removeArrayItem(['horses'], index)} 
-                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+        <CmsCollectionEditor
+          title="Naši koně"
+          addLabel="Přidat koně"
+          items={horses}
+          createItem={createHorse}
+          getItemTitle={(horse: any, index) => horse.name || `Kůň #${index + 1}`}
+          getItemSubtitle={(horse: any) => horse.breed ? `${horse.breed}${horse.age ? `, ${horse.age}` : ''}` : 'Bez plemene'}
+          emptyStateText="Zatím jste nepřidali žádné koně."
+          dialogTitle={{ create: 'Přidat koně', edit: 'Upravit koně' }}
+          dialogDescription="Vyplňte data koně v modalu. Do seznamu se propíšou až po uložení."
+          onSaveItem={saveHorse}
+          onDeleteItem={(index) => removeArrayItem(['horses'], index)}
+          renderForm={({ draft, setDraft }) => (
+            <div className="space-y-5">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Jméno</label>
+                  <input
+                    type="text"
+                    placeholder="Běluška"
+                    value={draft.name || ''}
+                    onChange={(e) => setDraft((prev) => prev ? { ...prev, name: e.target.value } : prev)}
+                    className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Plemeno</label>
+                  <input
+                    type="text"
+                    placeholder="Welsh Pony"
+                    value={draft.breed || ''}
+                    onChange={(e) => setDraft((prev) => prev ? { ...prev, breed: e.target.value } : prev)}
+                    className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                  />
+                </div>
               </div>
 
-              <div className="space-y-4">
-                {/* Basic Info */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Jméno</label>
-                    <input 
-                      type="text" 
-                      placeholder="Běluška" 
-                      value={horse.name || ''} 
-                      onChange={(e) => updateArrayItem(['horses'], index, 'name', e.target.value)} 
-                      className="w-full px-3 py-2.5 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]" 
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Plemeno</label>
-                    <input 
-                      type="text" 
-                      placeholder="Welsh Pony" 
-                      value={horse.breed || ''} 
-                      onChange={(e) => updateArrayItem(['horses'], index, 'breed', e.target.value)} 
-                      className="w-full px-3 py-2.5 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]" 
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Věk</label>
-                    <input 
-                      type="text" 
-                      placeholder="8 let" 
-                      value={horse.age || ''} 
-                      onChange={(e) => updateArrayItem(['horses'], index, 'age', e.target.value)} 
-                      className="w-full px-3 py-2.5 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]" 
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Barva</label>
-                    <input 
-                      type="text" 
-                      placeholder="Bílá" 
-                      value={horse.color || ''} 
-                      onChange={(e) => updateArrayItem(['horses'], index, 'color', e.target.value)} 
-                      className="w-full px-3 py-2.5 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]" 
-                    />
-                  </div>
-                </div>
-
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Povaha</label>
-                  <input 
-                    type="text" 
-                    placeholder="Klidná, trpělivá, laskavá" 
-                    value={horse.temperament || ''} 
-                    onChange={(e) => updateArrayItem(['horses'], index, 'temperament', e.target.value)} 
-                    className="w-full px-3 py-2.5 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]" 
+                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Věk</label>
+                  <input
+                    type="text"
+                    placeholder="8 let"
+                    value={draft.age || ''}
+                    onChange={(e) => setDraft((prev) => prev ? { ...prev, age: e.target.value } : prev)}
+                    className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
                   />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Popis</label>
-                  <textarea 
-                    placeholder="Podrobný popis koně..." 
-                    value={horse.description || ''} 
-                    onChange={(e) => updateArrayItem(['horses'], index, 'description', e.target.value)} 
-                    rows={3} 
-                    className="w-full px-3 py-2.5 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white resize-none text-[var(--farm-primary-text)]" 
+                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Barva</label>
+                  <input
+                    type="text"
+                    placeholder="Bílá"
+                    value={draft.color || ''}
+                    onChange={(e) => setDraft((prev) => prev ? { ...prev, color: e.target.value } : prev)}
+                    className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
                   />
                 </div>
+              </div>
 
-                {/* Gallery Section */}
-                <div className="pt-4 border-t-2 border-[var(--farm-border)]">
-                  <div className="flex items-center justify-between mb-3">
-                    <label className="block text-sm font-medium text-[var(--farm-primary-text)]">
-                      Galerie obrázků ({horse.images?.length || 0})
-                    </label>
+              <div>
+                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Povaha</label>
+                <input
+                  type="text"
+                  placeholder="Klidná, trpělivá, laskavá"
+                  value={draft.temperament || ''}
+                  onChange={(e) => setDraft((prev) => prev ? { ...prev, temperament: e.target.value } : prev)}
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Popis</label>
+                <textarea
+                  placeholder="Podrobný popis koně..."
+                  value={draft.description || ''}
+                  onChange={(e) => setDraft((prev) => prev ? { ...prev, description: e.target.value } : prev)}
+                  rows={4}
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white resize-none text-[var(--farm-primary-text)]"
+                />
+              </div>
+
+              <div className="rounded-2xl border border-[var(--farm-border)] bg-white p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <label className="block text-sm font-medium text-[var(--farm-primary-text)]">
+                    Galerie obrázků ({draft.images?.length || 0})
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setDraft((prev) => prev ? {
+                      ...prev,
+                      images: [...(prev.images || []), ''],
+                    } : prev)}
+                    className="flex items-center gap-2 rounded-lg bg-[var(--farm-accent-green)] px-3 py-1.5 text-sm text-white transition-colors hover:bg-[var(--farm-primary)]"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Přidat obrázek
+                  </button>
+                </div>
+
+                {draft.images && draft.images.length > 0 ? (
+                  <div className="space-y-3">
+                    {draft.images.map((imageUrl: string, imgIndex: number) => (
+                      <div key={imgIndex} className="flex items-start gap-3 rounded-xl border border-[var(--farm-border)] bg-[var(--farm-section-alt-bg)] p-3">
+                        <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                          {imageUrl ? (
+                            <img
+                              src={imageUrl}
+                              alt={`${draft.name || 'Kůň'} - obrázek ${imgIndex + 1}`}
+                              className="h-full w-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=100&q=80';
+                              }}
+                            />
+                          ) : null}
+                        </div>
+                        <div className="flex-1">
+                          <label className="mb-1 block text-xs text-[var(--farm-secondary-text)]">Obrázek #{imgIndex + 1}</label>
+                          <ImageUpload
+                            value={imageUrl}
+                            onChange={(url) => setDraft((prev) => {
+                              if (!prev) return prev;
+                              const images = [...(prev.images || [])];
+                              images[imgIndex] = url;
+                              return { ...prev, images };
+                            })}
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setDraft((prev) => prev ? {
+                            ...prev,
+                            images: (prev.images || []).filter((_: string, idx: number) => idx !== imgIndex),
+                          } : prev)}
+                          className="flex-shrink-0 p-2 text-red-600 transition-colors hover:bg-red-50 rounded-lg"
+                          title="Odebrat obrázek"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-xl border-2 border-dashed border-[var(--farm-border)] py-6 text-center">
+                    <p className="mb-2 text-sm text-[var(--farm-secondary-text)]">Zatím žádné obrázky</p>
                     <button
-                      onClick={() => addImageToHorse(index)}
-                      className="flex items-center gap-2 px-3 py-1.5 text-sm bg-[var(--farm-accent-green)] text-white rounded-lg hover:bg-[var(--farm-primary)] transition-colors"
+                      type="button"
+                      onClick={() => setDraft((prev) => prev ? { ...prev, images: [''] } : prev)}
+                      className="text-sm font-medium text-[var(--farm-accent-green)] hover:text-[var(--farm-primary)]"
                     >
-                      <Plus className="w-4 h-4" />
-                      Přidat obrázek
+                      + Přidat první obrázek
                     </button>
                   </div>
-
-                  {horse.images && horse.images.length > 0 ? (
-                    <div className="space-y-3">
-                      {horse.images.map((imageUrl: string, imgIndex: number) => (
-                        <div key={imgIndex} className="flex items-start gap-3 p-3 bg-white rounded-lg border border-[var(--farm-border)]">
-                          <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
-                            {imageUrl && (
-                              <img 
-                                src={imageUrl} 
-                                alt={`${horse.name} - obrázek ${imgIndex + 1}`}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=100&q=80';
-                                }}
-                              />
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <label className="block text-xs text-[var(--farm-secondary-text)] mb-1">
-                              Obrázek #{imgIndex + 1}
-                            </label>
-                            <ImageUpload
-                              value={imageUrl}
-                              onChange={(url) => updateHorseImage(index, imgIndex, url)}
-                            />
-                          </div>
-                          <button
-                            onClick={() => removeHorseImage(index, imgIndex)}
-                            className="flex-shrink-0 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Odebrat obrázek"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-6 bg-white rounded-lg border-2 border-dashed border-[var(--farm-border)]">
-                      <p className="text-sm text-[var(--farm-secondary-text)] mb-2">
-                        Zatím žádné obrázky
-                      </p>
-                      <button
-                        onClick={() => addImageToHorse(index)}
-                        className="text-sm text-[var(--farm-accent-green)] hover:text-[var(--farm-primary)] font-medium"
-                      >
-                        + Přidat první obrázek
-                      </button>
-                    </div>
-                  )}
-                </div>
+                )}
               </div>
             </div>
-          ))}
-
-          {(!data?.horses || data.horses.length === 0) && (
-            <div className="text-center py-12 bg-white rounded-2xl border-2 border-dashed border-[var(--farm-border)]">
-              <p className="text-[var(--farm-secondary-text)] mb-4">
-                Zatím jste nepřidali žádné koně
-              </p>
-              <Button 
-                variant="primary" 
-                size="sm" 
-                onClick={() => addArrayItem(['horses'], { 
-                  name: 'Nový kůň', 
-                  breed: '', 
-                  age: '', 
-                  color: '', 
-                  temperament: '', 
-                  description: '', 
-                  specialSkills: [], 
-                  images: [] 
-                })}
-                className="gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Přidat prvního koně
-              </Button>
-            </div>
           )}
-        </div>
+        />
       </FloatingCard>
     </>
   );
 }
 
 // About Page Editor
-export function AboutPageEditor({ data, updateField, updateArrayItem, addArrayItem, removeArrayItem }: any) {
+export function AboutPageEditor({ data, updateField, addArrayItem, setArrayItem, removeArrayItem }: any) {
+  const values = data?.values || [];
+  const team = data?.team || [];
+  const directions = data?.location?.directions || [];
+
+  const saveValue = (draft: any, editingIndex: number | null) => {
+    if (editingIndex === null) {
+      addArrayItem(['values'], draft);
+      return;
+    }
+
+    setArrayItem(['values'], editingIndex, draft);
+  };
+
+  const saveTeamMember = (draft: any, editingIndex: number | null) => {
+    if (editingIndex === null) {
+      addArrayItem(['team'], draft);
+      return;
+    }
+
+    setArrayItem(['team'], editingIndex, draft);
+  };
+
+  const saveDirection = (draft: any, editingIndex: number | null) => {
+    if (editingIndex === null) {
+      addArrayItem(['location', 'directions'], draft);
+      return;
+    }
+
+    setArrayItem(['location', 'directions'], editingIndex, draft);
+  };
+
   return (
     <>
       <FloatingCard hover={false}>
@@ -415,74 +449,57 @@ export function AboutPageEditor({ data, updateField, updateArrayItem, addArrayIt
       </FloatingCard>
 
       <FloatingCard hover={false}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-[var(--farm-primary-text)]">Hodnoty (jednotlivé karty)</h3>
-          <Button 
-            variant="primary" 
-            size="sm" 
-            onClick={() => addArrayItem(['values'], { icon: 'Heart', title: '', description: '' })} 
-            className="gap-2"
-          >
-            <Plus className="w-4 h-4" />Přidat hodnotu
-          </Button>
-        </div>
-        <div className="space-y-4">
-          {data?.values?.map((value: any, index: number) => (
-            <div key={index} className="p-5 border-2 border-[var(--farm-border)] rounded-xl bg-[var(--farm-section-alt-bg)]">
-              <div className="flex justify-between mb-4">
-                <h4 className="font-semibold text-[var(--farm-primary-text)]">Hodnota #{index + 1}</h4>
-                <button 
-                  onClick={() => removeArrayItem(['values'], index)} 
-                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+        <CmsCollectionEditor
+          title="Hodnoty (jednotlivé karty)"
+          addLabel="Přidat hodnotu"
+          items={values}
+          createItem={() => ({ icon: 'Heart', title: '', description: '' })}
+          getItemTitle={(value: any, index) => value.title || `Hodnota #${index + 1}`}
+          getItemSubtitle={(value: any) => value.description || 'Bez popisu'}
+          emptyStateText="Zatím žádné hodnoty."
+          dialogTitle={{ create: 'Přidat hodnotu', edit: 'Upravit hodnotu' }}
+          onSaveItem={saveValue}
+          onDeleteItem={(index) => removeArrayItem(['values'], index)}
+          renderForm={({ draft, setDraft }) => (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
+                  Ikona (Heart, Users, Leaf, Award)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Heart"
+                  value={draft.icon || ''}
+                  onChange={(e) => setDraft((prev) => prev ? { ...prev, icon: e.target.value } : prev)}
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                />
+                <p className="mt-1 text-xs text-[var(--farm-secondary-text)]">
+                  Dostupné: Heart, Users, Leaf, Award, Star, Shield, Zap
+                </p>
               </div>
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
-                    Ikona (Heart, Users, Leaf, Award)
-                  </label>
-                  <input 
-                    type="text" 
-                    placeholder="Heart" 
-                    value={value.icon || ''} 
-                    onChange={(e) => updateArrayItem(['values'], index, 'icon', e.target.value)} 
-                    className="w-full px-3 py-2.5 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]" 
-                  />
-                  <p className="text-xs text-[var(--farm-secondary-text)] mt-1">
-                    Dostupné: Heart, Users, Leaf, Award, Star, Shield, Zap
-                  </p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Nadpis</label>
-                  <input 
-                    type="text" 
-                    placeholder="Láska ke koním" 
-                    value={value.title || ''} 
-                    onChange={(e) => updateArrayItem(['values'], index, 'title', e.target.value)} 
-                    className="w-full px-3 py-2.5 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]" 
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Popis</label>
-                  <textarea 
-                    placeholder="Popis hodnoty..." 
-                    value={value.description || ''} 
-                    onChange={(e) => updateArrayItem(['values'], index, 'description', e.target.value)} 
-                    rows={2} 
-                    className="w-full px-3 py-2.5 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white resize-none text-[var(--farm-primary-text)]" 
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Nadpis</label>
+                <input
+                  type="text"
+                  placeholder="Láska ke koním"
+                  value={draft.title || ''}
+                  onChange={(e) => setDraft((prev) => prev ? { ...prev, title: e.target.value } : prev)}
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                />
               </div>
-            </div>
-          ))}
-          {(!data?.values || data.values.length === 0) && (
-            <div className="text-center py-8 bg-white rounded-xl border-2 border-dashed border-[var(--farm-border)]">
-              <p className="text-sm text-[var(--farm-secondary-text)]">Zatím žádné hodnoty</p>
+              <div>
+                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Popis</label>
+                <textarea
+                  placeholder="Popis hodnoty..."
+                  value={draft.description || ''}
+                  onChange={(e) => setDraft((prev) => prev ? { ...prev, description: e.target.value } : prev)}
+                  rows={3}
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white resize-none text-[var(--farm-primary-text)]"
+                />
+              </div>
             </div>
           )}
-        </div>
+        />
       </FloatingCard>
 
       <FloatingCard hover={false}>
@@ -515,76 +532,59 @@ export function AboutPageEditor({ data, updateField, updateArrayItem, addArrayIt
       </FloatingCard>
 
       <FloatingCard hover={false}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-[var(--farm-primary-text)]">Členové týmu</h3>
-          <Button 
-            variant="primary" 
-            size="sm" 
-            onClick={() => addArrayItem(['team'], { name: '', role: '', description: '', photo: '' })} 
-            className="gap-2"
-          >
-            <Plus className="w-4 h-4" />Přidat člena týmu
-          </Button>
-        </div>
-        <div className="space-y-4">
-          {data?.team?.map((member: any, index: number) => (
-            <div key={index} className="p-5 border-2 border-[var(--farm-border)] rounded-xl bg-[var(--farm-section-alt-bg)]">
-              <div className="flex justify-between mb-4">
-                <h4 className="font-semibold text-[var(--farm-primary-text)]">{member.name || `Člen týmu #${index + 1}`}</h4>
-                <button 
-                  onClick={() => removeArrayItem(['team'], index)} 
-                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+        <CmsCollectionEditor
+          title="Členové týmu"
+          addLabel="Přidat člena týmu"
+          items={team}
+          createItem={() => ({ name: '', role: '', description: '', photo: '' })}
+          getItemTitle={(member: any, index) => member.name || `Člen týmu #${index + 1}`}
+          getItemSubtitle={(member: any) => member.role || 'Bez pozice'}
+          emptyStateText="Zatím žádní členové týmu."
+          dialogTitle={{ create: 'Přidat člena týmu', edit: 'Upravit člena týmu' }}
+          onSaveItem={saveTeamMember}
+          onDeleteItem={(index) => removeArrayItem(['team'], index)}
+          renderForm={({ draft, setDraft }) => (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Jméno</label>
+                <input
+                  type="text"
+                  placeholder="Jana a Petr Nováčkovi"
+                  value={draft.name || ''}
+                  onChange={(e) => setDraft((prev) => prev ? { ...prev, name: e.target.value } : prev)}
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                />
               </div>
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Jméno</label>
-                  <input 
-                    type="text" 
-                    placeholder="Jana a Petr Nováčkovi" 
-                    value={member.name || ''} 
-                    onChange={(e) => updateArrayItem(['team'], index, 'name', e.target.value)} 
-                    className="w-full px-3 py-2.5 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]" 
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Pozice</label>
-                  <input 
-                    type="text" 
-                    placeholder="Majitelé a zakladatelé" 
-                    value={member.role || ''} 
-                    onChange={(e) => updateArrayItem(['team'], index, 'role', e.target.value)} 
-                    className="w-full px-3 py-2.5 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]" 
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Popis</label>
-                  <textarea 
-                    placeholder="Vedou farmu s láskou a zkušenostmi..." 
-                    value={member.description || ''} 
-                    onChange={(e) => updateArrayItem(['team'], index, 'description', e.target.value)} 
-                    rows={2} 
-                    className="w-full px-3 py-2.5 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white resize-none text-[var(--farm-primary-text)]" 
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">URL fotky (volitelné)</label>
-                  <ImageUpload
-                    value={member.photo || ''}
-                    onChange={(value) => updateArrayItem(['team'], index, 'photo', value)}
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Pozice</label>
+                <input
+                  type="text"
+                  placeholder="Majitelé a zakladatelé"
+                  value={draft.role || ''}
+                  onChange={(e) => setDraft((prev) => prev ? { ...prev, role: e.target.value } : prev)}
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                />
               </div>
-            </div>
-          ))}
-          {(!data?.team || data.team.length === 0) && (
-            <div className="text-center py-8 bg-white rounded-xl border-2 border-dashed border-[var(--farm-border)]">
-              <p className="text-sm text-[var(--farm-secondary-text)]">Zatím žádní členové týmu</p>
+              <div>
+                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Popis</label>
+                <textarea
+                  placeholder="Vedou farmu s láskou a zkušenostmi..."
+                  value={draft.description || ''}
+                  onChange={(e) => setDraft((prev) => prev ? { ...prev, description: e.target.value } : prev)}
+                  rows={3}
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white resize-none text-[var(--farm-primary-text)]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">URL fotky (volitelné)</label>
+                <ImageUpload
+                  value={draft.photo || ''}
+                  onChange={(value) => setDraft((prev) => prev ? { ...prev, photo: value } : prev)}
+                />
+              </div>
             </div>
           )}
-        </div>
+        />
       </FloatingCard>
 
       <FloatingCard hover={false}>
@@ -634,41 +634,30 @@ export function AboutPageEditor({ data, updateField, updateArrayItem, addArrayIt
       </FloatingCard>
 
       <FloatingCard hover={false}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-[var(--farm-primary-text)]">Dopravní instrukce</h3>
-          <Button 
-            variant="primary" 
-            size="sm" 
-            onClick={() => addArrayItem(['location', 'directions'], { text: '' })} 
-            className="gap-2"
-          >
-            <Plus className="w-4 h-4" />Přidat instrukci
-          </Button>
-        </div>
-        <div className="space-y-3">
-          {data?.location?.directions?.map((direction: any, index: number) => (
-            <div key={index} className="flex items-start gap-3">
-              <input 
-                type="text" 
-                placeholder="Z Liberce po silnici směr Bedřichov" 
-                value={direction.text || ''} 
-                onChange={(e) => updateArrayItem(['location', 'directions'], index, 'text', e.target.value)} 
-                className="flex-1 px-3 py-2.5 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]" 
+        <CmsCollectionEditor
+          title="Dopravní instrukce"
+          addLabel="Přidat instrukci"
+          items={directions}
+          createItem={() => ({ text: '' })}
+          getItemTitle={(direction: any, index) => direction.text || `Instrukce #${index + 1}`}
+          emptyStateText="Zatím žádné instrukce."
+          dialogTitle={{ create: 'Přidat instrukci', edit: 'Upravit instrukci' }}
+          dialogClassName="sm:max-w-2xl"
+          onSaveItem={saveDirection}
+          onDeleteItem={(index) => removeArrayItem(['location', 'directions'], index)}
+          renderForm={({ draft, setDraft }) => (
+            <div>
+              <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Instrukce</label>
+              <textarea
+                placeholder="Z Liberce po silnici směr Bedřichov"
+                value={draft.text || ''}
+                onChange={(e) => setDraft((prev) => prev ? { ...prev, text: e.target.value } : prev)}
+                rows={4}
+                className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white resize-none text-[var(--farm-primary-text)]"
               />
-              <button 
-                onClick={() => removeArrayItem(['location', 'directions'], index)} 
-                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          ))}
-          {(!data?.location?.directions || data.location.directions.length === 0) && (
-            <div className="text-center py-6 bg-white rounded-lg border-2 border-dashed border-[var(--farm-border)]">
-              <p className="text-sm text-[var(--farm-secondary-text)]">Zatím žádné instrukce</p>
             </div>
           )}
-        </div>
+        />
       </FloatingCard>
     </>
   );
@@ -676,83 +665,334 @@ export function AboutPageEditor({ data, updateField, updateArrayItem, addArrayIt
 
 // Contact Page Editor
 export function ContactPageEditor({ data, updateField }: any) {
+  const reservationTabs = Array.isArray(data?.reservationTabs)
+    ? data.reservationTabs
+    : defaultContactReservationTabs;
+  const contactSection = {
+    ...defaultContactSection,
+    ...(data?.contactSection ?? {}),
+  };
+  const contactForm = {
+    ...defaultContactFormContent,
+    ...(data?.contactForm ?? {}),
+  };
+  const location = {
+    ...defaultContactLocation,
+    ...(data?.location ?? {}),
+    directions: Array.isArray(data?.location?.directions)
+      ? data.location.directions
+      : defaultContactLocation.directions,
+  };
+
+  const createReservationTab = () => ({
+    id: String(Date.now()),
+    slug: '',
+    label: 'Nová karta',
+    title: 'Nová karta',
+    icon: 'MessageCircle',
+    type: 'embed',
+    description: '',
+    helperText: '',
+    reenioUrl: '',
+    embedHeight: 1100,
+    buttonText: '',
+    buttonLink: '',
+    openInNewTab: false,
+  });
+
+  const saveReservationTab = (draft: any, editingIndex: number | null) => {
+    const nextTabs = editingIndex === null
+      ? [...reservationTabs, draft]
+      : reservationTabs.map((tab: any, index: number) => (index === editingIndex ? draft : tab));
+
+    updateField(['reservationTabs'], nextTabs);
+  };
+
+  const deleteReservationTab = (indexToRemove: number) => {
+    updateField(
+      ['reservationTabs'],
+      reservationTabs.filter((_: any, index: number) => index !== indexToRemove),
+    );
+  };
+
+  const saveDirection = (draft: any, editingIndex: number | null) => {
+    const nextDirections = editingIndex === null
+      ? [...location.directions, draft]
+      : location.directions.map((direction: any, index: number) => (index === editingIndex ? draft : direction));
+
+    updateField(['location', 'directions'], nextDirections);
+  };
+
+  const deleteDirection = (indexToRemove: number) => {
+    updateField(
+      ['location', 'directions'],
+      location.directions.filter((_: any, index: number) => index !== indexToRemove),
+    );
+  };
+
   return (
     <>
       <FloatingCard hover={false}>
-        <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-4">Hero sekce</h3>
+        <h3 className="mb-4 text-lg font-semibold text-[var(--farm-primary-text)]">Hero sekce</h3>
         <div className="space-y-4">
-          <input 
-            type="text" 
-            placeholder="Nadpis" 
-            value={data?.hero?.title || 'Kontakt'} 
-            onChange={(e) => updateField(['hero', 'title'], e.target.value)} 
-            className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]" 
+          <input
+            type="text"
+            placeholder="Nadpis"
+            value={data?.hero?.title || 'Kontakt a rezervace'}
+            onChange={(e) => updateField(['hero', 'title'], e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
           />
-          <textarea 
-            placeholder="Podnadpis" 
-            value={data?.hero?.subtitle || 'Máte dotazy? Rádi vám zodpovíme. Ozvěte se nám a domluvíme se!'} 
-            onChange={(e) => updateField(['hero', 'subtitle'], e.target.value)} 
-            rows={2} 
-            className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none resize-none text-[var(--farm-primary-text)]" 
+          <textarea
+            placeholder="Podnadpis"
+            value={data?.hero?.subtitle || 'Napište nám nebo se rovnou přihlaste na naše aktivity'}
+            onChange={(e) => updateField(['hero', 'subtitle'], e.target.value)}
+            rows={2}
+            className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none resize-none text-[var(--farm-primary-text)]"
           />
         </div>
       </FloatingCard>
 
       <FloatingCard hover={false}>
-        <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-4">Kontaktní údaje</h3>
+        <CmsCollectionEditor
+          title="Karty a rezervační záložky"
+          addLabel="Přidat kartu"
+          items={reservationTabs}
+          createItem={createReservationTab}
+          getItemTitle={(tab: any, index) => tab.label || tab.title || `Karta #${index + 1}`}
+          getItemSubtitle={(tab: any) => {
+            if (tab.type === 'contact') return 'Typ: Kontakt';
+            if (tab.type === 'embed') return `Typ: Vložený formulář${tab.reenioUrl ? ' (URL vyplněna)' : ''}`;
+            return 'Typ: Informační karta';
+          }}
+          emptyStateText="Zatím nejsou přidané žádné karty."
+          dialogTitle={{ create: 'Přidat kartu', edit: 'Upravit kartu' }}
+          onSaveItem={saveReservationTab}
+          onDeleteItem={deleteReservationTab}
+          renderForm={({ draft, setDraft }) => (
+            <div className="space-y-5">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Text na kartě</label>
+                  <input
+                    type="text"
+                    placeholder="Např. Rezervace tábora"
+                    value={draft.label || ''}
+                    onChange={(e) => setDraft((prev) => (prev ? { ...prev, label: e.target.value } : prev))}
+                    className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Slug do URL</label>
+                  <input
+                    type="text"
+                    placeholder="Např. tabor"
+                    value={draft.slug || ''}
+                    onChange={(e) => setDraft((prev) => (prev ? { ...prev, slug: e.target.value } : prev))}
+                    className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Nadpis po rozkliknutí</label>
+                  <input
+                    type="text"
+                    placeholder="Nadpis obsahu"
+                    value={draft.title || ''}
+                    onChange={(e) => setDraft((prev) => (prev ? { ...prev, title: e.target.value } : prev))}
+                    className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Ikona</label>
+                  <select
+                    value={draft.icon || 'MessageCircle'}
+                    onChange={(e) => setDraft((prev) => (prev ? { ...prev, icon: e.target.value } : prev))}
+                    className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                  >
+                    {CONTACT_TAB_ICON_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Typ karty</label>
+                <select
+                  value={draft.type || 'embed'}
+                  onChange={(e) =>
+                    setDraft((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            type: e.target.value,
+                          }
+                        : prev,
+                    )
+                  }
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                >
+                  <option value="embed">Vložený formulář</option>
+                  <option value="content">Informační karta</option>
+                  <option value="contact">Kontaktní sekce</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Popis / úvodní text</label>
+                <textarea
+                  placeholder="Krátký text pod nadpisem"
+                  value={draft.description || ''}
+                  onChange={(e) => setDraft((prev) => (prev ? { ...prev, description: e.target.value } : prev))}
+                  rows={3}
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white resize-none text-[var(--farm-primary-text)]"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Pomocný text</label>
+                <textarea
+                  placeholder="Např. Zatím nás prosím kontaktujte na e-mailu nebo telefonu."
+                  value={draft.helperText || ''}
+                  onChange={(e) => setDraft((prev) => (prev ? { ...prev, helperText: e.target.value } : prev))}
+                  rows={2}
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white resize-none text-[var(--farm-primary-text)]"
+                />
+              </div>
+
+              {draft.type === 'embed' ? (
+                <>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Reenio URL nebo iframe embed kód</label>
+                    <textarea
+                      placeholder="Vložte odkaz na formulář nebo celý iframe kód z Reenia"
+                      value={draft.reenioUrl || ''}
+                      onChange={(e) => setDraft((prev) => (prev ? { ...prev, reenioUrl: e.target.value } : prev))}
+                      rows={4}
+                      className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white resize-none text-[var(--farm-primary-text)]"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Výška vloženého formuláře (px)</label>
+                    <input
+                      type="number"
+                      min="500"
+                      step="10"
+                      value={draft.embedHeight || 1100}
+                      onChange={(e) =>
+                        setDraft((prev) => (prev ? { ...prev, embedHeight: Number(e.target.value) || 1100 } : prev))
+                      }
+                      className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                    />
+                  </div>
+                </>
+              ) : null}
+
+              {draft.type === 'content' ? (
+                <div className="rounded-2xl border border-[var(--farm-border)] bg-white p-4 space-y-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div>
+                      <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Text tlačítka</label>
+                      <input
+                        type="text"
+                        placeholder="Např. Objednat poukaz"
+                        value={draft.buttonText || ''}
+                        onChange={(e) => setDraft((prev) => (prev ? { ...prev, buttonText: e.target.value } : prev))}
+                        className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Odkaz tlačítka</label>
+                      <input
+                        type="text"
+                        placeholder="Interní nebo externí URL"
+                        value={draft.buttonLink || ''}
+                        onChange={(e) => setDraft((prev) => (prev ? { ...prev, buttonLink: e.target.value } : prev))}
+                        className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                      />
+                    </div>
+                  </div>
+                  <label className="flex items-center gap-3 text-sm text-[var(--farm-primary-text)]">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(draft.openInNewTab)}
+                      onChange={(e) => setDraft((prev) => (prev ? { ...prev, openInNewTab: e.target.checked } : prev))}
+                      className="h-4 w-4 rounded border-[var(--farm-border)] text-[var(--farm-accent-green)] focus:ring-[var(--farm-accent-green)]"
+                    />
+                    Otevírat odkaz v novém okně
+                  </label>
+                </div>
+              ) : null}
+
+              {draft.type === 'contact' ? (
+                <div className="rounded-2xl border border-[var(--farm-border)] bg-white p-4 text-sm text-[var(--farm-secondary-text)]">
+                  Tato karta zobrazí hlavní kontaktní informace a formulář „Napište nám“.
+                </div>
+              ) : null}
+            </div>
+          )}
+        />
+      </FloatingCard>
+
+      <FloatingCard hover={false}>
+        <h3 className="mb-4 text-lg font-semibold text-[var(--farm-primary-text)]">Kontaktní údaje</h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Telefon</label>
-            <input 
-              type="tel" 
-              placeholder="+420 777 666 555" 
-              value={data?.contactData?.phone || ''} 
-              onChange={(e) => updateField(['contactData', 'phone'], e.target.value)} 
-              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]" 
+            <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Telefon</label>
+            <input
+              type="tel"
+              placeholder="+420 777 666 555"
+              value={data?.contactData?.phone || ''}
+              onChange={(e) => updateField(['contactData', 'phone'], e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">E-mail</label>
-            <input 
-              type="email" 
-              placeholder="info@farma.cz" 
-              value={data?.contactData?.email || ''} 
-              onChange={(e) => updateField(['contactData', 'email'], e.target.value)} 
-              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]" 
+            <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">E-mail</label>
+            <input
+              type="email"
+              placeholder="info@farma.cz"
+              value={data?.contactData?.email || ''}
+              onChange={(e) => updateField(['contactData', 'email'], e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Ulice a číslo popisné</label>
-            <input 
-              type="text" 
-              placeholder="Janův důl 123" 
-              value={data?.contactData?.address || ''} 
-              onChange={(e) => updateField(['contactData', 'address'], e.target.value)} 
-              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]" 
+            <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Ulice a číslo popisné</label>
+            <input
+              type="text"
+              placeholder="Janova Hora 466"
+              value={data?.contactData?.address || ''}
+              onChange={(e) => updateField(['contactData', 'address'], e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">PSČ</label>
-              <input 
-                type="text" 
-                placeholder="468 11" 
-                value={data?.contactData?.postalCode || ''} 
-                onChange={(e) => updateField(['contactData', 'postalCode'], e.target.value)} 
-                className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]" 
+              <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">PSČ</label>
+              <input
+                type="text"
+                placeholder="763 12"
+                value={data?.contactData?.postalCode || ''}
+                onChange={(e) => updateField(['contactData', 'postalCode'], e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Město</label>
-              <input 
-                type="text" 
-                placeholder="Janov nad Nisou" 
-                value={data?.contactData?.city || ''} 
-                onChange={(e) => updateField(['contactData', 'city'], e.target.value)} 
-                className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]" 
+              <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Město</label>
+              <input
+                type="text"
+                placeholder="Vizovice"
+                value={data?.contactData?.city || ''}
+                onChange={(e) => updateField(['contactData', 'city'], e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
               />
             </div>
           </div>
@@ -760,138 +1000,353 @@ export function ContactPageEditor({ data, updateField }: any) {
       </FloatingCard>
 
       <FloatingCard hover={false}>
-        <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-4">Otevírací doba</h3>
-        <div className="space-y-4">
+        <h3 className="mb-4 text-lg font-semibold text-[var(--farm-primary-text)]">Levá karta kontaktu</h3>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Pracovní dny (Po - Pá)</label>
-            <input 
-              type="text" 
-              placeholder="Po - Pá: 14:00 - 18:00" 
-              value={data?.contactData?.openingHours?.weekdays || ''} 
-              onChange={(e) => updateField(['contactData', 'openingHours', 'weekdays'], e.target.value)} 
-              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]" 
+            <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Nadpis sekce</label>
+            <input
+              type="text"
+              value={contactSection.title}
+              onChange={(e) => updateField(['contactSection', 'title'], e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Víkend (So - Ne)</label>
-            <input 
-              type="text" 
-              placeholder="So - Ne: 9:00 - 17:00" 
-              value={data?.contactData?.openingHours?.weekend || ''} 
-              onChange={(e) => updateField(['contactData', 'openingHours', 'weekend'], e.target.value)} 
-              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]" 
+            <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Titulek sociálních sítí</label>
+            <input
+              type="text"
+              value={contactSection.socialTitle}
+              onChange={(e) => updateField(['contactSection', 'socialTitle'], e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Popisek telefonu</label>
+            <input
+              type="text"
+              value={contactSection.phoneLabel}
+              onChange={(e) => updateField(['contactSection', 'phoneLabel'], e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Popisek e-mailu</label>
+            <input
+              type="text"
+              value={contactSection.emailLabel}
+              onChange={(e) => updateField(['contactSection', 'emailLabel'], e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Popisek adresy</label>
+            <input
+              type="text"
+              value={contactSection.addressLabel}
+              onChange={(e) => updateField(['contactSection', 'addressLabel'], e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Popisek otevírací doby</label>
+            <input
+              type="text"
+              value={contactSection.openingHoursLabel}
+              onChange={(e) => updateField(['contactSection', 'openingHoursLabel'], e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
             />
           </div>
         </div>
       </FloatingCard>
 
       <FloatingCard hover={false}>
-        <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-4">Sociální sítě</h3>
+        <h3 className="mb-4 text-lg font-semibold text-[var(--farm-primary-text)]">Otevírací doba a sociální sítě</h3>
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Facebook URL</label>
-            <input 
-              type="url" 
-              placeholder="https://facebook.com/vase-stranka" 
-              value={data?.contactData?.socialMedia?.facebook || ''} 
-              onChange={(e) => updateField(['contactData', 'socialMedia', 'facebook'], e.target.value)} 
-              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]" 
-            />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Pracovní dny (Po - Pá)</label>
+              <input
+                type="text"
+                placeholder="Po - Pá: 14:00 - 18:00"
+                value={data?.contactData?.openingHours?.weekdays || ''}
+                onChange={(e) => updateField(['contactData', 'openingHours', 'weekdays'], e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Víkend (So - Ne)</label>
+              <input
+                type="text"
+                placeholder="So - Ne: 9:00 - 17:00"
+                value={data?.contactData?.openingHours?.weekend || ''}
+                onChange={(e) => updateField(['contactData', 'openingHours', 'weekend'], e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+              />
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Instagram URL</label>
-            <input 
-              type="url" 
-              placeholder="https://instagram.com/vase-stranka" 
-              value={data?.contactData?.socialMedia?.instagram || ''} 
-              onChange={(e) => updateField(['contactData', 'socialMedia', 'instagram'], e.target.value)} 
-              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]" 
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Facebook URL</label>
+              <input
+                type="url"
+                placeholder="https://facebook.com/vase-stranka"
+                value={data?.contactData?.socialMedia?.facebook || ''}
+                onChange={(e) => updateField(['contactData', 'socialMedia', 'facebook'], e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Instagram URL</label>
+              <input
+                type="url"
+                placeholder="https://instagram.com/vase-stranka"
+                value={data?.contactData?.socialMedia?.instagram || ''}
+                onChange={(e) => updateField(['contactData', 'socialMedia', 'instagram'], e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+              />
+            </div>
+          </div>
+        </div>
+      </FloatingCard>
+
+      <FloatingCard hover={false}>
+        <h3 className="mb-4 text-lg font-semibold text-[var(--farm-primary-text)]">Nezisková sekce a formulář</h3>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Nadpis neziskové sekce</label>
+              <input
+                type="text"
+                value={contactSection.nonprofitTitle}
+                onChange={(e) => updateField(['contactSection', 'nonprofitTitle'], e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Popisek čísla účtu</label>
+              <input
+                type="text"
+                value={contactSection.nonprofitAccountLabel}
+                onChange={(e) => updateField(['contactSection', 'nonprofitAccountLabel'], e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+              />
+            </div>
+          </div>
+          <textarea
+            value={contactSection.nonprofitDescription}
+            onChange={(e) => updateField(['contactSection', 'nonprofitDescription'], e.target.value)}
+            rows={3}
+            className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none resize-none text-[var(--farm-primary-text)]"
+          />
+          <input
+            type="text"
+            value={contactSection.nonprofitAccountNumber}
+            onChange={(e) => updateField(['contactSection', 'nonprofitAccountNumber'], e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+          />
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Nadpis formuláře</label>
+              <input
+                type="text"
+                value={contactForm.title}
+                onChange={(e) => updateField(['contactForm', 'title'], e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Text tlačítka</label>
+              <input
+                type="text"
+                value={contactForm.submitLabel}
+                onChange={(e) => updateField(['contactForm', 'submitLabel'], e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+              />
+            </div>
+          </div>
+
+          <textarea
+            value={contactForm.successMessage}
+            onChange={(e) => updateField(['contactForm', 'successMessage'], e.target.value)}
+            rows={2}
+            className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none resize-none text-[var(--farm-primary-text)]"
+          />
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <input
+              type="text"
+              value={contactForm.nameLabel}
+              onChange={(e) => updateField(['contactForm', 'nameLabel'], e.target.value)}
+              placeholder="Popisek pole jméno"
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+            />
+            <input
+              type="text"
+              value={contactForm.namePlaceholder}
+              onChange={(e) => updateField(['contactForm', 'namePlaceholder'], e.target.value)}
+              placeholder="Placeholder jméno"
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+            />
+            <input
+              type="text"
+              value={contactForm.emailLabel}
+              onChange={(e) => updateField(['contactForm', 'emailLabel'], e.target.value)}
+              placeholder="Popisek pole e-mail"
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+            />
+            <input
+              type="text"
+              value={contactForm.emailPlaceholder}
+              onChange={(e) => updateField(['contactForm', 'emailPlaceholder'], e.target.value)}
+              placeholder="Placeholder e-mail"
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+            />
+            <input
+              type="text"
+              value={contactForm.phoneLabel}
+              onChange={(e) => updateField(['contactForm', 'phoneLabel'], e.target.value)}
+              placeholder="Popisek pole telefon"
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+            />
+            <input
+              type="text"
+              value={contactForm.phonePlaceholder}
+              onChange={(e) => updateField(['contactForm', 'phonePlaceholder'], e.target.value)}
+              placeholder="Placeholder telefon"
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+            />
+            <input
+              type="text"
+              value={contactForm.messageLabel}
+              onChange={(e) => updateField(['contactForm', 'messageLabel'], e.target.value)}
+              placeholder="Popisek pole zpráva"
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+            />
+            <input
+              type="text"
+              value={contactForm.messagePlaceholder}
+              onChange={(e) => updateField(['contactForm', 'messagePlaceholder'], e.target.value)}
+              placeholder="Placeholder zpráva"
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
             />
           </div>
         </div>
+      </FloatingCard>
+
+      <FloatingCard hover={false}>
+        <h3 className="mb-4 text-lg font-semibold text-[var(--farm-primary-text)]">Mapa a navigace</h3>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Nadpis mapové sekce</label>
+              <input
+                type="text"
+                value={location.title}
+                onChange={(e) => updateField(['location', 'title'], e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Nadpis instrukcí</label>
+              <input
+                type="text"
+                value={location.directionsTitle}
+                onChange={(e) => updateField(['location', 'directionsTitle'], e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+              />
+            </div>
+          </div>
+
+          <textarea
+            value={location.description}
+            onChange={(e) => updateField(['location', 'description'], e.target.value)}
+            rows={4}
+            className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none resize-none text-[var(--farm-primary-text)]"
+          />
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <input
+              type="text"
+              value={location.mapCardTitle}
+              onChange={(e) => updateField(['location', 'mapCardTitle'], e.target.value)}
+              placeholder="Titulek na mapě"
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+            />
+            <input
+              type="text"
+              value={location.mapCardAddress}
+              onChange={(e) => updateField(['location', 'mapCardAddress'], e.target.value)}
+              placeholder="Adresa na mapě"
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+            />
+            <input
+              type="url"
+              value={location.mapEmbedUrl}
+              onChange={(e) => updateField(['location', 'mapEmbedUrl'], e.target.value)}
+              placeholder="Embed URL mapy"
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+            />
+            <input
+              type="url"
+              value={location.mapLink}
+              onChange={(e) => updateField(['location', 'mapLink'], e.target.value)}
+              placeholder="Odkaz na mapu"
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
+            />
+          </div>
+        </div>
+      </FloatingCard>
+
+      <FloatingCard hover={false}>
+        <CmsCollectionEditor
+          title="Instrukce k dopravě"
+          addLabel="Přidat instrukci"
+          items={location.directions}
+          createItem={() => ({ id: String(Date.now()), text: '' })}
+          getItemTitle={(direction: any, index) => direction.text || `Instrukce #${index + 1}`}
+          emptyStateText="Zatím nejsou přidané žádné instrukce."
+          dialogTitle={{ create: 'Přidat instrukci', edit: 'Upravit instrukci' }}
+          dialogClassName="sm:max-w-2xl"
+          onSaveItem={saveDirection}
+          onDeleteItem={deleteDirection}
+          renderForm={({ draft, setDraft }) => (
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Instrukce</label>
+              <textarea
+                value={draft.text || ''}
+                onChange={(e) => setDraft((prev) => (prev ? { ...prev, text: e.target.value } : prev))}
+                rows={4}
+                className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white resize-none text-[var(--farm-primary-text)]"
+              />
+            </div>
+          )}
+        />
       </FloatingCard>
     </>
   );
 }
 
 // Legal Page Editor
-export function LegalPageEditor({ data, updateField, updateArrayItem, addArrayItem, removeArrayItem }: any) {
-  // Helper to add list item to a section
-  const addListItem = (sectionIndex: number) => {
-    const currentList = data?.sections?.[sectionIndex]?.list || [];
-    const updatedList = [...currentList, ''];
-    updateArrayItem(['sections'], sectionIndex, 'list', updatedList);
-  };
+export function LegalPageEditor({ data, updateField, addArrayItem, setArrayItem, removeArrayItem }: any) {
+  const sections = data?.sections || [];
 
-  // Helper to update specific list item in a section
-  const updateListItem = (sectionIndex: number, listIndex: number, value: string) => {
-    const currentList = [...(data?.sections?.[sectionIndex]?.list || [])];
-    currentList[listIndex] = value;
-    updateArrayItem(['sections'], sectionIndex, 'list', currentList);
-  };
+  const createSection = () => ({
+    id: String(Date.now()),
+    title: '',
+    content: '',
+    list: [],
+    subsections: [],
+  });
 
-  // Helper to remove list item from a section
-  const removeListItem = (sectionIndex: number, listIndex: number) => {
-    const currentList = [...(data?.sections?.[sectionIndex]?.list || [])];
-    currentList.splice(listIndex, 1);
-    updateArrayItem(['sections'], sectionIndex, 'list', currentList);
-  };
+  const saveSection = (draft: any, editingIndex: number | null) => {
+    if (editingIndex === null) {
+      addArrayItem(['sections'], draft);
+      return;
+    }
 
-  // Helper to add subsection
-  const addSubsection = (sectionIndex: number) => {
-    const currentSubsections = data?.sections?.[sectionIndex]?.subsections || [];
-    const updatedSubsections = [...currentSubsections, { title: '', content: '' }];
-    updateArrayItem(['sections'], sectionIndex, 'subsections', updatedSubsections);
-  };
-
-  // Helper to update subsection
-  const updateSubsection = (sectionIndex: number, subsectionIndex: number, field: string, value: any) => {
-    const currentSubsections = [...(data?.sections?.[sectionIndex]?.subsections || [])];
-    currentSubsections[subsectionIndex] = {
-      ...currentSubsections[subsectionIndex],
-      [field]: value
-    };
-    updateArrayItem(['sections'], sectionIndex, 'subsections', currentSubsections);
-  };
-
-  // Helper to remove subsection
-  const removeSubsection = (sectionIndex: number, subsectionIndex: number) => {
-    const currentSubsections = [...(data?.sections?.[sectionIndex]?.subsections || [])];
-    currentSubsections.splice(subsectionIndex, 1);
-    updateArrayItem(['sections'], sectionIndex, 'subsections', currentSubsections);
-  };
-
-  // Helper for subsection list items
-  const addSubsectionListItem = (sectionIndex: number, subsectionIndex: number) => {
-    const currentSubsections = [...(data?.sections?.[sectionIndex]?.subsections || [])];
-    const currentList = currentSubsections[subsectionIndex]?.list || [];
-    currentSubsections[subsectionIndex] = {
-      ...currentSubsections[subsectionIndex],
-      list: [...currentList, '']
-    };
-    updateArrayItem(['sections'], sectionIndex, 'subsections', currentSubsections);
-  };
-
-  const updateSubsectionListItem = (sectionIndex: number, subsectionIndex: number, listIndex: number, value: string) => {
-    const currentSubsections = [...(data?.sections?.[sectionIndex]?.subsections || [])];
-    const currentList = [...(currentSubsections[subsectionIndex]?.list || [])];
-    currentList[listIndex] = value;
-    currentSubsections[subsectionIndex] = {
-      ...currentSubsections[subsectionIndex],
-      list: currentList
-    };
-    updateArrayItem(['sections'], sectionIndex, 'subsections', currentSubsections);
-  };
-
-  const removeSubsectionListItem = (sectionIndex: number, subsectionIndex: number, listIndex: number) => {
-    const currentSubsections = [...(data?.sections?.[sectionIndex]?.subsections || [])];
-    const currentList = [...(currentSubsections[subsectionIndex]?.list || [])];
-    currentList.splice(listIndex, 1);
-    currentSubsections[subsectionIndex] = {
-      ...currentSubsections[subsectionIndex],
-      list: currentList
-    };
-    updateArrayItem(['sections'], sectionIndex, 'subsections', currentSubsections);
+    setArrayItem(['sections'], editingIndex, draft);
   };
 
   return (
@@ -913,80 +1368,77 @@ export function LegalPageEditor({ data, updateField, updateArrayItem, addArrayIt
       </FloatingCard>
 
       <FloatingCard hover={false}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-[var(--farm-primary-text)]">Sekce obsahu</h3>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => addArrayItem(['sections'], { id: String(Date.now()), title: '', content: '' })}
-            className="gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Přidat sekci
-          </Button>
-        </div>
-        
-        <div className="space-y-6">
-          {data?.sections?.map((section: any, sectionIndex: number) => (
-            <div key={section.id || sectionIndex} className="p-6 border-2 border-[var(--farm-border)] rounded-2xl bg-[var(--farm-section-alt-bg)]">
-              <div className="flex items-center justify-between mb-5">
-                <h4 className="font-semibold text-[var(--farm-primary-text)]">Sekce #{sectionIndex + 1}</h4>
-                <button
-                  onClick={() => removeArrayItem(['sections'], sectionIndex)}
-                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+        <CmsCollectionEditor
+          title="Sekce obsahu"
+          addLabel="Přidat sekci"
+          items={sections}
+          createItem={createSection}
+          getItemTitle={(section: any, index) => section.title || `Sekce #${index + 1}`}
+          getItemSubtitle={(section: any) => section.content || 'Bez textu sekce'}
+          emptyStateText="Zatím nejsou přidané žádné sekce."
+          dialogTitle={{ create: 'Přidat sekci', edit: 'Upravit sekci' }}
+          dialogDescription="V modalu můžete upravit obsah sekce, odrážky i podsekce."
+          onSaveItem={saveSection}
+          onDeleteItem={(index) => removeArrayItem(['sections'], index)}
+          renderForm={({ draft, setDraft }) => (
+            <div className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Nadpis sekce</label>
+                <input
+                  type="text"
+                  placeholder="např. Správce osobních údajů"
+                  value={draft.title || ''}
+                  onChange={(e) => setDraft((prev) => prev ? { ...prev, title: e.target.value } : prev)}
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all bg-white text-[var(--farm-primary-text)]"
+                />
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Nadpis sekce</label>
-                  <input
-                    type="text"
-                    placeholder="např. Správce osobních údajů"
-                    value={section.title || ''}
-                    onChange={(e) => updateArrayItem(['sections'], sectionIndex, 'title', e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all text-sm bg-white text-[var(--farm-primary-text)]"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Text sekce</label>
+                <textarea
+                  placeholder="Hlavní text sekce. Nové řádky oddělte prázdným řádkem pro odstavce. Použijte **text** pro tučné písmo."
+                  value={draft.content || ''}
+                  onChange={(e) => setDraft((prev) => prev ? { ...prev, content: e.target.value } : prev)}
+                  rows={5}
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all bg-white resize-none text-[var(--farm-primary-text)]"
+                />
+                <p className="mt-1 text-xs text-[var(--farm-secondary-text)]">
+                  Používejte `\n\n` pro nový odstavec a `**text**` pro tučné písmo.
+                </p>
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Text sekce</label>
-                  <textarea
-                    placeholder="Hlavní text sekce. Nové řádky oddělte prázdným řádkem pro odstavce. Použijte **text** pro tučné písmo."
-                    value={section.content || ''}
-                    onChange={(e) => updateArrayItem(['sections'], sectionIndex, 'content', e.target.value)}
-                    rows={4}
-                    className="w-full px-3 py-2.5 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all text-sm bg-white resize-none text-[var(--farm-primary-text)]"
-                  />
-                  <p className="mt-1 text-xs text-[var(--farm-secondary-text)]">
-                    💡 Tip: Používejte \n\n pro nový odstavec, ** ** pro tučné písmo
-                  </p>
+              <div className="rounded-2xl border border-[var(--farm-border)] bg-white p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)]">Seznam (odrážky)</label>
+                  <button
+                    type="button"
+                    onClick={() => setDraft((prev) => prev ? { ...prev, list: [...(prev.list || []), ''] } : prev)}
+                    className="text-sm text-[var(--farm-accent-green)] hover:underline"
+                  >
+                    + Přidat položku
+                  </button>
                 </div>
-
-                {/* List items */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="block text-sm font-medium text-[var(--farm-secondary-text)]">Seznam (odrážky)</label>
-                    <button
-                      onClick={() => addListItem(sectionIndex)}
-                      className="text-xs text-[var(--farm-accent-green)] hover:underline"
-                    >
-                      + Přidat položku
-                    </button>
-                  </div>
-                  {section.list?.map((item: string, listIndex: number) => (
-                    <div key={listIndex} className="flex gap-2 mb-2">
+                <div className="space-y-2">
+                  {(draft.list || []).map((item: string, listIndex: number) => (
+                    <div key={listIndex} className="flex gap-2">
                       <input
                         type="text"
                         placeholder="Položka seznamu"
                         value={item}
-                        onChange={(e) => updateListItem(sectionIndex, listIndex, e.target.value)}
-                        className="flex-1 px-3 py-2 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-sm bg-white text-[var(--farm-primary-text)]"
+                        onChange={(e) => setDraft((prev) => {
+                          if (!prev) return prev;
+                          const list = [...(prev.list || [])];
+                          list[listIndex] = e.target.value;
+                          return { ...prev, list };
+                        })}
+                        className="flex-1 px-3 py-2.5 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none text-sm bg-white text-[var(--farm-primary-text)]"
                       />
                       <button
-                        onClick={() => removeListItem(sectionIndex, listIndex)}
+                        type="button"
+                        onClick={() => setDraft((prev) => prev ? {
+                          ...prev,
+                          list: (prev.list || []).filter((_: string, idx: number) => idx !== listIndex),
+                        } : prev)}
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -994,73 +1446,128 @@ export function LegalPageEditor({ data, updateField, updateArrayItem, addArrayIt
                     </div>
                   ))}
                 </div>
+              </div>
 
-                {/* Subsections */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="block text-sm font-medium text-[var(--farm-secondary-text)]">Podsekce</label>
-                    <button
-                      onClick={() => addSubsection(sectionIndex)}
-                      className="text-xs text-[var(--farm-accent-green)] hover:underline"
-                    >
-                      + Přidat podsekci
-                    </button>
-                  </div>
-                  {section.subsections?.map((subsection: any, subsectionIndex: number) => (
-                    <div key={subsectionIndex} className="p-4 mb-3 border border-[var(--farm-border)] rounded-lg bg-white">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-xs font-medium text-[var(--farm-secondary-text)]">Podsekce #{subsectionIndex + 1}</span>
+              <div className="rounded-2xl border border-[var(--farm-border)] bg-white p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)]">Podsekce</label>
+                  <button
+                    type="button"
+                    onClick={() => setDraft((prev) => prev ? {
+                      ...prev,
+                      subsections: [...(prev.subsections || []), { title: '', content: '', list: [] }],
+                    } : prev)}
+                    className="text-sm text-[var(--farm-accent-green)] hover:underline"
+                  >
+                    + Přidat podsekci
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {(draft.subsections || []).map((subsection: any, subsectionIndex: number) => (
+                    <div key={subsectionIndex} className="rounded-xl border border-[var(--farm-border)] bg-[var(--farm-section-alt-bg)] p-4">
+                      <div className="mb-3 flex items-center justify-between">
+                        <span className="text-sm font-medium text-[var(--farm-primary-text)]">Podsekce #{subsectionIndex + 1}</span>
                         <button
-                          onClick={() => removeSubsection(sectionIndex, subsectionIndex)}
-                          className="p-1 text-red-600 hover:bg-red-50 rounded"
+                          type="button"
+                          onClick={() => setDraft((prev) => prev ? {
+                            ...prev,
+                            subsections: (prev.subsections || []).filter((_: any, idx: number) => idx !== subsectionIndex),
+                          } : prev)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
                         >
-                          <Trash2 className="w-3 h-3" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
+
                       <div className="space-y-3">
                         <input
                           type="text"
                           placeholder="Nadpis podsekce"
                           value={subsection.title || ''}
-                          onChange={(e) => updateSubsection(sectionIndex, subsectionIndex, 'title', e.target.value)}
-                          className="w-full px-3 py-2 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-sm bg-white text-[var(--farm-primary-text)]"
+                          onChange={(e) => setDraft((prev) => {
+                            if (!prev) return prev;
+                            const subsections = [...(prev.subsections || [])];
+                            subsections[subsectionIndex] = {
+                              ...subsections[subsectionIndex],
+                              title: e.target.value,
+                            };
+                            return { ...prev, subsections };
+                          })}
+                          className="w-full px-3 py-2.5 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none text-sm bg-white text-[var(--farm-primary-text)]"
                         />
                         <textarea
                           placeholder="Text podsekce"
                           value={subsection.content || ''}
-                          onChange={(e) => updateSubsection(sectionIndex, subsectionIndex, 'content', e.target.value)}
+                          onChange={(e) => setDraft((prev) => {
+                            if (!prev) return prev;
+                            const subsections = [...(prev.subsections || [])];
+                            subsections[subsectionIndex] = {
+                              ...subsections[subsectionIndex],
+                              content: e.target.value,
+                            };
+                            return { ...prev, subsections };
+                          })}
                           rows={3}
-                          className="w-full px-3 py-2 rounded-lg border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-sm bg-white resize-none text-[var(--farm-primary-text)]"
+                          className="w-full px-3 py-2.5 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none text-sm bg-white resize-none text-[var(--farm-primary-text)]"
                         />
-                        
-                        {/* Subsection list */}
+
                         <div>
-                          <div className="flex items-center justify-between mb-2">
+                          <div className="mb-2 flex items-center justify-between">
                             <span className="text-xs text-[var(--farm-secondary-text)]">Seznam v podsekci</span>
                             <button
-                              onClick={() => addSubsectionListItem(sectionIndex, subsectionIndex)}
+                              type="button"
+                              onClick={() => setDraft((prev) => {
+                                if (!prev) return prev;
+                                const subsections = [...(prev.subsections || [])];
+                                const subsectionDraft = subsections[subsectionIndex] || {};
+                                subsections[subsectionIndex] = {
+                                  ...subsectionDraft,
+                                  list: [...(subsectionDraft.list || []), ''],
+                                };
+                                return { ...prev, subsections };
+                              })}
                               className="text-xs text-[var(--farm-accent-green)] hover:underline"
                             >
                               + Položka
                             </button>
                           </div>
-                          {subsection.list?.map((item: string, listIndex: number) => (
-                            <div key={listIndex} className="flex gap-2 mb-2">
-                              <input
-                                type="text"
-                                placeholder="Položka"
-                                value={item}
-                                onChange={(e) => updateSubsectionListItem(sectionIndex, subsectionIndex, listIndex, e.target.value)}
-                                className="flex-1 px-2 py-1.5 rounded border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-xs bg-white text-[var(--farm-primary-text)]"
-                              />
-                              <button
-                                onClick={() => removeSubsectionListItem(sectionIndex, subsectionIndex, listIndex)}
-                                className="p-1 text-red-600 hover:bg-red-50 rounded"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </button>
-                            </div>
-                          ))}
+
+                          <div className="space-y-2">
+                            {(subsection.list || []).map((item: string, listIndex: number) => (
+                              <div key={listIndex} className="flex gap-2">
+                                <input
+                                  type="text"
+                                  placeholder="Položka"
+                                  value={item}
+                                  onChange={(e) => setDraft((prev) => {
+                                    if (!prev) return prev;
+                                    const subsections = [...(prev.subsections || [])];
+                                    const subsectionDraft = { ...(subsections[subsectionIndex] || {}) };
+                                    const list = [...(subsectionDraft.list || [])];
+                                    list[listIndex] = e.target.value;
+                                    subsections[subsectionIndex] = { ...subsectionDraft, list };
+                                    return { ...prev, subsections };
+                                  })}
+                                  className="flex-1 px-3 py-2 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none text-sm bg-white text-[var(--farm-primary-text)]"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => setDraft((prev) => {
+                                    if (!prev) return prev;
+                                    const subsections = [...(prev.subsections || [])];
+                                    const subsectionDraft = { ...(subsections[subsectionIndex] || {}) };
+                                    subsectionDraft.list = (subsectionDraft.list || []).filter((_: string, idx: number) => idx !== listIndex);
+                                    subsections[subsectionIndex] = subsectionDraft;
+                                    return { ...prev, subsections };
+                                  })}
+                                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1068,8 +1575,8 @@ export function LegalPageEditor({ data, updateField, updateArrayItem, addArrayIt
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+          )}
+        />
       </FloatingCard>
     </>
   );

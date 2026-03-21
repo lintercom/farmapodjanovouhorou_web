@@ -12,7 +12,7 @@ export function Button({
   className = '',
   ...props 
 }: ButtonProps) {
-  const baseStyles = 'px-6 py-3 rounded-full font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center';
+  const baseStyles = 'px-6 py-3 rounded-full font-medium transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center';
   
   const variants = {
     primary: 'bg-[var(--farm-primary)] text-white hover:bg-[var(--farm-primary-hover)] hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0',

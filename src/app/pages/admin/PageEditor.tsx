@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router';
 import { 
   Home, BookOpen, Calendar, Carrot, Users, Mail,
   AlertCircle, Shield, Cookie, FileText, AlertTriangle,
-  Save, Loader2, CheckCircle, XCircle, Database, Upload
+  Save, Loader2, CheckCircle, XCircle
 } from 'lucide-react';
 import { FloatingCard } from '../../components/FloatingCard';
 import { Button } from '../../components/Button';
@@ -19,7 +19,6 @@ import {
   ContactPageEditor, 
   LegalPageEditor 
 } from './editors/OtherPageEditors';
-import { projectId, publicAnonKey } from '/utils/supabase/info';
 
 interface Page {
   id: string;
@@ -52,9 +51,6 @@ export function PageEditor() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
-  const [isSeeding, setIsSeeding] = useState(false);
-  const [seedStatus, setSeedStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [seedMessage, setSeedMessage] = useState('');
 
   // Load page content when page selection changes
   useEffect(() => {
@@ -164,6 +160,24 @@ export function PageEditor() {
     });
   };
 
+  const setArrayItem = (arrayPath: string[], index: number, newItem: any) => {
+    setPageData((prev: any) => {
+      const newData = { ...prev };
+      let current = newData;
+
+      for (const key of arrayPath) {
+        if (!current[key]) current[key] = [];
+        current = current[key];
+      }
+
+      if (Array.isArray(current)) {
+        current[index] = newItem;
+      }
+
+      return newData;
+    });
+  };
+
   const removeArrayItem = (arrayPath: string[], index: number) => {
     setPageData((prev: any) => {
       const newData = { ...prev };
@@ -179,47 +193,6 @@ export function PageEditor() {
       
       return newData;
     });
-  };
-
-  const handleSeedData = async () => {
-    setIsSeeding(true);
-    setSeedStatus('idle');
-    setSeedMessage('');
-
-    try {
-      const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-399cd496/seed`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${publicAnonKey}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Chyba při nahrávání dat');
-      }
-
-      const data = await response.json();
-      setSeedStatus('success');
-      setSeedMessage(`Úspěšně nahráno ${data.results.length} stránek`);
-      
-      // Reload current page data
-      await loadPageContent(selectedPageId);
-      
-      setTimeout(() => {
-        setSeedStatus('idle');
-        setSeedMessage('');
-      }, 5000);
-    } catch (error: any) {
-      console.error('Seed error:', error);
-      setSeedStatus('error');
-      setSeedMessage(error.message || 'Chyba při nahrávání dat');
-    } finally {
-      setIsSeeding(false);
-    }
   };
 
   const selectedPage = pages.find(p => p.id === selectedPageId);
@@ -269,48 +242,6 @@ export function PageEditor() {
                 <span className="text-sm">{page.label}</span>
               </button>
             ))}
-          </div>
-
-          {/* Seed Data Button */}
-          <div className="mt-8 p-2">
-            <button
-              onClick={handleSeedData}
-              disabled={isSeeding}
-              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-colors bg-[var(--farm-accent-green)] text-white hover:bg-[var(--farm-accent-green)]/90 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSeeding ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span className="text-sm font-medium">Nahrávání...</span>
-                </>
-              ) : seedStatus === 'success' ? (
-                <>
-                  <CheckCircle className="w-4 h-4" />
-                  <span className="text-sm font-medium">Nahráno</span>
-                </>
-              ) : seedStatus === 'error' ? (
-                <>
-                  <XCircle className="w-4 h-4" />
-                  <span className="text-sm font-medium">Chyba</span>
-                </>
-              ) : (
-                <>
-                  <Database className="w-4 h-4" />
-                  <span className="text-sm font-medium">Inicializovat data</span>
-                </>
-              )}
-            </button>
-            
-            {/* Seed Status Message */}
-            {seedMessage && (
-              <div className={`mt-2 p-2 rounded-lg text-xs ${
-                seedStatus === 'success' 
-                  ? 'bg-green-50 text-green-800 border border-green-200' 
-                  : 'bg-red-50 text-red-800 border border-red-200'
-              }`}>
-                {seedMessage}
-              </div>
-            )}
           </div>
         </nav>
       </aside>
@@ -398,10 +329,10 @@ export function PageEditor() {
             <div className="space-y-6">
               {/* Render different editors based on page type */}
               {selectedPageId === 'domu' && <HomePageEditor data={pageData} updateField={updateField} updateArrayItem={updateArrayItem} addArrayItem={addArrayItem} removeArrayItem={removeArrayItem} />}
-              {selectedPageId === 'sluzby' && <ServicesPageEditor data={pageData} updateField={updateField} updateArrayItem={updateArrayItem} addArrayItem={addArrayItem} removeArrayItem={removeArrayItem} />}
-              {selectedPageId === 'blog' && <EventsPageEditor data={pageData} updateField={updateField} updateArrayItem={updateArrayItem} addArrayItem={addArrayItem} removeArrayItem={removeArrayItem} />}
-              {selectedPageId === 'nasi-kone' && <HorsesPageEditor data={pageData} updateField={updateField} updateArrayItem={updateArrayItem} addArrayItem={addArrayItem} removeArrayItem={removeArrayItem} />}
-              {selectedPageId === 'o-nas' && <AboutPageEditor data={pageData} updateField={updateField} updateArrayItem={updateArrayItem} addArrayItem={addArrayItem} removeArrayItem={removeArrayItem} />}
+              {selectedPageId === 'sluzby' && <ServicesPageEditor data={pageData} updateField={updateField} updateArrayItem={updateArrayItem} addArrayItem={addArrayItem} setArrayItem={setArrayItem} removeArrayItem={removeArrayItem} />}
+              {selectedPageId === 'blog' && <EventsPageEditor data={pageData} updateField={updateField} updateArrayItem={updateArrayItem} addArrayItem={addArrayItem} setArrayItem={setArrayItem} removeArrayItem={removeArrayItem} />}
+              {selectedPageId === 'nasi-kone' && <HorsesPageEditor data={pageData} updateField={updateField} updateArrayItem={updateArrayItem} addArrayItem={addArrayItem} setArrayItem={setArrayItem} removeArrayItem={removeArrayItem} />}
+              {selectedPageId === 'o-nas' && <AboutPageEditor data={pageData} updateField={updateField} updateArrayItem={updateArrayItem} addArrayItem={addArrayItem} setArrayItem={setArrayItem} removeArrayItem={removeArrayItem} />}
               {selectedPageId === 'kontakt' && <ContactPageEditor data={pageData} updateField={updateField} />}
               
               {/* Legal pages - structured editor */}
@@ -411,6 +342,7 @@ export function PageEditor() {
                   updateField={updateField}
                   updateArrayItem={updateArrayItem}
                   addArrayItem={addArrayItem}
+                  setArrayItem={setArrayItem}
                   removeArrayItem={removeArrayItem}
                 />
               )}
