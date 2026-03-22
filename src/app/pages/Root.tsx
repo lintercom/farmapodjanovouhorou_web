@@ -5,6 +5,7 @@ import { CookieConsent } from '../components/CookieConsent';
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { SiteLoadingScreen } from '../components/SiteLoadingScreen';
 import { preloadRouteData } from '../utils/preloadRouteData';
+import { RouteSeo } from '../components/RouteSeo';
 
 export function Root() {
   const location = useLocation();
@@ -32,17 +33,25 @@ export function Root() {
   }, [location.pathname]);
 
   if (!isRouteReady) {
-    return <SiteLoadingScreen />;
+    return (
+      <>
+        <RouteSeo />
+        <SiteLoadingScreen />
+      </>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-[var(--farm-page-bg)]">
-      <Navigation />
-      <main>
-        <Outlet />
-      </main>
-      <Footer />
-      <CookieConsent />
-    </div>
+    <>
+      <RouteSeo />
+      <div className="min-h-screen bg-[var(--farm-page-bg)]">
+        <Navigation />
+        <main>
+          <Outlet />
+        </main>
+        <Footer />
+        <CookieConsent />
+      </div>
+    </>
   );
 }

@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /cms-prihlaseni
+
+Sitemap: https://lintercom.github.io/farmapodjanovouhorou_web/sitemap.xml

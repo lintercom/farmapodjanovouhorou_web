@@ -4,6 +4,7 @@ import { useAdmin } from '../../contexts/AdminContext';
 import { LogOut, Settings } from 'lucide-react';
 import logoImg from '/logo-placeholder.svg';
 import { useGlobalSettings } from '../../hooks/useGlobalSettings';
+import { applySeoMetadata } from '../../utils/seo';
 
 export function AdminLayout() {
   const { isAuthenticated, logout } = useAdmin();
@@ -25,6 +26,19 @@ export function AdminLayout() {
       }
     }
   }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    const siteName = settings?.siteName?.trim() || 'Farma pod Janovou horou';
+
+    applySeoMetadata({
+      title: `Administrace | ${siteName}`,
+      description: 'Administrace webu Farmy pod Janovou horou.',
+      canonicalUrl: `${window.location.origin}${window.location.pathname}`,
+      siteName,
+      robots: 'noindex, nofollow',
+      faviconUrl: settings?.favicon?.trim() || undefined,
+    });
+  }, [settings?.favicon, settings?.siteName]);
 
   const handleLogout = () => {
     logout();
