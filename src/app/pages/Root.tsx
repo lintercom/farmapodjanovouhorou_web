@@ -32,6 +32,14 @@ export function Root() {
     };
   }, [location.pathname]);
 
+  useEffect(() => {
+    document.body.dataset.routeReady = isRouteReady ? 'true' : 'false';
+
+    return () => {
+      delete document.body.dataset.routeReady;
+    };
+  }, [isRouteReady]);
+
   if (!isRouteReady) {
     return (
       <>

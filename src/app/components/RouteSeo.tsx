@@ -15,6 +15,7 @@ interface RouteSeoConfig {
 
 const DEFAULT_SITE_NAME = 'Farma pod Janovou horou';
 const DEFAULT_DESCRIPTION = 'Rodinná farma zaměřená na práci s dětmi a koňmi. Nabízíme jezdecké kroužky, tábory a vyjížďky v krásné přírodě.';
+const DEFAULT_SITE_URL = 'https://lintercom.github.io/farmapodjanovouhorou_web';
 
 const PUBLIC_ROUTE_SEO: Record<string, RouteSeoConfig> = {
   '/': {
@@ -94,6 +95,25 @@ function toAbsoluteUrl(value?: string) {
   }
 }
 
+function getSiteBaseUrl() {
+  const configuredSiteUrl = import.meta.env.VITE_SITE_URL?.trim();
+  if (configuredSiteUrl) {
+    return configuredSiteUrl.replace(/\/+$/, '');
+  }
+
+  if (typeof window === 'undefined') {
+    return DEFAULT_SITE_URL;
+  }
+
+  const isLocalPreview = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  if (isLocalPreview) {
+    return DEFAULT_SITE_URL;
+  }
+
+  const basePath = import.meta.env.BASE_URL.replace(/\/+$/, '');
+  return `${window.location.origin}${basePath}`;
+}
+
 export function RouteSeo() {
   const location = useLocation();
   const { settings } = useGlobalSettings();
@@ -158,9 +178,10 @@ export function RouteSeo() {
     return {
       title: pageTitle,
       description: contentDescription,
-      canonicalUrl: typeof window !== 'undefined'
-        ? `${window.location.origin}${window.location.pathname}`
-        : pathname,
+      canonicalUrl: new URL(
+        pathname === '/' ? '' : pathname.replace(/^\/+/, ''),
+        `${getSiteBaseUrl()}/`
+      ).toString(),
       imageUrl,
       siteName,
       robots: routeConfig?.noindex || !routeConfig
