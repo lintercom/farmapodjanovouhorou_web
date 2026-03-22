@@ -12,6 +12,7 @@ import {
   defaultContactLocation,
   defaultContactReservationTabs,
   defaultContactSection,
+  extractEmbedSrc,
   getContactTabIcon,
   parseReenioEmbedConfig,
 } from '../utils/contactPageConfig';
@@ -98,6 +99,8 @@ export function Contact() {
     .split(/\n{2,}/)
     .map((paragraph: string) => paragraph.trim())
     .filter(Boolean);
+  const mapEmbedSrc = extractEmbedSrc(locationContent.mapEmbedUrl);
+  const mapExternalLink = locationContent.mapLink?.trim() || mapEmbedSrc;
   const resolveAppHref = (href?: string) => {
     const trimmed = href?.trim() ?? '';
     if (!trimmed) {
@@ -580,15 +583,21 @@ export function Contact() {
             <div>
               <FloatingCard hover={false} className="p-0 overflow-hidden">
                 <div className="relative w-full h-[400px] lg:h-[500px]">
-                  <iframe
-                    src={locationContent.mapEmbedUrl}
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    allowFullScreen
-                    loading="lazy"
-                    title={`Mapa - ${locationContent.mapCardTitle}`}
-                  />
+                  {mapEmbedSrc ? (
+                    <iframe
+                      src={mapEmbedSrc}
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      allowFullScreen
+                      loading="lazy"
+                      title={`Mapa - ${locationContent.mapCardTitle}`}
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center bg-[var(--farm-secondary-light)] px-6 text-center text-[var(--farm-secondary-text)]">
+                      Embed mapy zatím není vyplněný.
+                    </div>
+                  )}
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6 pointer-events-none">
                     <p className="text-white font-semibold mb-1">
                       {locationContent.mapCardTitle}
@@ -596,14 +605,16 @@ export function Contact() {
                     <p className="text-white/90 text-sm mb-3">
                       {locationContent.mapCardAddress}
                     </p>
-                    <a
-                      href={locationContent.mapLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block text-white hover:text-[var(--farm-accent-green)] font-medium transition-colors pointer-events-auto"
-                    >
-                      {locationContent.mapLinkLabel} →
-                    </a>
+                    {mapExternalLink ? (
+                      <a
+                        href={mapExternalLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block text-white hover:text-[var(--farm-accent-green)] font-medium transition-colors pointer-events-auto"
+                      >
+                        {locationContent.mapLinkLabel} →
+                      </a>
+                    ) : null}
                   </div>
                 </div>
               </FloatingCard>

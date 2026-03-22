@@ -163,10 +163,10 @@ export function Home() {
 
           {/* Services Carousel */}
           <div className="relative px-8 pt-8 pb-16 mb-8 overflow-visible">
-            <Slider {...sliderSettings}>
+            <Slider {...sliderSettings} className="services-slider">
               {services.map((service, index) => (
-                <div key={service.id} className="px-4 pb-4 pt-4">
-                  <FloatingCard className="flex flex-col h-full md:h-[600px]">
+                <div key={service.id} className="flex h-full px-4 pb-4 pt-4">
+                  <FloatingCard className="flex h-full min-h-[600px] w-full flex-col">
                     <div className="aspect-[4/3] rounded-2xl overflow-hidden mb-6 -mt-2 flex-shrink-0">
                       <ImageWithFallback
                         src={service.image}

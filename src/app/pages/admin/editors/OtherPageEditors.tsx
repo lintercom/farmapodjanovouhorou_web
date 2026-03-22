@@ -1281,20 +1281,22 @@ export function ContactPageEditor({ data, updateField }: any) {
               placeholder="Adresa na mapě"
               className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
             />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">
+              Embed mapy
+            </label>
             <input
-              type="url"
+              type="text"
               value={location.mapEmbedUrl}
               onChange={(e) => updateField(['location', 'mapEmbedUrl'], e.target.value)}
-              placeholder="Embed URL mapy"
+              placeholder='<iframe style="border:none" src="https://mapy.com/s/bopocejamo" width="400" height="280" frameborder="0"></iframe>'
               className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
             />
-            <input
-              type="url"
-              value={location.mapLink}
-              onChange={(e) => updateField(['location', 'mapLink'], e.target.value)}
-              placeholder="Odkaz na mapu"
-              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
-            />
+            <p className="mt-2 text-xs text-[var(--farm-secondary-text)]">
+              Vložte buď samotnou URL, nebo celý iframe kód z mapy. Odkaz pro tlačítko na webu se vezme automaticky z tohoto pole.
+            </p>
           </div>
         </div>
       </FloatingCard>

@@ -69,7 +69,7 @@ export function getContactTabIcon(iconName?: string): LucideIcon {
   return CONTACT_TAB_ICON_MAP[iconName ?? ''] ?? MessageCircle;
 }
 
-export function getReenioEmbedSrc(value?: string) {
+export function extractEmbedSrc(value?: string) {
   const trimmed = value?.trim() ?? '';
 
   if (!trimmed) {
@@ -82,6 +82,10 @@ export function getReenioEmbedSrc(value?: string) {
   }
 
   return trimmed;
+}
+
+export function getReenioEmbedSrc(value?: string) {
+  return extractEmbedSrc(value);
 }
 
 export interface ReenioEmbedConfig {

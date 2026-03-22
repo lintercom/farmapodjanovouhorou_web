@@ -216,6 +216,26 @@
     border-radius: var(--farm-radius-xl) !important;
   }
 
+  .services-slider .slick-track {
+    display: flex !important;
+    align-items: stretch;
+  }
+
+  .services-slider .slick-slide {
+    display: flex !important;
+    height: auto !important;
+  }
+
+  .services-slider .slick-slide > div {
+    display: flex;
+    height: 100%;
+    width: 100%;
+  }
+
+  .services-slider .slick-slide > div > div {
+    width: 100%;
+  }
+
   /* Prose styles for legal pages */
   .prose-farm h2 {
     font-size: 1.5rem;
