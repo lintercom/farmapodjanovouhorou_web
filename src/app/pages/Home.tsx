@@ -147,7 +147,7 @@ export function Home() {
       </section>
 
       {/* Services Section - Modern Asymmetric Layout */}
-      <section className="py-24 md:py-32 bg-[var(--farm-section-alt-bg)] relative overflow-hidden">
+      <section className="py-20 md:py-28 bg-[var(--farm-section-alt-bg)] relative overflow-hidden">
         {/* Blurred gradient transition from previous section */}
         <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-page-bg)] to-transparent backdrop-blur-sm" />
         
@@ -162,7 +162,7 @@ export function Home() {
           </div>
 
           {/* Services Carousel */}
-          <div className="relative px-8 pt-8 pb-16 mb-8 overflow-visible">
+          <div className="relative px-8 pt-6 pb-10 mb-4 overflow-visible">
             <Slider {...sliderSettings} className="services-slider">
               {services.map((service, index) => (
                 <div key={service.id} className="flex h-full px-4 pb-4 pt-4">
@@ -192,7 +192,7 @@ export function Home() {
       </section>
 
       {/* Horses Preview Section */}
-      <section className="py-24 md:py-32 bg-[var(--farm-page-bg)] relative overflow-visible">
+      <section className="py-20 md:py-28 bg-[var(--farm-page-bg)] relative overflow-visible">
         {/* Blurred gradient transition from previous section */}
         <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-section-alt-bg)] to-transparent backdrop-blur-sm" />
         
@@ -206,7 +206,7 @@ export function Home() {
             </p>
           </div>
 
-          <div className="relative px-8 pt-20 pb-16 mb-8 overflow-visible">
+          <div className="relative px-8 pt-10 pb-10 mb-4 overflow-visible">
             <Slider {...sliderSettings}>
               {horses.slice(0, 6).map((horse, index) => (
                 <div key={horse.id || horse.name || index} className="px-4 pb-4 pt-4">
@@ -250,7 +250,7 @@ export function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 md:py-32 bg-[var(--farm-bg-tertiary)] relative overflow-hidden">
+      <section className="py-20 md:py-28 bg-[var(--farm-bg-tertiary)] relative overflow-hidden">
         {/* Blurred gradient transition from previous section */}
         <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-page-bg)] to-transparent backdrop-blur-sm" />
         
@@ -287,7 +287,7 @@ export function Home() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-24 md:py-32 bg-[var(--farm-bg-tertiary)] relative overflow-hidden">
+      <section className="py-20 md:py-28 bg-[var(--farm-bg-tertiary)] relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16 md:mb-20">
             <h2 className="text-3xl md:text-5xl font-bold text-[var(--farm-primary-text)] mb-6">
@@ -329,7 +329,7 @@ export function Home() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-24 md:py-32 bg-[var(--farm-section-alt-bg)] relative overflow-hidden">
+      <section className="py-20 md:py-28 bg-[var(--farm-section-alt-bg)] relative overflow-hidden">
         {/* Blurred gradient transition from previous section */}
         <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-bg-tertiary)] to-transparent backdrop-blur-sm" />
         
