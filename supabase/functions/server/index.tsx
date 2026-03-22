@@ -16,6 +16,83 @@ const supabase = createClient(
 // Storage bucket name
 const IMAGES_BUCKET = 'make-399cd496-images';
 
+function escapeHtml(value: string) {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function normalizeContactRecipient(pageData: any, settings: any) {
+  const pageEmail = pageData?.contactData?.email || pageData?.contact?.email;
+  const settingsEmail = settings?.email || settings?.systemEmail;
+
+  return (pageEmail || settingsEmail || '').trim();
+}
+
+async function sendContactEmail(args: {
+  recipientEmail: string;
+  name: string;
+  email: string;
+  phone?: string;
+  message: string;
+}) {
+  const resendApiKey = Deno.env.get('RESEND_API_KEY');
+  const fromEmail = Deno.env.get('CONTACT_FORM_FROM_EMAIL') || 'onboarding@resend.dev';
+
+  if (!resendApiKey) {
+    throw new Error('Chybí RESEND_API_KEY pro odesílání kontaktního formuláře.');
+  }
+
+  const safeName = escapeHtml(args.name);
+  const safeEmail = escapeHtml(args.email);
+  const safePhone = escapeHtml(args.phone?.trim() || 'Neuvedeno');
+  const safeMessage = escapeHtml(args.message).replaceAll('\n', '<br />');
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${resendApiKey}`,
+    },
+    body: JSON.stringify({
+      from: fromEmail,
+      to: [args.recipientEmail],
+      reply_to: args.email,
+      subject: `Nová zpráva z kontaktního formuláře: ${args.name}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1c1917;">
+          <h2 style="margin-bottom: 16px;">Nová zpráva z kontaktního formuláře</h2>
+          <p><strong>Jméno:</strong> ${safeName}</p>
+          <p><strong>E-mail:</strong> ${safeEmail}</p>
+          <p><strong>Telefon:</strong> ${safePhone}</p>
+          <p><strong>Zpráva:</strong></p>
+          <div style="padding: 16px; border-radius: 12px; background: #fafaf9; border: 1px solid #e7e5e4;">
+            ${safeMessage}
+          </div>
+        </div>
+      `,
+      text: [
+        'Nová zpráva z kontaktního formuláře',
+        '',
+        `Jméno: ${args.name}`,
+        `E-mail: ${args.email}`,
+        `Telefon: ${args.phone?.trim() || 'Neuvedeno'}`,
+        '',
+        'Zpráva:',
+        args.message,
+      ].join('\n'),
+    }),
+  });
+
+  if (!response.ok) {
+    const errorPayload = await response.text();
+    throw new Error(`E-mail se nepodařilo odeslat: ${errorPayload}`);
+  }
+}
+
 // Initialize storage bucket on startup
 async function initializeStorage() {
   try {
@@ -245,6 +322,45 @@ app.post("/make-server-399cd496/settings", async (c) => {
   } catch (error) {
     console.error("Error saving settings:", error);
     return c.json({ error: "Failed to save settings" }, 500);
+  }
+});
+
+// Contact form submit
+app.post("/make-server-399cd496/contact-message", async (c) => {
+  try {
+    const body = await c.req.json();
+    const name = body?.name?.trim?.() ?? '';
+    const email = body?.email?.trim?.() ?? '';
+    const phone = body?.phone?.trim?.() ?? '';
+    const message = body?.message?.trim?.() ?? '';
+
+    if (!name || !email || !message) {
+      return c.json({ error: 'Vyplňte prosím jméno, e-mail a zprávu.' }, 400);
+    }
+
+    const kontaktPage = await kv.get("page:kontakt");
+    const settings = await kv.get("global:settings");
+    const recipientEmail = normalizeContactRecipient(kontaktPage, settings);
+
+    if (!recipientEmail) {
+      return c.json({ error: 'V CMS není nastaven cílový kontaktní e-mail.' }, 400);
+    }
+
+    await sendContactEmail({
+      recipientEmail,
+      name,
+      email,
+      phone,
+      message,
+    });
+
+    return c.json({
+      success: true,
+      message: 'Zpráva byla úspěšně odeslána.',
+    });
+  } catch (error: any) {
+    console.error("Error sending contact message:", error);
+    return c.json({ error: error.message || 'Zprávu se nepodařilo odeslat.' }, 500);
   }
 });
 

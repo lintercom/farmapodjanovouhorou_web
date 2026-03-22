@@ -28,8 +28,15 @@ async function apiCall(endpoint: string, options: ApiOptions = {}) {
   const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
   
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Neznámá chyba' }));
-    throw new Error(error.error || `HTTP chyba: ${response.status}`);
+    const rawError = await response.text().catch(() => '');
+
+    try {
+      const parsedError = JSON.parse(rawError);
+      throw new Error(parsedError.error || `HTTP chyba: ${response.status}`);
+    } catch {
+      const fallbackMessage = rawError.trim();
+      throw new Error(fallbackMessage || `HTTP chyba: ${response.status}`);
+    }
   }
 
   const payload = await response.json();
@@ -53,4 +60,14 @@ export const pagesApi = {
 export const settingsApi = {
   get: () => apiCall('/settings'),
   save: (settings: any) => apiCall('/settings', { method: 'POST', body: { settings } }),
+};
+
+// Contact form API
+export const contactApi = {
+  sendMessage: (message: {
+    name: string;
+    email: string;
+    phone?: string;
+    message: string;
+  }) => apiCall('/contact-message', { method: 'POST', body: message }),
 };

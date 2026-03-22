@@ -4,6 +4,7 @@ import { FloatingCard } from '../components/FloatingCard';
 import { Button } from '../components/Button';
 import { Phone, Mail, MapPin, Clock, Facebook, Instagram, Landmark, Share2 } from 'lucide-react';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
+import { contactApi } from '../utils/api';
 import { useContactData } from '../hooks/useContactData';
 import { usePageData } from '../hooks/usePageData';
 import { useGlobalSettings } from '../hooks/useGlobalSettings';
@@ -52,6 +53,9 @@ export function Contact() {
     phone: '',
     message: '',
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [submitMessage, setSubmitMessage] = useState('');
 
   // Read tab from URL on mount
   useEffect(() => {
@@ -78,10 +82,41 @@ export function Contact() {
     handleTabChange(tab);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert(contactFormContent.successMessage);
-    setFormData({ name: '', email: '', phone: '', message: '' });
+
+    if (isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    setSubmitMessage('');
+
+    try {
+      await contactApi.sendMessage({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        message: formData.message,
+      });
+
+      setSubmitStatus('success');
+      setSubmitMessage(contactFormContent.successMessage);
+      setFormData({ name: '', email: '', phone: '', message: '' });
+    } catch (error: any) {
+      const message = error?.message || '';
+      const isMissingEndpoint = message.includes('404');
+
+      setSubmitStatus('error');
+      setSubmitMessage(
+        isMissingEndpoint
+          ? 'Odesílání formuláře ještě není nasazené na serveru. Je potřeba publikovat novou verzi backendové funkce.'
+          : message || 'Zprávu se nepodařilo odeslat. Zkuste to prosím znovu.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -435,7 +470,21 @@ export function Contact() {
                         />
                       </div>
 
-                      <Button type="submit" variant="primary" className="w-full">
+                      {submitMessage ? (
+                        <div
+                          className={`rounded-2xl px-4 py-3 text-sm ${
+                            submitStatus === 'success'
+                              ? 'border border-green-200 bg-green-50 text-green-800'
+                              : submitStatus === 'error'
+                                ? 'border border-red-200 bg-red-50 text-red-800'
+                                : 'border border-[var(--farm-border)] bg-[var(--farm-secondary-light)] text-[var(--farm-secondary-text)]'
+                          }`}
+                        >
+                          {submitMessage}
+                        </div>
+                      ) : null}
+
+                      <Button type="submit" variant="primary" className="w-full" disabled={isSubmitting}>
                         {contactFormContent.submitLabel}
                       </Button>
                     </form>
