@@ -10,12 +10,10 @@ interface GlobalSettings {
   phone?: string;
   email?: string;
   address?: string;
+  /** Volitelné — mohou zůstat ve starém uložení; SEO řešíte v kódu, RouteSeo má fallbacky. */
   defaultMetaTitle?: string;
   defaultMetaDescription?: string;
   ogImage?: string;
-  primaryColor?: string;
-  secondaryColor?: string;
-  font?: string;
 }
 
 export function useGlobalSettings() {

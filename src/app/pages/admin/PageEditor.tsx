@@ -328,7 +328,7 @@ export function PageEditor() {
           ) : pageData ? (
             <div className="space-y-6">
               {/* Render different editors based on page type */}
-              {selectedPageId === 'domu' && <HomePageEditor data={pageData} updateField={updateField} updateArrayItem={updateArrayItem} addArrayItem={addArrayItem} removeArrayItem={removeArrayItem} />}
+              {selectedPageId === 'domu' && <HomePageEditor data={pageData} updateField={updateField} />}
               {selectedPageId === 'sluzby' && <ServicesPageEditor data={pageData} updateField={updateField} updateArrayItem={updateArrayItem} addArrayItem={addArrayItem} setArrayItem={setArrayItem} removeArrayItem={removeArrayItem} />}
               {selectedPageId === 'blog' && <EventsPageEditor data={pageData} updateField={updateField} updateArrayItem={updateArrayItem} addArrayItem={addArrayItem} setArrayItem={setArrayItem} removeArrayItem={removeArrayItem} />}
               {selectedPageId === 'nasi-kone' && <HorsesPageEditor data={pageData} updateField={updateField} updateArrayItem={updateArrayItem} addArrayItem={addArrayItem} setArrayItem={setArrayItem} removeArrayItem={removeArrayItem} />}

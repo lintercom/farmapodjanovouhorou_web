@@ -18,6 +18,7 @@ import {
   parseReenioEmbedConfig,
 } from '../utils/contactPageConfig';
 import { resolveCmsImageUrl } from '../utils/media';
+import { normalizeCmsInternalHref } from '../utils/cmsInternalLinks';
 
 export function Contact() {
   const [searchParams] = useSearchParams();
@@ -137,7 +138,7 @@ export function Contact() {
   const mapEmbedSrc = extractEmbedSrc(locationContent.mapEmbedUrl);
   const mapExternalLink = locationContent.mapLink?.trim() || mapEmbedSrc;
   const resolveAppHref = (href?: string) => {
-    const trimmed = href?.trim() ?? '';
+    const trimmed = normalizeCmsInternalHref(href);
     if (!trimmed) {
       return '#';
     }
@@ -215,7 +216,7 @@ export function Contact() {
           <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-page-bg)] to-transparent backdrop-blur-sm" />
           
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+            <div className="flex flex-wrap justify-center gap-4">
               {reservationTabs.map((tab: any) => {
                 const Icon = getContactTabIcon(tab.icon);
                 const isActive = activeTab === tab.slug;
@@ -225,7 +226,7 @@ export function Contact() {
                     key={tab.id || tab.slug}
                     type="button"
                     onClick={(e) => handleTabClick(e, tab.slug)}
-                    className={`relative rounded-2xl p-6 transition-all duration-300 ${
+                    className={`relative w-[min(100%,11rem)] sm:w-44 shrink-0 rounded-2xl p-6 transition-all duration-300 ${
                       isActive
                         ? 'bg-white scale-105 shadow-[0_8px_30px_rgb(0,0,0,0.12)]'
                         : 'bg-white/60 hover:bg-white/80 hover:shadow-md'

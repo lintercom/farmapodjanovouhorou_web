@@ -4,6 +4,7 @@ import { Button } from '../components/Button';
 import { FloatingCard } from '../components/FloatingCard';
 import { FAQ } from '../components/FAQ';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
+import { normalizeCmsInternalHref } from '../utils/cmsInternalLinks';
 import Slider from 'react-slick';
 import { usePageContent } from '../hooks/usePageContent';
 import { useGlobalSettings } from '../hooks/useGlobalSettings';
@@ -100,7 +101,7 @@ export function HomeCMS() {
           <p className="text-lg sm:text-xl md:text-2xl mb-8 text-white/90 drop-shadow-md">
             {content?.hero?.subtitle || 'RodinnĂˇ farma zamÄ›Ĺ™enĂˇ na prĂˇci s dÄ›tmi a koĹmi v krĂˇsnĂ© pĹ™Ă­rodÄ› Vizovicka'}
           </p>
-          <Link to={content?.hero?.buttonLink || '/sluzby'}>
+          <Link to={normalizeCmsInternalHref(content?.hero?.buttonLink) || '/sluzby'}>
             <Button variant="primary" size="lg" className="gap-2">
               {content?.hero?.buttonText || 'Zjistit vĂ­ce'}
               <ArrowRight className="w-5 h-5" />
@@ -140,7 +141,7 @@ export function HomeCMS() {
                 <p className="text-[var(--farm-secondary-text)] leading-relaxed mb-6">
                   {service.description}
                 </p>
-                <Link to={service.link}>
+                <Link to={normalizeCmsInternalHref(service.link) || '/sluzby'}>
                   <Button variant="outline" className="gap-2 w-full">
                     Zjistit vĂ­ce
                     <ArrowRight className="w-4 h-4" />

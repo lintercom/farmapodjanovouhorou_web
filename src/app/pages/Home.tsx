@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router';
 import { defaultPageContent } from '../utils/defaultPageContent';
 import { useGlobalSettings } from '../hooks/useGlobalSettings';
 import { resolveCmsImageUrl } from '../utils/media';
+import { normalizeCmsInternalHref } from '../utils/cmsInternalLinks';
 
 export function Home() {
   const { data: pageData, isLoading } = usePageData('domu');
@@ -129,13 +130,13 @@ export function Home() {
                 {hero.subtitle || 'Rodinná farma zaměřená na práci s dětmi a koňmi. Nabízíme jezdecké kroužky, tábory a vyjížďky v krásné přírodě.'}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 sm:gap-5">
-                <Link to={hero.buttonLink || '/sluzby'}>
+                <Link to={normalizeCmsInternalHref(hero.buttonLink) || '/sluzby'}>
                   <Button variant="primary" className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 shadow-2xl">
                     {hero.buttonText || 'Naše služby'}
                     <ArrowRight className="w-5 h-5 ml-2 inline" />
                   </Button>
                 </Link>
-                <Link to={hero.secondaryButtonLink || '/kontakt'}>
+                <Link to={normalizeCmsInternalHref(hero.secondaryButtonLink) || '/kontakt'}>
                   <Button variant="outline" className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 bg-white/15 backdrop-blur-md border-2 border-white/40 text-white hover:bg-white/15 hover:text-white hover:border-white/40 hover:shadow-xl">
                     {hero.secondaryButtonText || 'Kontaktujte nás'}
                   </Button>
@@ -275,9 +276,9 @@ export function Home() {
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/kontakt?tab=poukaz">
+              <Link to={normalizeCmsInternalHref(giftCard.buttonLink) || '/kontakt?tab=poukaz'}>
                 <Button variant="primary" className="w-full sm:w-auto text-lg px-8 py-4">
-                  Koupit poukaz
+                  {giftCard.buttonText || 'Koupit poukaz'}
                   <ArrowRight className="w-5 h-5 ml-2 inline" />
                 </Button>
               </Link>

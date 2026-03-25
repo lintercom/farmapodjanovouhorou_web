@@ -11,6 +11,7 @@ import {
   defaultContactReservationTabs,
   defaultContactSection,
 } from '../../../utils/contactPageConfig';
+import { LinkSelector } from '../../../components/admin/LinkSelector';
 
 // Events Page Editor
 export function EventsPageEditor({ data, updateField, addArrayItem, setArrayItem, removeArrayItem }: any) {
@@ -894,6 +895,12 @@ export function ContactPageEditor({ data, updateField }: any) {
 
               {draft.type === 'content' ? (
                 <div className="rounded-2xl border border-[var(--farm-border)] bg-white p-4 space-y-4">
+                  <LinkSelector
+                    label="Časté interní odkazy (volitelné)"
+                    value={draft.buttonLink || ''}
+                    onChange={(v) => setDraft((prev) => (prev ? { ...prev, buttonLink: v } : prev))}
+                    contactReservationTabs={reservationTabs}
+                  />
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
                       <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Text tlačítka</label>
@@ -906,10 +913,10 @@ export function ContactPageEditor({ data, updateField }: any) {
                       />
                     </div>
                     <div>
-                      <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Odkaz tlačítka</label>
+                      <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">URL tlačítka</label>
                       <input
                         type="text"
-                        placeholder="Interní nebo externí URL"
+                        placeholder="Např. /kontakt nebo https://…"
                         value={draft.buttonLink || ''}
                         onChange={(e) => setDraft((prev) => (prev ? { ...prev, buttonLink: e.target.value } : prev))}
                         className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"

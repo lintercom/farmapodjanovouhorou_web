@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { FloatingCard } from '../../components/FloatingCard';
 import { Button } from '../../components/Button';
+import { LinkSelector } from '../../components/admin/LinkSelector';
 import { pagesApi } from '../../utils/api';
 import { defaultPageContent } from '../../utils/defaultPageContent';
 
@@ -84,26 +85,6 @@ export function AdminPageEditor() {
     { id: 'reklamace', label: 'Reklamační řád', icon: AlertTriangle, category: 'footer' },
   ];
 
-  // Available link options for buttons and links
-  const availableLinks = [
-    { value: '', label: '-- Vyberte odkaz --' },
-    { value: '/', label: 'Domů (/)' },
-    { value: '/sluzby', label: 'Služby (/sluzby)' },
-    { value: '/akce', label: 'Akce (/akce)' },
-    { value: '/nasi-kone', label: 'Naši koně (/nasi-kone)' },
-    { value: '/o-nas', label: 'O nás (/o-nas)' },
-    { value: '/kontakt', label: 'Kontakt (/kontakt)' },
-    { value: '/ochrana-osobnich-udaju', label: 'Ochrana osobních údajů' },
-    { value: '/cookies', label: 'Cookies' },
-    { value: '/obchodni-podminky', label: 'Obchodní podmínky' },
-    { value: '/reklamacni-rad', label: 'Reklamační řád' },
-    { value: '#tabory', label: 'Kotva: Tábory (#tabory)' },
-    { value: '#krouzky', label: 'Kotva: Kroužky (#krouzky)' },
-    { value: '#vyjizdy', label: 'Kotva: Vyjížďky (#vyjizdy)' },
-    { value: '#akce', label: 'Kotva: Akce (#akce)' },
-    { value: '#kontakt', label: 'Kotva: Kontakt (#kontakt)' },
-  ];
-
   const [selectedPageId, setSelectedPageId] = useState(pageParam || 'sluzby');
   const [showFooterPages, setShowFooterPages] = useState(false);
   const [showSystemPages, setShowSystemPages] = useState(false);
@@ -132,7 +113,7 @@ export function AdminPageEditor() {
       description: 'Víkendové a prázdninové tábory pro děti',
       image: '',
       buttonText: 'Zjistit více',
-      link: '#tabory',
+      link: '/sluzby#tabory',
       isActive: true,
     },
     {
@@ -141,7 +122,7 @@ export function AdminPageEditor() {
       description: 'Pravidelné kroužky práce s koňmi',
       image: '',
       buttonText: 'Zjistit více',
-      link: '#krouzky',
+      link: '/sluzby#krouzky',
       isActive: true,
     },
     {
@@ -150,7 +131,7 @@ export function AdminPageEditor() {
       description: 'Individuální nebo skupinové vyjížďky',
       image: '',
       buttonText: 'Zjistit více',
-      link: '#vyjizdy',
+      link: '/sluzby#vyjizdy',
       isActive: true,
     },
   ]);
@@ -567,20 +548,11 @@ export function AdminPageEditor() {
                               </div>
 
                               <div>
-                                <label className="block text-sm font-medium text-[var(--farm-primary-text)] mb-2">
-                                  Odkaz
-                                </label>
-                                <select
+                                <LinkSelector
+                                  label="Odkaz"
                                   value={item.link}
-                                  onChange={(e) => updateServiceItem(item.id, 'link', e.target.value)}
-                                  className="w-full px-4 py-2 rounded-lg border border-[var(--farm-neutral-300)] focus:border-[var(--farm-accent-green)] focus:ring-4 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all bg-white"
-                                >
-                                  {availableLinks.map((link) => (
-                                    <option key={link.value} value={link.value}>
-                                      {link.label}
-                                    </option>
-                                  ))}
-                                </select>
+                                  onChange={(v) => updateServiceItem(item.id, 'link', v)}
+                                />
                               </div>
                             </div>
                           </div>

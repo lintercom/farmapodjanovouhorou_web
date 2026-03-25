@@ -7,6 +7,7 @@ import { Button } from '../components/Button';
 import { usePageData } from '../hooks/usePageData';
 import { useGlobalSettings } from '../hooks/useGlobalSettings';
 import { resolveCmsImageUrl } from '../utils/media';
+import { normalizeCmsInternalHref } from '../utils/cmsInternalLinks';
 
 export function Services() {
   const location = useLocation();
@@ -183,7 +184,7 @@ export function Services() {
                   ))}
                 </div>
 
-                <Link to={service.buttonLink}>
+                <Link to={normalizeCmsInternalHref(service.buttonLink) || '/kontakt'}>
                   <Button variant="primary">
                     {service.buttonText}
                   </Button>

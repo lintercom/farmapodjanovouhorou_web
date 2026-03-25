@@ -1,58 +1,94 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router';
-import { Save, Loader2, CheckCircle, XCircle, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import {
+  Save,
+  Loader2,
+  CheckCircle,
+  XCircle,
+  Eye,
+  EyeOff,
+  ArrowLeft,
+  Pencil,
+  Settings2,
+  Palette,
+  Shield,
+} from 'lucide-react';
 import { FloatingCard } from '../../components/FloatingCard';
 import { Button } from '../../components/Button';
 import { ImageUpload } from '../../components/admin/ImageUpload';
-import { projectId, publicAnonKey } from '/utils/supabase/info';
+import { settingsApi } from '../../utils/api';
 import { setCachedSettings } from '../../utils/siteDataCache';
+import { projectId, publicAnonKey } from '/utils/supabase/info';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../../components/ui/dialog';
 
-interface GlobalSettingsData {
-  // Obecné
+/** Ukládá se do KV — odpovídá tomu, co web skutečně používá (logo, hero, favicon, název, e-maily, kontakt). */
+export interface GlobalSettingsData {
   siteName: string;
   logo: string;
   heroImage: string;
   favicon: string;
   systemEmail: string;
-  
-  // Kontaktní údaje
   phone: string;
   email: string;
   address: string;
-  
-  // SEO
-  defaultMetaTitle: string;
-  defaultMetaDescription: string;
-  ogImage: string;
-  
-  // Design
-  primaryColor: string;
-  secondaryColor: string;
-  font: string;
 }
 
+const DEFAULT_SETTINGS: GlobalSettingsData = {
+  siteName: 'Farma pod Janovou horou',
+  logo: '',
+  heroImage: '',
+  favicon: '',
+  systemEmail: 'info@farma.cz',
+  phone: '+420 123 456 789',
+  email: 'info@farma.cz',
+  address: 'Pod Janovou horou 123, 123 45 Vesnice',
+};
+
+function mergeSettingsFromApi(raw: Record<string, unknown> | null | undefined): GlobalSettingsData {
+  if (!raw || typeof raw !== 'object') {
+    return { ...DEFAULT_SETTINGS };
+  }
+  const r = raw as Record<string, string>;
+  return {
+    siteName: String(r.siteName ?? DEFAULT_SETTINGS.siteName),
+    logo: String(r.logo ?? DEFAULT_SETTINGS.logo),
+    heroImage: String(r.heroImage ?? DEFAULT_SETTINGS.heroImage),
+    favicon: String(r.favicon ?? DEFAULT_SETTINGS.favicon),
+    systemEmail: String(r.systemEmail ?? DEFAULT_SETTINGS.systemEmail),
+    phone: String(r.phone ?? DEFAULT_SETTINGS.phone),
+    email: String(r.email ?? DEFAULT_SETTINGS.email),
+    address: String(r.address ?? DEFAULT_SETTINGS.address),
+  };
+}
+
+type SectionId = 'general' | 'design' | 'security' | null;
+
+const modalContentClass =
+  'max-h-[90vh] overflow-hidden border border-[var(--farm-border)] bg-[var(--farm-page-bg)] p-0 shadow-[var(--farm-shadow-xl)] rounded-[2rem] sm:max-w-2xl [&>button]:top-5 [&>button]:right-5 [&>button]:rounded-full [&>button]:border [&>button]:border-[var(--farm-border)] [&>button]:bg-white [&>button]:p-2 [&>button]:text-[var(--farm-primary-text)] [&>button]:opacity-100 [&>button]:shadow-sm [&>button]:transition-colors [&>button]:hover:bg-[var(--farm-primary-light)]';
+
 export function GlobalSettings() {
-  const [settings, setSettings] = useState<GlobalSettingsData>({
-    siteName: 'Farma pod Janovou horou',
-    logo: '',
-    heroImage: '',
-    favicon: '',
-    systemEmail: 'info@farma.cz',
-    phone: '+420 123 456 789',
-    email: 'info@farma.cz',
-    address: 'Pod Janovou horou 123, 123 45 Vesnice',
-    defaultMetaTitle: 'Farma pod Janovou horou',
-    defaultMetaDescription: 'Farma pro rodiny s dětmi - koně, hipoterapie, tábory a vyjížďky',
-    ogImage: '',
-    primaryColor: '#2D5016',
-    secondaryColor: '#8B4513',
-    font: 'Lora'
-  });
+  const [settings, setSettings] = useState<GlobalSettingsData>({ ...DEFAULT_SETTINGS });
+  const [generalDraft, setGeneralDraft] = useState<Pick<
+    GlobalSettingsData,
+    'siteName' | 'systemEmail' | 'phone' | 'email' | 'address'
+  > | null>(null);
+  const [designDraft, setDesignDraft] = useState<Pick<GlobalSettingsData, 'logo' | 'heroImage' | 'favicon'> | null>(
+    null,
+  );
+
+  const [openSection, setOpenSection] = useState<SectionId>(null);
 
   const [passwordData, setPasswordData] = useState({
     oldPassword: '',
     newPassword: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
 
   const [showOldPassword, setShowOldPassword] = useState(false);
@@ -63,38 +99,21 @@ export function GlobalSettings() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
-  
+
   const [passwordStatus, setPasswordStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordSubmitting, setPasswordSubmitting] = useState(false);
 
-  // Load settings
-  useEffect(() => {
-    loadSettings();
-  }, []);
-
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-399cd496/settings`,
-        {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${publicAnonKey}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Nepodařilo se načíst nastavení');
-      }
-
-      const data = await response.json();
-      if (data.settings) {
-        setSettings(data.settings);
+      const data = await settingsApi.get();
+      if (data?.settings) {
+        setSettings(mergeSettingsFromApi(data.settings));
+      } else {
+        setSettings({ ...DEFAULT_SETTINGS });
       }
     } catch (err: any) {
       console.error('Error loading settings:', err);
@@ -102,33 +121,21 @@ export function GlobalSettings() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadSettings();
+  }, [loadSettings]);
 
   const handleSave = async () => {
     setIsSaving(true);
     setSaveStatus('idle');
     setError(null);
-    
+
     try {
-      const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-399cd496/settings`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${publicAnonKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ settings }),
-        }
-      );
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Nepodařilo se uložit nastavení');
-      }
-
-      setSaveStatus('success');
+      await settingsApi.save(settings);
       setCachedSettings(settings);
+      setSaveStatus('success');
       setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (err: any) {
       console.error('Error saving settings:', err);
@@ -139,11 +146,51 @@ export function GlobalSettings() {
     }
   };
 
+  const openGeneral = () => {
+    setGeneralDraft({
+      siteName: settings.siteName,
+      systemEmail: settings.systemEmail,
+      phone: settings.phone,
+      email: settings.email,
+      address: settings.address,
+    });
+    setOpenSection('general');
+  };
+
+  const saveGeneralModal = () => {
+    if (!generalDraft) return;
+    setSettings((s) => ({ ...s, ...generalDraft }));
+    setOpenSection(null);
+    setGeneralDraft(null);
+  };
+
+  const openDesign = () => {
+    setDesignDraft({
+      logo: settings.logo,
+      heroImage: settings.heroImage,
+      favicon: settings.favicon,
+    });
+    setOpenSection('design');
+  };
+
+  const saveDesignModal = () => {
+    if (!designDraft) return;
+    setSettings((s) => ({ ...s, ...designDraft }));
+    setOpenSection(null);
+    setDesignDraft(null);
+  };
+
+  const openSecurity = () => {
+    setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
+    setPasswordError(null);
+    setPasswordStatus('idle');
+    setOpenSection('security');
+  };
+
   const handlePasswordChange = async () => {
     setPasswordError(null);
     setPasswordStatus('idle');
 
-    // Validation
     if (!passwordData.oldPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
       setPasswordError('Vyplňte všechna pole');
       setPasswordStatus('error');
@@ -162,40 +209,72 @@ export function GlobalSettings() {
       return;
     }
 
+    setPasswordSubmitting(true);
     try {
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-399cd496/change-password`,
         {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${publicAnonKey}`,
+            Authorization: `Bearer ${publicAnonKey}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             oldPassword: passwordData.oldPassword,
             newPassword: passwordData.newPassword,
           }),
-        }
+        },
       );
 
       if (!response.ok) {
-        const data = await response.json();
+        const data = await response.json().catch(() => ({}));
         throw new Error(data.error || 'Nepodařilo se změnit heslo');
       }
 
       setPasswordStatus('success');
       setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
-      setTimeout(() => setPasswordStatus('idle'), 3000);
+      setTimeout(() => {
+        setPasswordStatus('idle');
+        setOpenSection(null);
+      }, 1500);
     } catch (err: any) {
       console.error('Error changing password:', err);
       setPasswordError(err.message || 'Chyba při změně hesla');
       setPasswordStatus('error');
+    } finally {
+      setPasswordSubmitting(false);
     }
   };
 
-  const updateSetting = (field: keyof GlobalSettingsData, value: string) => {
-    setSettings(prev => ({ ...prev, [field]: value }));
-  };
+  const sectionCards: {
+    id: Exclude<SectionId, null>;
+    title: string;
+    description: string;
+    icon: typeof Settings2;
+    onOpen: () => void;
+  }[] = [
+    {
+      id: 'general',
+      title: 'Obecné',
+      description: 'Název webu, systémový e-mail a kontaktní údaje pro backend / šablony.',
+      icon: Settings2,
+      onOpen: openGeneral,
+    },
+    {
+      id: 'design',
+      title: 'Design',
+      description: 'Logo, výchozí hero obrázek a favicon — to, co se skutečně načítá na veřejném webu.',
+      icon: Palette,
+      onOpen: openDesign,
+    },
+    {
+      id: 'security',
+      title: 'Bezpečnost',
+      description: 'Změna hesla k administraci.',
+      icon: Shield,
+      onOpen: openSecurity,
+    },
+  ];
 
   if (isLoading) {
     return (
@@ -208,32 +287,21 @@ export function GlobalSettings() {
   return (
     <div className="min-h-screen bg-[var(--farm-page-bg)] py-12 px-4">
       <div className="max-w-5xl mx-auto">
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-[var(--farm-primary-text)]">
-              Globální nastavení
-            </h1>
+            <h1 className="text-2xl font-bold text-[var(--farm-primary-text)]">Globální nastavení</h1>
             <p className="text-sm text-[var(--farm-secondary-text)] mt-1">
-              Upravte obecná nastavení webu
+              Upravte sekce v dialozích a změny odešlete tlačítkem „Uložit změny“.
             </p>
           </div>
           <div className="flex items-center gap-3">
             <Link to="/admin">
-              <Button 
-                variant="outline" 
-                className="gap-2"
-              >
+              <Button variant="outline" className="gap-2">
                 <ArrowLeft className="w-4 h-4" />
                 Zpět
               </Button>
             </Link>
-            <Button 
-              variant="primary" 
-              className="gap-2" 
-              onClick={handleSave}
-              disabled={isSaving}
-            >
+            <Button variant="primary" className="gap-2" onClick={handleSave} disabled={isSaving}>
               {isSaving ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -259,7 +327,6 @@ export function GlobalSettings() {
           </div>
         </div>
 
-        {/* Error Message */}
         {error && (
           <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-800">
             <div className="flex items-start gap-2">
@@ -272,272 +339,340 @@ export function GlobalSettings() {
           </div>
         )}
 
-        {/* Success Message */}
         {saveStatus === 'success' && (
           <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-green-800">
             <div className="flex items-start gap-2">
               <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold">Úspěšně uloženo</p>
-                <p className="text-sm mt-1">Nastavení byla úspěšně aktualizována.</p>
+                <p className="text-sm mt-1">Nastavení byla uložena na server.</p>
               </div>
             </div>
           </div>
         )}
 
-        <div className="space-y-6">
-          {/* 1. Obecné */}
-          <FloatingCard hover={false}>
-            <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-4">1️⃣ Obecné</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
-                  Název webu
-                </label>
-                <input
-                  type="text"
-                  value={settings.siteName}
-                  onChange={(e) => updateSetting('siteName', e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all bg-white text-[var(--farm-primary-text)]"
-                  placeholder="Farma pod Janovou horou"
-                />
-              </div>
-              
-              <ImageUpload
-                label="Logo"
-                value={settings.logo}
-                onChange={(url) => updateSetting('logo', url)}
-              />
+        <FloatingCard hover={false} className="mb-6">
+          <h2 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-1">Přehled sekcí</h2>
+          <p className="text-sm text-[var(--farm-secondary-text)]">
+            SEO meta tagy a strukturovaná data jsou řešené v kódu (komponenta RouteSeo a stránky). Zde je pouze obsah,
+            který CMS skutečně používá.
+          </p>
+        </FloatingCard>
 
-              <ImageUpload
-                label="Výchozí hero obrázek"
-                value={settings.heroImage}
-                onChange={(url) => updateSetting('heroImage', url)}
-              />
-              
-              <ImageUpload
-                label="Favicon"
-                value={settings.favicon}
-                onChange={(url) => updateSetting('favicon', url)}
-              />
-              
-              <div>
-                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
-                  E-mail pro systémové zprávy
-                </label>
-                <input
-                  type="email"
-                  value={settings.systemEmail}
-                  onChange={(e) => updateSetting('systemEmail', e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all bg-white text-[var(--farm-primary-text)]"
-                  placeholder="info@farma.cz"
-                />
-              </div>
-            </div>
-          </FloatingCard>
-
-          {/* 2. SEO */}
-          <FloatingCard hover={false}>
-            <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-4">2️⃣ SEO</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
-                  Defaultní meta title
-                </label>
-                <input
-                  type="text"
-                  value={settings.defaultMetaTitle}
-                  onChange={(e) => updateSetting('defaultMetaTitle', e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all bg-white text-[var(--farm-primary-text)]"
-                  placeholder="Farma pod Janovou horou"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
-                  Defaultní meta description
-                </label>
-                <textarea
-                  value={settings.defaultMetaDescription}
-                  onChange={(e) => updateSetting('defaultMetaDescription', e.target.value)}
-                  rows={3}
-                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all resize-none bg-white text-[var(--farm-primary-text)]"
-                  placeholder="Farma pro rodiny s dětmi - koně, hipoterapie, tábory a vyjížďky"
-                />
-              </div>
-              
-              <ImageUpload
-                label="OG image (pro sociální sítě)"
-                value={settings.ogImage}
-                onChange={(url) => updateSetting('ogImage', url)}
-              />
-            </div>
-          </FloatingCard>
-
-          {/* 3. Design */}
-          <FloatingCard hover={false}>
-            <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-4">3️⃣ Design</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
-                  Primární barva
-                </label>
-                <div className="flex gap-3 items-center">
-                  <input
-                    type="color"
-                    value={settings.primaryColor}
-                    onChange={(e) => updateSetting('primaryColor', e.target.value)}
-                    className="h-12 w-20 rounded-xl border border-[var(--farm-border)] cursor-pointer"
-                  />
-                  <input
-                    type="text"
-                    value={settings.primaryColor}
-                    onChange={(e) => updateSetting('primaryColor', e.target.value)}
-                    className="flex-1 px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all bg-white text-[var(--farm-primary-text)]"
-                    placeholder="#2D5016"
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
-                  Sekundární barva
-                </label>
-                <div className="flex gap-3 items-center">
-                  <input
-                    type="color"
-                    value={settings.secondaryColor}
-                    onChange={(e) => updateSetting('secondaryColor', e.target.value)}
-                    className="h-12 w-20 rounded-xl border border-[var(--farm-border)] cursor-pointer"
-                  />
-                  <input
-                    type="text"
-                    value={settings.secondaryColor}
-                    onChange={(e) => updateSetting('secondaryColor', e.target.value)}
-                    className="flex-1 px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all bg-white text-[var(--farm-primary-text)]"
-                    placeholder="#8B4513"
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
-                  Font
-                </label>
-                <select
-                  value={settings.font}
-                  onChange={(e) => updateSetting('font', e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all bg-white text-[var(--farm-primary-text)] cursor-pointer"
-                >
-                  <option value="Lora">Lora (aktuální)</option>
-                  <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
-                  <option value="Inter">Inter</option>
-                  <option value="Roboto">Roboto</option>
-                  <option value="Open Sans">Open Sans</option>
-                </select>
-              </div>
-            </div>
-          </FloatingCard>
-
-          {/* 4. Účet uživatele */}
-          <FloatingCard hover={false}>
-            <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-4">4️⃣ Změna hesla</h3>
-            
-            {passwordError && (
-              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-800">
-                <div className="flex items-start gap-2">
-                  <XCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm">{passwordError}</p>
-                </div>
-              </div>
-            )}
-
-            {passwordStatus === 'success' && (
-              <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-green-800">
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm">Heslo bylo úspěšně změněno</p>
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
-                  Staré heslo
-                </label>
-                <div className="relative">
-                  <input
-                    type={showOldPassword ? 'text' : 'password'}
-                    value={passwordData.oldPassword}
-                    onChange={(e) => setPasswordData(prev => ({ ...prev, oldPassword: e.target.value }))}
-                    className="w-full px-4 py-3 pr-12 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all bg-white text-[var(--farm-primary-text)]"
-                    placeholder="••••••••"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowOldPassword(!showOldPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--farm-secondary-text)] hover:text-[var(--farm-primary-text)]"
-                  >
-                    {showOldPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
-                  Nové heslo
-                </label>
-                <div className="relative">
-                  <input
-                    type={showNewPassword ? 'text' : 'password'}
-                    value={passwordData.newPassword}
-                    onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
-                    className="w-full px-4 py-3 pr-12 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all bg-white text-[var(--farm-primary-text)]"
-                    placeholder="••••••••"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--farm-secondary-text)] hover:text-[var(--farm-primary-text)]"
-                  >
-                    {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
-                  Potvrzení nového hesla
-                </label>
-                <div className="relative">
-                  <input
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    value={passwordData.confirmPassword}
-                    onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                    className="w-full px-4 py-3 pr-12 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all bg-white text-[var(--farm-primary-text)]"
-                    placeholder="••••••••"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--farm-secondary-text)] hover:text-[var(--farm-primary-text)]"
-                  >
-                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
-              </div>
-
-              <Button
-                variant="secondary"
-                onClick={handlePasswordChange}
-                className="w-full"
+        <div className="space-y-4">
+          {sectionCards.map((section) => {
+            const Icon = section.icon;
+            return (
+              <div
+                key={section.id}
+                className="rounded-3xl border border-[var(--farm-border)] bg-white p-5 shadow-[var(--farm-shadow-sm)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[var(--farm-shadow-md)]"
               >
-                Změnit heslo
-              </Button>
-            </div>
-          </FloatingCard>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex min-w-0 gap-4">
+                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-[var(--farm-primary-light)] text-[var(--farm-primary)]">
+                      <Icon className="w-6 h-6" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-lg font-semibold text-[var(--farm-primary-text)]">{section.title}</h3>
+                      <p className="mt-1 text-sm leading-relaxed text-[var(--farm-secondary-text)]">
+                        {section.description}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={section.onOpen}
+                    className="inline-flex flex-shrink-0 items-center gap-2 rounded-full border border-[var(--farm-primary)]/20 bg-[var(--farm-primary-light)] px-4 py-2 text-sm font-medium text-[var(--farm-primary-text)] shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--farm-primary)]/35 hover:bg-white hover:shadow-[var(--farm-shadow-sm)]"
+                  >
+                    <Pencil className="w-4 h-4" />
+                    Upravit
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
+
+        {/* Obecné */}
+        <Dialog
+          open={openSection === 'general'}
+          onOpenChange={(open) => {
+            if (!open) {
+              setOpenSection(null);
+              setGeneralDraft(null);
+            }
+          }}
+        >
+          <DialogContent className={modalContentClass}>
+            <div className="flex max-h-[90vh] flex-col">
+              <DialogHeader className="border-b border-[var(--farm-border)] bg-white/80 px-6 py-5 pr-16 text-left backdrop-blur-sm">
+                <div className="mb-3 inline-flex w-fit rounded-full bg-[var(--farm-primary-light)] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[var(--farm-primary)]">
+                  Globální nastavení
+                </div>
+                <DialogTitle className="text-2xl text-[var(--farm-primary-text)]">Obecné</DialogTitle>
+                <DialogDescription className="text-[var(--farm-secondary-text)]">
+                  Základní údaje webu a kontakty. Podrobné údaje na stránce Kontakt upravujte v editoru stránky Kontakt.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex-1 overflow-y-auto px-6 py-5 bg-[linear-gradient(180deg,rgba(255,255,255,0.45),rgba(244,252,241,0.35))]">
+                {generalDraft && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
+                        Název webu
+                      </label>
+                      <input
+                        type="text"
+                        value={generalDraft.siteName}
+                        onChange={(e) => setGeneralDraft((d) => (d ? { ...d, siteName: e.target.value } : d))}
+                        className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
+                        E-mail pro systémové zprávy
+                      </label>
+                      <input
+                        type="email"
+                        value={generalDraft.systemEmail}
+                        onChange={(e) => setGeneralDraft((d) => (d ? { ...d, systemEmail: e.target.value } : d))}
+                        className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
+                        Telefon (globální)
+                      </label>
+                      <input
+                        type="text"
+                        value={generalDraft.phone}
+                        onChange={(e) => setGeneralDraft((d) => (d ? { ...d, phone: e.target.value } : d))}
+                        className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
+                        E-mail (globální)
+                      </label>
+                      <input
+                        type="email"
+                        value={generalDraft.email}
+                        onChange={(e) => setGeneralDraft((d) => (d ? { ...d, email: e.target.value } : d))}
+                        className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
+                        Adresa (řádek)
+                      </label>
+                      <input
+                        type="text"
+                        value={generalDraft.address}
+                        onChange={(e) => setGeneralDraft((d) => (d ? { ...d, address: e.target.value } : d))}
+                        className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+              <DialogFooter className="border-t border-[var(--farm-border)] bg-white/90 px-6 py-4 sm:justify-between backdrop-blur-sm">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setOpenSection(null);
+                    setGeneralDraft(null);
+                  }}
+                  className="border-[var(--farm-border)]"
+                >
+                  Zrušit
+                </Button>
+                <Button type="button" variant="primary" onClick={saveGeneralModal}>
+                  Použít v nastavení
+                </Button>
+              </DialogFooter>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Design */}
+        <Dialog
+          open={openSection === 'design'}
+          onOpenChange={(open) => {
+            if (!open) {
+              setOpenSection(null);
+              setDesignDraft(null);
+            }
+          }}
+        >
+          <DialogContent className={modalContentClass}>
+            <div className="flex max-h-[90vh] flex-col">
+              <DialogHeader className="border-b border-[var(--farm-border)] bg-white/80 px-6 py-5 pr-16 text-left backdrop-blur-sm">
+                <div className="mb-3 inline-flex w-fit rounded-full bg-[var(--farm-primary-light)] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[var(--farm-primary)]">
+                  Globální nastavení
+                </div>
+                <DialogTitle className="text-2xl text-[var(--farm-primary-text)]">Design</DialogTitle>
+                <DialogDescription className="text-[var(--farm-secondary-text)]">
+                  Logo a favicon se zobrazují v hlavičce a patičce, výchozí hero jako pozadí hero sekcí tam, kde stránka
+                  nemá vlastní obrázek. Barvy písma a paletu webu určuje soubor theme.css v projektu — v CMS je neupravujte.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex-1 overflow-y-auto px-6 py-5 bg-[linear-gradient(180deg,rgba(255,255,255,0.45),rgba(244,252,241,0.35))]">
+                {designDraft && (
+                  <div className="space-y-4">
+                    <ImageUpload
+                      label="Logo"
+                      value={designDraft.logo}
+                      onChange={(url) => setDesignDraft((d) => (d ? { ...d, logo: url } : d))}
+                    />
+                    <ImageUpload
+                      label="Výchozí hero obrázek"
+                      value={designDraft.heroImage}
+                      onChange={(url) => setDesignDraft((d) => (d ? { ...d, heroImage: url } : d))}
+                    />
+                    <ImageUpload
+                      label="Favicon"
+                      value={designDraft.favicon}
+                      onChange={(url) => setDesignDraft((d) => (d ? { ...d, favicon: url } : d))}
+                    />
+                  </div>
+                )}
+              </div>
+              <DialogFooter className="border-t border-[var(--farm-border)] bg-white/90 px-6 py-4 sm:justify-between backdrop-blur-sm">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setOpenSection(null);
+                    setDesignDraft(null);
+                  }}
+                  className="border-[var(--farm-border)]"
+                >
+                  Zrušit
+                </Button>
+                <Button type="button" variant="primary" onClick={saveDesignModal}>
+                  Použít v nastavení
+                </Button>
+              </DialogFooter>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Bezpečnost */}
+        <Dialog
+          open={openSection === 'security'}
+          onOpenChange={(open) => {
+            if (!open) setOpenSection(null);
+          }}
+        >
+          <DialogContent className={modalContentClass}>
+            <div className="flex max-h-[90vh] flex-col">
+              <DialogHeader className="border-b border-[var(--farm-border)] bg-white/80 px-6 py-5 pr-16 text-left backdrop-blur-sm">
+                <div className="mb-3 inline-flex w-fit rounded-full bg-[var(--farm-primary-light)] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[var(--farm-primary)]">
+                  Globální nastavení
+                </div>
+                <DialogTitle className="text-2xl text-[var(--farm-primary-text)]">Bezpečnost</DialogTitle>
+                <DialogDescription className="text-[var(--farm-secondary-text)]">
+                  Změna hesla pro přístup do administrace.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex-1 overflow-y-auto px-6 py-5 bg-[linear-gradient(180deg,rgba(255,255,255,0.45),rgba(244,252,241,0.35))]">
+                {passwordError && (
+                  <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-800 text-sm">
+                    {passwordError}
+                  </div>
+                )}
+                {passwordStatus === 'success' && (
+                  <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-green-800 text-sm">
+                    Heslo bylo úspěšně změněno.
+                  </div>
+                )}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
+                      Staré heslo
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showOldPassword ? 'text' : 'password'}
+                        value={passwordData.oldPassword}
+                        onChange={(e) => setPasswordData((p) => ({ ...p, oldPassword: e.target.value }))}
+                        className="w-full px-4 py-3 pr-12 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowOldPassword(!showOldPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--farm-secondary-text)] hover:text-[var(--farm-primary-text)]"
+                      >
+                        {showOldPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
+                      Nové heslo
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showNewPassword ? 'text' : 'password'}
+                        value={passwordData.newPassword}
+                        onChange={(e) => setPasswordData((p) => ({ ...p, newPassword: e.target.value }))}
+                        className="w-full px-4 py-3 pr-12 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--farm-secondary-text)] hover:text-[var(--farm-primary-text)]"
+                      >
+                        {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
+                      Potvrzení nového hesla
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        value={passwordData.confirmPassword}
+                        onChange={(e) => setPasswordData((p) => ({ ...p, confirmPassword: e.target.value }))}
+                        className="w-full px-4 py-3 pr-12 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--farm-secondary-text)] hover:text-[var(--farm-primary-text)]"
+                      >
+                        {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <DialogFooter className="border-t border-[var(--farm-border)] bg-white/90 px-6 py-4 sm:justify-between backdrop-blur-sm">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpenSection(null)}
+                  className="border-[var(--farm-border)]"
+                >
+                  Zavřít
+                </Button>
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={handlePasswordChange}
+                  disabled={passwordSubmitting}
+                  className="gap-2"
+                >
+                  {passwordSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                  Změnit heslo
+                </Button>
+              </DialogFooter>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
