@@ -1,5 +1,5 @@
 // Simple editors for other page types
-import { useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { FloatingCard } from '../../../components/FloatingCard';
 import { Button } from '../../../components/Button';
@@ -17,88 +17,125 @@ import {
   horseLifeSummaryShort,
   normalizeHorseBirthDateInput,
 } from '../../../utils/horseBirthDate';
-import { horseCardObjectPositionStyle } from '../../../utils/horseCardImage';
+import { CardImagePositionDragEditor } from '../../../components/admin/CardImagePositionDragEditor';
+import { getHorseImageFocusForIndex } from '../../../utils/horseCardImage';
 
-function clampHorseFocus(n: number) {
-  return Math.min(100, Math.max(0, n));
+function normalizeHorseGalleryFocusForPersist(horseLike: any, targetLen: number): { x: number; y: number }[] {
+  const out: { x: number; y: number }[] = [];
+  for (let i = 0; i < targetLen; i++) {
+    const row = horseLike.galleryImageFocus?.[i];
+    if (row != null && row.x !== undefined && row.x !== '') {
+      out.push({
+        x: Math.min(100, Math.max(0, Number(row.x))),
+        y: Math.min(100, Math.max(0, Number(row.y ?? 50))),
+      });
+    } else {
+      const f = getHorseImageFocusForIndex(horseLike, i);
+      out.push({ x: f.x, y: f.y });
+    }
+  }
+  return out;
 }
 
-/** Náhled karty: tahem myši nastavit object-position; za rámečkem ztmavený okraj. */
-function HorseCardPositionDragEditor({
-  imageSrc,
+function HorseGalleryFocusSection({
   draft,
   setDraft,
 }: {
-  imageSrc: string;
   draft: any;
   setDraft: (fn: (prev: any) => any) => void;
 }) {
-  const viewportRef = useRef<HTMLDivElement>(null);
-  const draggingRef = useRef(false);
-  const [dragging, setDragging] = useState(false);
-  const startRef = useRef({ px: 0, py: 0, fx: 50, fy: 50 });
+  const filledSlots = (draft.images || [])
+    .map((u: string, i: number) => (String(u || '').trim() ? i : -1))
+    .filter((i: number) => i >= 0);
+  const [focusSlot, setFocusSlot] = useState(0);
+  if (filledSlots.length === 0) return null;
 
-  const fx = Number(draft.cardImageFocusX ?? 50);
-  const fy = Number(draft.cardImageFocusY ?? 50);
-
-  const onPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.currentTarget.setPointerCapture(e.pointerId);
-    draggingRef.current = true;
-    setDragging(true);
-    startRef.current = {
-      px: e.clientX,
-      py: e.clientY,
-      fx,
-      fy,
-    };
-  };
-
-  const onPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (!draggingRef.current) return;
-    const vp = viewportRef.current;
-    if (!vp) return;
-    const rect = vp.getBoundingClientRect();
-    const dx = e.clientX - startRef.current.px;
-    const dy = e.clientY - startRef.current.py;
-    const k = 0.85;
-    const nx = clampHorseFocus(startRef.current.fx + (dx / Math.max(rect.width, 1)) * 100 * k);
-    const ny = clampHorseFocus(startRef.current.fy + (dy / Math.max(rect.height, 1)) * 100 * k);
-    setDraft((prev: any) => (prev ? { ...prev, cardImageFocusX: nx, cardImageFocusY: ny } : prev));
-  };
-
-  const endPointer = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-    }
-    setDragging(false);
-  };
+  const activeSlot = filledSlots.includes(focusSlot) ? focusSlot : filledSlots[0];
+  const imageSrc = String(draft.images[activeSlot] || '').trim();
 
   return (
-    <div className="relative mx-auto flex h-[272px] w-full max-w-[300px] select-none items-center justify-center overflow-hidden rounded-xl bg-[var(--farm-section-alt-bg)]">
-      <div
-        ref={viewportRef}
-        role="application"
-        aria-label="Posunout výřez náhledu karty tahem myši"
-        className="relative z-[1] aspect-[5/6] w-[200px] touch-none overflow-hidden rounded-lg ring-2 ring-white/90 shadow-[0_0_0_9999px_rgba(0,0,0,0.52)] active:cursor-grabbing"
-        style={{ cursor: dragging ? 'grabbing' : 'grab' }}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={endPointer}
-        onPointerCancel={endPointer}
-        onLostPointerCapture={() => {
-          draggingRef.current = false;
-          setDragging(false);
-        }}
-      >
-        <img
-          src={imageSrc}
-          alt=""
-          draggable={false}
-          className="h-full w-full object-cover pointer-events-none"
-          style={horseCardObjectPositionStyle(draft)}
+    <div className="rounded-2xl border border-[var(--farm-border)] bg-white p-4">
+      <label className="mb-1 block text-sm font-medium text-[var(--farm-primary-text)]">
+        Výřez fotek (karta a modal)
+      </label>
+      <p className="mb-3 text-xs text-[var(--farm-secondary-text)]">
+        Tahem myši posuňte snímek uvnitř rámečku. První fotka má stejný výřez jako karta koně na úvodu a v seznamu.
+        U dalších fotek se ohnisko projeví v modálním okně (celý snímek, zarovnání podle středu výřezu).
+      </p>
+      {filledSlots.length > 1 ? (
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-[var(--farm-secondary-text)]">
+            Upravovaná fotka
+          </label>
+          <select
+            value={activeSlot}
+            onChange={(e) => setFocusSlot(Number(e.target.value))}
+            className="w-full max-w-xs rounded-lg border border-[var(--farm-border)] bg-white px-3 py-2 text-sm text-[var(--farm-primary-text)] focus:border-[var(--farm-accent-green)] focus:outline-none focus:ring-2 focus:ring-[var(--farm-accent-green)]/20"
+          >
+            {filledSlots.map((i) => (
+              <option key={i} value={i}>
+                Fotografie {i + 1}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : null}
+      <div className="mb-4">
+        <CardImagePositionDragEditor
+          key={activeSlot}
+          previewAspect="5/6"
+          imageSrc={imageSrc}
+          draft={{
+            cardImageFocusX: getHorseImageFocusForIndex(draft, activeSlot).x,
+            cardImageFocusY: getHorseImageFocusForIndex(draft, activeSlot).y,
+          }}
+          setDraft={(fn) =>
+            setDraft((prev) => {
+              if (!prev) return prev;
+              const slot = activeSlot;
+              const virtual = {
+                ...prev,
+                cardImageFocusX: getHorseImageFocusForIndex(prev, slot).x,
+                cardImageFocusY: getHorseImageFocusForIndex(prev, slot).y,
+              };
+              const merged = fn(virtual);
+              if (!merged) return prev;
+              const nx = Math.min(100, Math.max(0, Number(merged.cardImageFocusX ?? 50)));
+              const ny = Math.min(100, Math.max(0, Number(merged.cardImageFocusY ?? 50)));
+              const len = prev.images?.length ?? 0;
+              const base = normalizeHorseGalleryFocusForPersist(prev, len);
+              base[slot] = { x: nx, y: ny };
+              const out: any = { ...prev, galleryImageFocus: base };
+              if (slot === 0) {
+                out.cardImageFocusX = nx;
+                out.cardImageFocusY = ny;
+              }
+              return out;
+            })
+          }
         />
       </div>
+      <button
+        type="button"
+        className="mt-1 text-xs font-medium text-[var(--farm-accent-green)] hover:text-[var(--farm-primary)]"
+        onClick={() =>
+          setDraft((prev) => {
+            if (!prev) return prev;
+            const slot = activeSlot;
+            const len = prev.images?.length ?? 0;
+            const base = normalizeHorseGalleryFocusForPersist(prev, len);
+            base[slot] = { x: 50, y: 50 };
+            const out: any = { ...prev, galleryImageFocus: base };
+            if (slot === 0) {
+              out.cardImageFocusX = 50;
+              out.cardImageFocusY = 50;
+            }
+            return out;
+          })
+        }
+      >
+        Obnovit střed této fotky (50 % / 50 %)
+      </button>
     </div>
   );
 }
@@ -207,6 +244,7 @@ export function HorsesPageEditor({ data, updateField, addArrayItem, setArrayItem
     description: '',
     specialSkills: [],
     images: [],
+    galleryImageFocus: [],
     cardImageFocusX: 50,
     cardImageFocusY: 50,
   });
@@ -220,6 +258,13 @@ export function HorsesPageEditor({ data, updateField, addArrayItem, setArrayItem
     } else {
       delete payload.birthDate;
       if (payload.age === '' || payload.age === undefined) delete payload.age;
+    }
+
+    const imgs = payload.images || [];
+    payload.galleryImageFocus = normalizeHorseGalleryFocusForPersist(payload, imgs.length);
+    if (imgs.length > 0 && payload.galleryImageFocus[0]) {
+      payload.cardImageFocusX = payload.galleryImageFocus[0].x;
+      payload.cardImageFocusY = payload.galleryImageFocus[0].y;
     }
 
     if (editingIndex === null) {
@@ -361,10 +406,15 @@ export function HorsesPageEditor({ data, updateField, addArrayItem, setArrayItem
                   </label>
                   <button
                     type="button"
-                    onClick={() => setDraft((prev) => prev ? {
-                      ...prev,
-                      images: [...(prev.images || []), ''],
-                    } : prev)}
+                    onClick={() =>
+                      setDraft((prev) => {
+                        if (!prev) return prev;
+                        const nextImages = [...(prev.images || []), ''];
+                        const prevG = normalizeHorseGalleryFocusForPersist(prev, prev.images?.length ?? 0);
+                        prevG.push({ x: 50, y: 50 });
+                        return { ...prev, images: nextImages, galleryImageFocus: prevG };
+                      })
+                    }
                     className="flex items-center gap-2 rounded-lg bg-[var(--farm-accent-green)] px-3 py-1.5 text-sm text-white transition-colors hover:bg-[var(--farm-primary)]"
                   >
                     <Plus className="w-4 h-4" />
@@ -402,10 +452,15 @@ export function HorsesPageEditor({ data, updateField, addArrayItem, setArrayItem
                         </div>
                         <button
                           type="button"
-                          onClick={() => setDraft((prev) => prev ? {
-                            ...prev,
-                            images: (prev.images || []).filter((_: string, idx: number) => idx !== imgIndex),
-                          } : prev)}
+                          onClick={() =>
+                            setDraft((prev) => {
+                              if (!prev) return prev;
+                              const nextImages = (prev.images || []).filter((_: string, idx: number) => idx !== imgIndex);
+                              const oldG = normalizeHorseGalleryFocusForPersist(prev, prev.images?.length ?? 0);
+                              const nextG = oldG.filter((_, i) => i !== imgIndex);
+                              return { ...prev, images: nextImages, galleryImageFocus: nextG };
+                            })
+                          }
                           className="flex-shrink-0 p-2 text-red-600 transition-colors hover:bg-red-50 rounded-lg"
                           title="Odebrat obrázek"
                         >
@@ -419,7 +474,20 @@ export function HorsesPageEditor({ data, updateField, addArrayItem, setArrayItem
                     <p className="mb-2 text-sm text-[var(--farm-secondary-text)]">Zatím žádné obrázky</p>
                     <button
                       type="button"
-                      onClick={() => setDraft((prev) => prev ? { ...prev, images: [''] } : prev)}
+                      onClick={() =>
+                        setDraft((prev) => {
+                          if (!prev) return prev;
+                          const nextImages = [''];
+                          return {
+                            ...prev,
+                            images: nextImages,
+                            galleryImageFocus: normalizeHorseGalleryFocusForPersist(
+                              { ...prev, images: nextImages },
+                              1
+                            ),
+                          };
+                        })
+                      }
                       className="text-sm font-medium text-[var(--farm-accent-green)] hover:text-[var(--farm-primary)]"
                     >
                       + Přidat první obrázek
@@ -428,34 +496,7 @@ export function HorsesPageEditor({ data, updateField, addArrayItem, setArrayItem
                 )}
               </div>
 
-              {(draft.images || []).some((u: string) => String(u || '').trim()) ? (
-                <div className="rounded-2xl border border-[var(--farm-border)] bg-white p-4">
-                  <label className="mb-1 block text-sm font-medium text-[var(--farm-primary-text)]">
-                    Náhled v kartě (první obrázek)
-                  </label>
-                  <p className="mb-3 text-xs text-[var(--farm-secondary-text)]">
-                    Tahem myši posuňte snímek uvnitř rámečku (stejný výřez jako v kartě na webu). Za okrajem je náhled ztmavený. Platí pro úvodní stránku a seznam koní.
-                  </p>
-                  <div className="mb-4">
-                    <HorseCardPositionDragEditor
-                      imageSrc={(draft.images || []).find((u: string) => String(u || '').trim()) || ''}
-                      draft={draft}
-                      setDraft={setDraft}
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    className="mt-3 text-xs font-medium text-[var(--farm-accent-green)] hover:text-[var(--farm-primary)]"
-                    onClick={() =>
-                      setDraft((prev) =>
-                        prev ? { ...prev, cardImageFocusX: 50, cardImageFocusY: 50 } : prev
-                      )
-                    }
-                  >
-                    Obnovit střed (50 % / 50 %)
-                  </button>
-                </div>
-              ) : null}
+              <HorseGalleryFocusSection draft={draft} setDraft={setDraft} />
             </div>
           )}
         />

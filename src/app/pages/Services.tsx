@@ -8,6 +8,7 @@ import { usePageData } from '../hooks/usePageData';
 import { useGlobalSettings } from '../hooks/useGlobalSettings';
 import { resolveCmsImageUrl } from '../utils/media';
 import { normalizeCmsInternalHref } from '../utils/cmsInternalLinks';
+import { cardImageObjectPositionStyle } from '../utils/horseCardImage';
 
 export function Services() {
   const location = useLocation();
@@ -196,7 +197,8 @@ export function Services() {
                   <ImageWithFallback
                     src={service.image}
                     alt={service.title}
-                    className="w-full aspect-[4/3] object-cover"
+                    className="aspect-[4/3] w-full object-cover"
+                    style={cardImageObjectPositionStyle(service)}
                   />
                 </FloatingCard>
               </div>

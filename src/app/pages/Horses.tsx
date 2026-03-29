@@ -9,7 +9,7 @@ import { useLocation } from 'react-router';
 import { useGlobalSettings } from '../hooks/useGlobalSettings';
 import { resolveCmsImageUrl } from '../utils/media';
 import { horseLifeSummaryDetail, horseLifeSummaryShort } from '../utils/horseBirthDate';
-import { horseCardObjectPositionStyle } from '../utils/horseCardImage';
+import { horseGalleryImagePositionStyle } from '../utils/horseCardImage';
 
 interface Horse {
   id?: number;
@@ -25,9 +25,11 @@ interface Horse {
   personality?: string;
   specialSkills?: string[];
   images: string[];
-  /** 0–100, ohnisko ořezu náhledu v kartě */
+  /** 0–100, ohnisko ořezu náhledu v kartě (1. fotka; duplicitně s galleryImageFocus[0]) */
   cardImageFocusX?: number;
   cardImageFocusY?: number;
+  /** Ohnisko pro každou fotku galerie (modal + 1. snímek = karta) */
+  galleryImageFocus?: { x: number; y: number }[];
 }
 
 export function Horses() {
@@ -250,7 +252,7 @@ export function Horses() {
                     src={horse.images[0]}
                     alt={horse.name}
                     className="h-full w-full object-cover"
-                    style={horseCardObjectPositionStyle(horse)}
+                    style={horseGalleryImagePositionStyle(horse, 0)}
                   />
                 </div>
                 
@@ -305,19 +307,22 @@ export function Horses() {
         onNext={handleNextHorse}
       >
         {selectedHorse && (
-          <div className="flex min-h-0 min-w-0 max-w-full flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto overscroll-y-contain pb-2 md:flex-row md:gap-5 md:overflow-hidden md:pb-0 lg:gap-7">
-            {/* Galerie — dvh + landscape: nižší výška; na md kapitál podle výšky okna */}
-            <div className="flex w-full min-w-0 flex-col md:min-h-0 md:flex-[1.45]">
-              <div className="flex flex-1 flex-col items-center justify-start gap-3 md:min-h-0 md:justify-center">
-                <div className="relative mx-auto w-full min-w-0 max-w-full">
-                  <div className="relative mx-auto aspect-[5/6] h-[min(46dvh,360px)] w-auto max-w-full overflow-hidden rounded-2xl bg-[var(--farm-section-alt-bg)] ring-1 ring-[var(--farm-border)]/40 landscape:h-[min(36dvh,240px)] sm:h-[min(50dvh,400px)] sm:landscape:h-[min(40dvh,280px)] md:h-[min(76dvh,calc(100dvh-13rem))] md:max-h-[min(680px,calc(100dvh-13rem))] md:landscape:h-[min(70dvh,calc(100dvh-13rem))]">
+          <div className="flex min-h-0 min-w-0 max-w-full flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto overscroll-y-contain pb-2 md:flex-row md:gap-5 md:overflow-y-auto md:overscroll-y-contain md:pb-0 lg:gap-7">
+            {/* Galerie — na mobilu bez aspect-ratio (kvůli ořezu); výška dle svh; od md pevnější box */}
+            <div className="flex w-full min-h-0 min-w-0 flex-shrink-0 flex-col md:flex-[1.45] md:self-stretch">
+              <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-start gap-3 md:max-h-full md:justify-center">
+                <div className="relative mx-auto flex w-full min-w-0 max-w-full justify-center md:min-h-0 md:flex-1 md:items-center">
+                  {/* inline-block + object-contain: celý snímek vidět; rámeček obepne fotku (žádný pevný 5/6 cover-ořez) */}
+                  <div className="relative inline-block max-w-full overflow-hidden rounded-2xl bg-[var(--farm-section-alt-bg)]">
                     <ImageWithFallback
                       src={selectedHorse.images[currentImageIndex]}
                       alt={selectedHorse.name}
-                      className="h-full w-full object-cover"
-                      style={horseCardObjectPositionStyle(
-                        currentImageIndex === 0 ? selectedHorse : {}
-                      )}
+                      className={`mx-auto block h-auto max-w-full object-contain object-center max-md:max-h-[min(48svh,380px)] max-md:landscape:max-h-[min(34svh,228px)] sm:max-md:max-h-[min(50svh,400px)] sm:max-md:landscape:max-h-[min(38svh,252px)] ${
+                        selectedHorse.images.length > 1
+                          ? 'md:max-h-[min(520px,62dvh,calc(100dvh-14rem))]'
+                          : 'md:max-h-[min(720px,78dvh,calc(100dvh-11rem))]'
+                      }`}
+                      style={horseGalleryImagePositionStyle(selectedHorse, currentImageIndex)}
                     />
                     {selectedHorse.images.length > 1 && (
                       <>

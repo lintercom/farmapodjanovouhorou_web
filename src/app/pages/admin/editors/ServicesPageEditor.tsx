@@ -4,6 +4,7 @@ import { Button } from '../../../components/Button';
 import { ImageUpload } from '../../../components/admin/ImageUpload';
 import { CmsCollectionEditor } from '../../../components/admin/CmsCollectionEditor';
 import { LinkSelector } from '../../../components/admin/LinkSelector';
+import { CardImagePositionDragEditor } from '../../../components/admin/CardImagePositionDragEditor';
 
 export function ServicesPageEditor({ data, updateField, addArrayItem, setArrayItem, removeArrayItem }: any) {
   const services = data?.services || [];
@@ -13,6 +14,8 @@ export function ServicesPageEditor({ data, updateField, addArrayItem, setArrayIt
     title: 'Nová služba',
     description: '',
     image: '',
+    cardImageFocusX: 50,
+    cardImageFocusY: 50,
     details: [],
     buttonText: 'Zjistit více',
     buttonLink: '/kontakt',
@@ -106,6 +109,36 @@ export function ServicesPageEditor({ data, updateField, addArrayItem, setArrayIt
                 value={draft.image || ''}
                 onChange={(url) => setDraft((prev) => prev ? { ...prev, image: url } : prev)}
               />
+
+              {String(draft.image || '').trim() ? (
+                <div className="rounded-2xl border border-[var(--farm-border)] bg-white p-4">
+                  <label className="mb-1 block text-sm font-medium text-[var(--farm-primary-text)]">
+                    Náhled v kartě (poměr 4∶3)
+                  </label>
+                  <p className="mb-3 text-xs text-[var(--farm-secondary-text)]">
+                    Tahem myši posuňte snímek jako v karuselu na úvodní stránce a u obrázku služby na stránce Služby.
+                  </p>
+                  <div className="mb-2">
+                    <CardImagePositionDragEditor
+                      previewAspect="4/3"
+                      imageSrc={String(draft.image || '').trim()}
+                      draft={draft}
+                      setDraft={setDraft}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    className="text-xs font-medium text-[var(--farm-accent-green)] hover:text-[var(--farm-primary)]"
+                    onClick={() =>
+                      setDraft((prev) =>
+                        prev ? { ...prev, cardImageFocusX: 50, cardImageFocusY: 50 } : prev
+                      )
+                    }
+                  >
+                    Obnovit střed (50 % / 50 %)
+                  </button>
+                </div>
+              ) : null}
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>

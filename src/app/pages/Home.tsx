@@ -16,7 +16,7 @@ import { defaultPageContent } from '../utils/defaultPageContent';
 import { useGlobalSettings } from '../hooks/useGlobalSettings';
 import { resolveCmsImageUrl } from '../utils/media';
 import { normalizeCmsInternalHref } from '../utils/cmsInternalLinks';
-import { horseCardObjectPositionStyle } from '../utils/horseCardImage';
+import { cardImageObjectPositionStyle, horseGalleryImagePositionStyle } from '../utils/horseCardImage';
 
 function getCarouselSlidesToShow(): number {
   if (typeof window === 'undefined') return 1;
@@ -212,7 +212,8 @@ export function Home() {
                       <ImageWithFallback
                         src={service.image}
                         alt={service.title}
-                        className="w-full h-full object-cover"
+                        className="h-full w-full object-cover"
+                        style={cardImageObjectPositionStyle(service)}
                       />
                     </div>
                     <h3 className="text-2xl font-bold text-[var(--farm-primary-text)] mb-4">
@@ -261,7 +262,7 @@ export function Home() {
                           src={horse.image || horse.images?.[0] || 'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=1080&q=80'}
                           alt={horse.name}
                           className="h-full w-full object-cover"
-                          style={horseCardObjectPositionStyle(horse)}
+                          style={horseGalleryImagePositionStyle(horse, 0)}
                         />
                       </div>
                       <h3 className="text-2xl font-bold text-[var(--farm-primary-text)] mb-4">
