@@ -1,4 +1,5 @@
 // Simple editors for other page types
+import { useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { FloatingCard } from '../../../components/FloatingCard';
 import { Button } from '../../../components/Button';
@@ -12,6 +13,95 @@ import {
   defaultContactSection,
 } from '../../../utils/contactPageConfig';
 import { LinkSelector } from '../../../components/admin/LinkSelector';
+import {
+  horseLifeSummaryShort,
+  normalizeHorseBirthDateInput,
+} from '../../../utils/horseBirthDate';
+import { horseCardObjectPositionStyle } from '../../../utils/horseCardImage';
+
+function clampHorseFocus(n: number) {
+  return Math.min(100, Math.max(0, n));
+}
+
+/** Náhled karty: tahem myši nastavit object-position; za rámečkem ztmavený okraj. */
+function HorseCardPositionDragEditor({
+  imageSrc,
+  draft,
+  setDraft,
+}: {
+  imageSrc: string;
+  draft: any;
+  setDraft: (fn: (prev: any) => any) => void;
+}) {
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const draggingRef = useRef(false);
+  const [dragging, setDragging] = useState(false);
+  const startRef = useRef({ px: 0, py: 0, fx: 50, fy: 50 });
+
+  const fx = Number(draft.cardImageFocusX ?? 50);
+  const fy = Number(draft.cardImageFocusY ?? 50);
+
+  const onPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    draggingRef.current = true;
+    setDragging(true);
+    startRef.current = {
+      px: e.clientX,
+      py: e.clientY,
+      fx,
+      fy,
+    };
+  };
+
+  const onPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!draggingRef.current) return;
+    const vp = viewportRef.current;
+    if (!vp) return;
+    const rect = vp.getBoundingClientRect();
+    const dx = e.clientX - startRef.current.px;
+    const dy = e.clientY - startRef.current.py;
+    const k = 0.85;
+    const nx = clampHorseFocus(startRef.current.fx + (dx / Math.max(rect.width, 1)) * 100 * k);
+    const ny = clampHorseFocus(startRef.current.fy + (dy / Math.max(rect.height, 1)) * 100 * k);
+    setDraft((prev: any) => (prev ? { ...prev, cardImageFocusX: nx, cardImageFocusY: ny } : prev));
+  };
+
+  const endPointer = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+    setDragging(false);
+  };
+
+  return (
+    <div className="relative mx-auto flex h-[272px] w-full max-w-[300px] select-none items-center justify-center overflow-hidden rounded-xl bg-[var(--farm-section-alt-bg)]">
+      <div
+        ref={viewportRef}
+        role="application"
+        aria-label="Posunout výřez náhledu karty tahem myši"
+        className="relative z-[1] aspect-[5/6] w-[200px] touch-none overflow-hidden rounded-lg ring-2 ring-white/90 shadow-[0_0_0_9999px_rgba(0,0,0,0.52)] active:cursor-grabbing"
+        style={{ cursor: dragging ? 'grabbing' : 'grab' }}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endPointer}
+        onPointerCancel={endPointer}
+        onLostPointerCapture={() => {
+          draggingRef.current = false;
+          setDragging(false);
+        }}
+      >
+        <img
+          src={imageSrc}
+          alt=""
+          draggable={false}
+          className="h-full w-full object-cover pointer-events-none"
+          style={horseCardObjectPositionStyle(draft)}
+        />
+      </div>
+    </div>
+  );
+}
 
 // Events Page Editor
 export function EventsPageEditor({ data, updateField, addArrayItem, setArrayItem, removeArrayItem }: any) {
@@ -111,21 +201,33 @@ export function HorsesPageEditor({ data, updateField, addArrayItem, setArrayItem
   const createHorse = () => ({
     name: 'Nový kůň',
     breed: '',
-    age: '',
+    birthDate: '',
     color: '',
     temperament: '',
     description: '',
     specialSkills: [],
     images: [],
+    cardImageFocusX: 50,
+    cardImageFocusY: 50,
   });
 
   const saveHorse = (draft: any, editingIndex: number | null) => {
+    const birthDate = normalizeHorseBirthDateInput(draft.birthDate);
+    const payload: any = { ...draft };
+    if (birthDate) {
+      payload.birthDate = birthDate;
+      delete payload.age;
+    } else {
+      delete payload.birthDate;
+      if (payload.age === '' || payload.age === undefined) delete payload.age;
+    }
+
     if (editingIndex === null) {
-      addArrayItem(['horses'], draft);
+      addArrayItem(['horses'], payload);
       return;
     }
 
-    setArrayItem(['horses'], editingIndex, draft);
+    setArrayItem(['horses'], editingIndex, payload);
   };
 
   return (
@@ -163,7 +265,10 @@ export function HorsesPageEditor({ data, updateField, addArrayItem, setArrayItem
           items={horses}
           createItem={createHorse}
           getItemTitle={(horse: any, index) => horse.name || `Kůň #${index + 1}`}
-          getItemSubtitle={(horse: any) => horse.breed ? `${horse.breed}${horse.age ? `, ${horse.age}` : ''}` : 'Bez plemene'}
+          getItemSubtitle={(horse: any) => {
+            const life = horseLifeSummaryShort(horse);
+            return horse.breed ? `${horse.breed}${life !== '—' ? `, ${life}` : ''}` : 'Bez plemene';
+          }}
           emptyStateText="Zatím jste nepřidali žádné koně."
           dialogTitle={{ create: 'Přidat koně', edit: 'Upravit koně' }}
           dialogDescription="Vyplňte data koně v modalu. Do seznamu se propíšou až po uložení."
@@ -196,14 +301,24 @@ export function HorsesPageEditor({ data, updateField, addArrayItem, setArrayItem
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Věk</label>
+                  <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
+                    Datum narození
+                  </label>
                   <input
-                    type="text"
-                    placeholder="8 let"
-                    value={draft.age || ''}
-                    onChange={(e) => setDraft((prev) => prev ? { ...prev, age: e.target.value } : prev)}
+                    type="date"
+                    value={normalizeHorseBirthDateInput(draft.birthDate) || ''}
+                    onChange={(e) =>
+                      setDraft((prev) =>
+                        prev ? { ...prev, birthDate: e.target.value || '' } : prev
+                      )
+                    }
                     className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
                   />
+                  {draft.age != null && draft.age !== '' && !normalizeHorseBirthDateInput(draft.birthDate) ? (
+                    <p className="mt-1.5 text-xs text-[var(--farm-secondary-text)]">
+                      V datech je ještě staré pole „věk“ ({String(draft.age)}). Po uložení s vyplněným datem se věk z JSON odstraní.
+                    </p>
+                  ) : null}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Barva</label>
@@ -312,6 +427,35 @@ export function HorsesPageEditor({ data, updateField, addArrayItem, setArrayItem
                   </div>
                 )}
               </div>
+
+              {(draft.images || []).some((u: string) => String(u || '').trim()) ? (
+                <div className="rounded-2xl border border-[var(--farm-border)] bg-white p-4">
+                  <label className="mb-1 block text-sm font-medium text-[var(--farm-primary-text)]">
+                    Náhled v kartě (první obrázek)
+                  </label>
+                  <p className="mb-3 text-xs text-[var(--farm-secondary-text)]">
+                    Tahem myši posuňte snímek uvnitř rámečku (stejný výřez jako v kartě na webu). Za okrajem je náhled ztmavený. Platí pro úvodní stránku a seznam koní.
+                  </p>
+                  <div className="mb-4">
+                    <HorseCardPositionDragEditor
+                      imageSrc={(draft.images || []).find((u: string) => String(u || '').trim()) || ''}
+                      draft={draft}
+                      setDraft={setDraft}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    className="mt-3 text-xs font-medium text-[var(--farm-accent-green)] hover:text-[var(--farm-primary)]"
+                    onClick={() =>
+                      setDraft((prev) =>
+                        prev ? { ...prev, cardImageFocusX: 50, cardImageFocusY: 50 } : prev
+                      )
+                    }
+                  >
+                    Obnovit střed (50 % / 50 %)
+                  </button>
+                </div>
+              ) : null}
             </div>
           )}
         />

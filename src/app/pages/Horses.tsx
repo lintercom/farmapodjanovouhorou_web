@@ -2,17 +2,22 @@ import { useState, useEffect, useMemo } from 'react';
 import { FloatingCard } from '../components/FloatingCard';
 import { Modal } from '../components/Modal';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
-import { ChevronLeft, ChevronRight, X, Calendar, Heart, Award } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Heart } from 'lucide-react';
 import { Button } from '../components/Button';
 import { usePageData } from '../hooks/usePageData';
 import { useLocation } from 'react-router';
 import { useGlobalSettings } from '../hooks/useGlobalSettings';
 import { resolveCmsImageUrl } from '../utils/media';
+import { horseLifeSummaryDetail, horseLifeSummaryShort } from '../utils/horseBirthDate';
+import { horseCardObjectPositionStyle } from '../utils/horseCardImage';
 
 interface Horse {
   id?: number;
   name: string;
   breed: string;
+  /** ISO YYYY-MM-DD; preferováno před legacy `age` */
+  birthDate?: string;
+  /** @deprecated použijte birthDate */
   age?: number | string;
   color: string;
   description: string;
@@ -20,6 +25,9 @@ interface Horse {
   personality?: string;
   specialSkills?: string[];
   images: string[];
+  /** 0–100, ohnisko ořezu náhledu v kartě */
+  cardImageFocusX?: number;
+  cardImageFocusY?: number;
 }
 
 export function Horses() {
@@ -35,7 +43,7 @@ export function Horses() {
       id: 1,
       name: 'BěluĹˇka',
       breed: 'Welsh Pony',
-      age: 8,
+      birthDate: '2018-06-01',
       color: 'Bílá',
       description: 'BěluĹˇka je naĹˇe nejmilejĹˇí kobylka, která má obzvláĹˇtě ráda děti. Je to ideální kĹŻĹ pro zaÄŤáteÄŤníky díky své klidné povaze a trpělivosti.',
       personality: 'Klidná, trpělivá, laskavá',
@@ -50,7 +58,7 @@ export function Horses() {
       id: 2,
       name: 'Čert',
       breed: 'Fríský kĹŻĹ',
-      age: 10,
+      birthDate: '2016-06-01',
       color: 'Vraník',
       description: 'Čert je majestátní fríský valach s úĹľasnou povahou. Navzdory svému impozantnímu vzhledu je velmi klidný a spolehlivý.',
       personality: 'Majestátní, klidný, spolehlivý',
@@ -65,7 +73,7 @@ export function Horses() {
       id: 3,
       name: 'Hnědák',
       breed: 'Český teplokrevník',
-      age: 12,
+      birthDate: '2014-06-01',
       color: 'Hnědák',
       description: 'Hnědák je energický valach, který má rád dlouhé vyjíĹľďky do pĹ™írody. Je vhodný pro pokroÄŤilejĹˇí jezdce, kteĹ™í zvládají vĹˇechny chody.',
       personality: 'Energický, pĹ™átelský, inteligentní',
@@ -79,7 +87,7 @@ export function Horses() {
       id: 4,
       name: 'Zlatka',
       breed: 'Hafling',
-      age: 6,
+      birthDate: '2020-06-01',
       color: 'Plavák',
       description: 'Zlatka je mladá kobylka plemene hafling s krásnou hĹ™ívou. Je hravá a energická, ideální pro děti se zkuĹˇenostmi.',
       personality: 'Hravá, energická, bystrá',
@@ -94,7 +102,7 @@ export function Horses() {
       id: 5,
       name: 'Rebel',
       breed: 'Quarter Horse',
-      age: 9,
+      birthDate: '2017-06-01',
       color: 'Ryzák',
       description: 'Rebel je americký quarter horse s výbornou povahou. Je velmi inteligentní a rychle se uÄŤí nové věci.',
       personality: 'Inteligentní, uÄŤenlivý, vyrovnaný',
@@ -108,7 +116,7 @@ export function Horses() {
       id: 6,
       name: 'HvězdiÄŤka',
       breed: 'Shetlandský pony',
-      age: 15,
+      birthDate: '2011-06-01',
       color: 'Hnědák',
       description: 'HvězdiÄŤka je nejmenĹˇí ÄŤlen naĹˇí stáje. Díky své velikosti je ideální pro ty nejmenĹˇí zaÄŤáteÄŤnky.',
       personality: 'Laskavá, pĹ™átelská, stabilní',
@@ -222,12 +230,12 @@ export function Horses() {
       </section>
 
       {/* Horses Grid */}
-      <section className="py-24 bg-[var(--farm-section-alt-bg)] -mt-[1px] relative overflow-hidden">
+      <section className="py-24 md:py-28 bg-[var(--farm-section-alt-bg)] -mt-[1px] relative overflow-hidden">
         {/* Blurred gradient transition from previous section */}
         <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-page-bg)] to-transparent backdrop-blur-sm" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
             {horses.map((horse) => (
               <FloatingCard
                 key={horse.id}
@@ -237,11 +245,12 @@ export function Horses() {
                   setCurrentImageIndex(0);
                 }}
               >
-                <div className="aspect-square rounded-2xl overflow-hidden mb-5 -mt-2">
+                <div className="aspect-[5/6] rounded-2xl overflow-hidden mb-5 -mt-2 bg-[var(--farm-section-alt-bg)] ring-1 ring-[var(--farm-border)]/40">
                   <ImageWithFallback
                     src={horse.images[0]}
                     alt={horse.name}
-                    className="w-full h-full object-cover"
+                    className="h-full w-full object-cover"
+                    style={horseCardObjectPositionStyle(horse)}
                   />
                 </div>
                 
@@ -256,7 +265,7 @@ export function Horses() {
                 <div className="flex items-center gap-4 text-sm text-[var(--farm-secondary-text)] mb-4">
                   <div className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
-                    <span>{horse.age} let</span>
+                    <span>{horseLifeSummaryShort(horse)}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Heart className="w-4 h-4" />
@@ -296,129 +305,136 @@ export function Horses() {
         onNext={handleNextHorse}
       >
         {selectedHorse && (
-          <div className="flex flex-col md:flex-row gap-3 sm:gap-6 md:gap-8 h-full">
-            {/* Left Side - Image & Basic Info (55% on desktop) */}
-            <div className="md:w-[55%] flex flex-col gap-2 sm:gap-4">
-              {/* Horse Image */}
-              <div className="relative">
-                <div className="aspect-[4/3] rounded-xl sm:rounded-2xl overflow-hidden">
-                  <ImageWithFallback
-                    src={selectedHorse.images[currentImageIndex]}
-                    alt={selectedHorse.name}
-                    className="w-full h-full object-cover"
-                  />
+          <div className="flex min-h-0 min-w-0 max-w-full flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto overscroll-y-contain pb-2 md:flex-row md:gap-5 md:overflow-hidden md:pb-0 lg:gap-7">
+            {/* Galerie — dvh + landscape: nižší výška; na md kapitál podle výšky okna */}
+            <div className="flex w-full min-w-0 flex-col md:min-h-0 md:flex-[1.45]">
+              <div className="flex flex-1 flex-col items-center justify-start gap-3 md:min-h-0 md:justify-center">
+                <div className="relative mx-auto w-full min-w-0 max-w-full">
+                  <div className="relative mx-auto aspect-[5/6] h-[min(46dvh,360px)] w-auto max-w-full overflow-hidden rounded-2xl bg-[var(--farm-section-alt-bg)] ring-1 ring-[var(--farm-border)]/40 landscape:h-[min(36dvh,240px)] sm:h-[min(50dvh,400px)] sm:landscape:h-[min(40dvh,280px)] md:h-[min(76dvh,calc(100dvh-13rem))] md:max-h-[min(680px,calc(100dvh-13rem))] md:landscape:h-[min(70dvh,calc(100dvh-13rem))]">
+                    <ImageWithFallback
+                      src={selectedHorse.images[currentImageIndex]}
+                      alt={selectedHorse.name}
+                      className="h-full w-full object-cover"
+                      style={horseCardObjectPositionStyle(
+                        currentImageIndex === 0 ? selectedHorse : {}
+                      )}
+                    />
+                    {selectedHorse.images.length > 1 && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePrevImage();
+                          }}
+                          className="absolute left-1 top-1/2 z-[1] flex h-11 w-11 -translate-y-1/2 touch-manipulation items-center justify-center rounded-full bg-white/90 text-[var(--farm-primary)] shadow-lg transition-all hover:bg-white sm:left-3 sm:h-10 sm:w-10"
+                          aria-label="Předchozí fotka"
+                        >
+                          <ChevronLeft className="h-5 w-5 sm:h-5 sm:w-5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleNextImage();
+                          }}
+                          className="absolute right-1 top-1/2 z-[1] flex h-11 w-11 -translate-y-1/2 touch-manipulation items-center justify-center rounded-full bg-white/90 text-[var(--farm-primary)] shadow-lg transition-all hover:bg-white sm:right-3 sm:h-10 sm:w-10"
+                          aria-label="Další fotka"
+                        >
+                          <ChevronRight className="h-5 w-5 sm:h-5 sm:w-5" />
+                        </button>
+                        <div className="pointer-events-none absolute bottom-2 right-2 rounded-full bg-black/60 px-2 py-1 text-xs font-medium text-white sm:bottom-3 sm:right-3 sm:px-3 sm:py-1.5 sm:text-sm">
+                          {currentImageIndex + 1} / {selectedHorse.images.length}
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
-                {/* Navigation Arrows */}
+
                 {selectedHorse.images.length > 1 && (
-                  <>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handlePrevImage();
-                      }}
-                      className="absolute left-1.5 sm:left-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-[var(--farm-primary)] p-1.5 sm:p-2 rounded-full shadow-lg transition-all"
-                    >
-                      <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleNextImage();
-                      }}
-                      className="absolute right-1.5 sm:right-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-[var(--farm-primary)] p-1.5 sm:p-2 rounded-full shadow-lg transition-all"
-                    >
-                      <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                    </button>
-                    {/* Image Counter */}
-                    <div className="absolute bottom-2 sm:bottom-3 right-2 sm:right-3 bg-black/60 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium">
-                      {currentImageIndex + 1} / {selectedHorse.images.length}
-                    </div>
-                  </>
+                  <div className="flex w-full max-w-full touch-pan-x justify-center gap-2 overflow-x-auto overflow-y-hidden overscroll-x-contain px-1 pb-1 [-ms-overflow-style:none] [scrollbar-width:thin] md:flex-shrink-0 [&::-webkit-scrollbar]:h-1.5">
+                    {selectedHorse.images.map((thumbUrl, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setCurrentImageIndex(i)}
+                        className={`relative flex h-16 min-h-[44px] w-[4.5rem] min-w-[44px] flex-shrink-0 touch-manipulation overflow-hidden rounded-lg ring-2 transition-shadow sm:h-[4.5rem] sm:w-20 ${
+                          i === currentImageIndex
+                            ? 'ring-[var(--farm-primary)] ring-offset-2 ring-offset-white'
+                            : 'ring-transparent opacity-80 hover:opacity-100'
+                        }`}
+                        aria-label={`Fotka ${i + 1} z ${selectedHorse.images.length}`}
+                        aria-current={i === currentImageIndex ? 'true' : undefined}
+                      >
+                        <img
+                          src={thumbUrl}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
                 )}
-              </div>
-
-              {/* Breed & Age Cards - Full width */}
-              <div className="flex gap-2 sm:gap-4">
-                <div className="flex items-center gap-2 sm:gap-3 bg-[var(--farm-section-alt-bg)] rounded-xl sm:rounded-2xl p-3 sm:p-5 flex-1">
-                  <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-[var(--farm-accent-green)]/10 flex items-center justify-center flex-shrink-0">
-                    <Heart className="w-4 h-4 sm:w-6 sm:h-6 text-[var(--farm-accent-green)]" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-[10px] sm:text-xs text-[var(--farm-secondary-text)] mb-0.5 sm:mb-1">Plemeno</div>
-                    <div className="font-semibold text-sm sm:text-lg text-[var(--farm-primary-text)] truncate">{selectedHorse.breed}</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 sm:gap-3 bg-[var(--farm-section-alt-bg)] rounded-xl sm:rounded-2xl p-3 sm:p-5 flex-1">
-                  <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-[var(--farm-accent-green)]/10 flex items-center justify-center flex-shrink-0">
-                    <Calendar className="w-4 h-4 sm:w-6 sm:h-6 text-[var(--farm-accent-green)]" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-[10px] sm:text-xs text-[var(--farm-secondary-text)] mb-0.5 sm:mb-1">Věk</div>
-                    <div className="font-semibold text-sm sm:text-lg text-[var(--farm-primary-text)]">{selectedHorse.age} let</div>
-                  </div>
-                </div>
               </div>
             </div>
 
-            {/* Right Side - Scrollable Details (45% on desktop) */}
-            <div className="md:w-[45%] flex flex-col min-h-0">
-              <h3 className="text-lg sm:text-2xl font-semibold text-[var(--farm-primary-text)] mb-3 sm:mb-6">
-                Informace
-              </h3>
-              
-              <div className="overflow-y-auto flex-1 pr-1 sm:pr-2 space-y-3 sm:space-y-6" style={{ maxHeight: 'calc(80vh - 150px)' }}>
-                {/* Color & Personality */}
+            {/* Text + meta — užší sloupec, scroll jen u dlouhého textu */}
+            <div className="flex min-h-0 w-full min-w-0 max-w-full flex-col md:max-w-[min(100%,22rem)] md:flex-shrink-0 md:self-stretch lg:max-w-sm">
+              <div className="min-h-0 flex-1 overflow-y-auto pr-1 md:min-h-0">
+                <h3 className="mb-2 text-base font-semibold text-[var(--farm-primary-text)] sm:mb-3 sm:text-lg md:text-xl">
+                  Informace
+                </h3>
                 <div className="space-y-3 sm:space-y-4">
-                  <div className="flex items-start gap-2 sm:gap-3">
-                    <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--farm-accent-green)] flex-shrink-0 mt-0.5" />
-                    <div>
-                      <div className="text-xs sm:text-sm text-[var(--farm-secondary-text)] mb-0.5 sm:mb-1">Barva</div>
-                      <div className="text-sm sm:text-base font-medium text-[var(--farm-primary-text)]">{selectedHorse.color}</div>
-                    </div>
-                  </div>
-                  
-                  {selectedHorse.personality && (
-                    <div className="flex items-start gap-2 sm:gap-3">
-                      <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--farm-accent-green)] flex-shrink-0 mt-0.5" />
+                  <div className="space-y-2.5 sm:space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Heart className="mt-0.5 h-4 w-4 flex-shrink-0 text-[var(--farm-accent-green)] sm:h-5 sm:w-5" />
                       <div>
-                        <div className="text-xs sm:text-sm text-[var(--farm-secondary-text)] mb-0.5 sm:mb-1">Povaha</div>
-                        <div className="text-sm sm:text-base font-medium text-[var(--farm-primary-text)]">{selectedHorse.personality}</div>
+                        <div className="mb-0.5 text-xs text-[var(--farm-secondary-text)]">Barva</div>
+                        <div className="text-sm font-medium text-[var(--farm-primary-text)] sm:text-base">{selectedHorse.color}</div>
                       </div>
                     </div>
-                  )}
-                </div>
-
-                {/* Description */}
-                <div className="border-t border-gray-200 pt-3 sm:pt-6">
-                  <h4 className="font-semibold text-[var(--farm-primary-text)] mb-2 sm:mb-3 text-sm sm:text-base">
-                    O {selectedHorse.name}
-                  </h4>
-                  <p className="text-[var(--farm-secondary-text)] leading-relaxed text-xs sm:text-sm">
-                    {selectedHorse.description}
-                  </p>
-                </div>
-
-                {/* Special Skills */}
-                {selectedHorse.specialSkills && selectedHorse.specialSkills.length > 0 && (
-                  <div className="border-t border-gray-200 pt-3 sm:pt-6">
-                    <h4 className="font-semibold text-[var(--farm-primary-text)] mb-3 sm:mb-4 flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base">
-                      <Award className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--farm-accent-green)]" />
-                      Speciální dovednosti
-                    </h4>
-                    <ul className="space-y-2 sm:space-y-2.5">
-                      {selectedHorse.specialSkills.map((skill, index) => (
-                        <li
-                          key={index}
-                          className="flex items-center gap-2 sm:gap-2.5 text-[var(--farm-secondary-text)] text-xs sm:text-sm"
-                        >
-                          <div className="w-1.5 h-1.5 rounded-full bg-[var(--farm-accent-green)] flex-shrink-0" />
-                          {skill}
-                        </li>
-                      ))}
-                    </ul>
+                    {selectedHorse.personality && (
+                      <div className="flex items-start gap-2">
+                        <Heart className="mt-0.5 h-4 w-4 flex-shrink-0 text-[var(--farm-accent-green)] sm:h-5 sm:w-5" />
+                        <div>
+                          <div className="mb-0.5 text-xs text-[var(--farm-secondary-text)]">Povaha</div>
+                          <div className="text-sm font-medium text-[var(--farm-primary-text)] sm:text-base">{selectedHorse.personality}</div>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
+                  <div className="border-t border-gray-200 pt-3 sm:pt-4">
+                    <h4 className="mb-1.5 text-sm font-semibold text-[var(--farm-primary-text)] sm:mb-2 sm:text-base">
+                      O {selectedHorse.name}
+                    </h4>
+                    <p className="text-xs leading-relaxed text-[var(--farm-secondary-text)] sm:text-sm">
+                      {selectedHorse.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 shrink-0 space-y-2 border-t border-gray-200 pt-3 md:mt-3 md:pt-3">
+                <div className="flex items-center gap-2 rounded-xl bg-[var(--farm-section-alt-bg)] p-2.5 sm:p-3">
+                  <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[var(--farm-accent-green)]/10 sm:h-10 sm:w-10">
+                    <Heart className="h-4 w-4 text-[var(--farm-accent-green)] sm:h-5 sm:w-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-[10px] text-[var(--farm-secondary-text)] sm:text-xs">Plemeno</div>
+                    <div className="truncate text-sm font-semibold text-[var(--farm-primary-text)]">{selectedHorse.breed}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 rounded-xl bg-[var(--farm-section-alt-bg)] p-2.5 sm:p-3">
+                  <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[var(--farm-accent-green)]/10 sm:h-10 sm:w-10">
+                    <Calendar className="h-4 w-4 text-[var(--farm-accent-green)] sm:h-5 sm:w-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-[10px] text-[var(--farm-secondary-text)] sm:text-xs">Datum narození</div>
+                    <div className="text-sm font-semibold leading-snug text-[var(--farm-primary-text)]">
+                      {horseLifeSummaryDetail(selectedHorse)}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -16,6 +16,7 @@ import { defaultPageContent } from '../utils/defaultPageContent';
 import { useGlobalSettings } from '../hooks/useGlobalSettings';
 import { resolveCmsImageUrl } from '../utils/media';
 import { normalizeCmsInternalHref } from '../utils/cmsInternalLinks';
+import { horseCardObjectPositionStyle } from '../utils/horseCardImage';
 
 function getCarouselSlidesToShow(): number {
   if (typeof window === 'undefined') return 1;
@@ -237,7 +238,7 @@ export function Home() {
         <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-section-alt-bg)] to-transparent backdrop-blur-sm" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 overflow-visible">
-          <div className="text-center mb-12 md:mb-16">
+          <div className="text-center mb-10 md:mb-14">
             <h2 className="text-3xl md:text-5xl font-bold text-[var(--farm-primary-text)] mb-6">
               Naši koně
             </h2>
@@ -246,7 +247,7 @@ export function Home() {
             </p>
           </div>
 
-          <div className="relative px-2 sm:px-6 lg:px-8 pt-10 pb-10 mb-4 overflow-visible">
+          <div className="relative px-2 sm:px-6 lg:px-8 pt-12 pb-12 mb-4 overflow-visible">
             <Slider {...sliderSettings} className="home-carousel-slider">
               {horses.slice(0, 6).map((horse, index) => (
                 <div key={horse.id || horse.name || index} className="flex h-full px-2 sm:px-4 pb-4 pt-4 min-w-0">
@@ -255,11 +256,12 @@ export function Home() {
                     className="group flex h-full w-full min-w-0 no-underline text-inherit focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--farm-primary)] rounded-2xl"
                   >
                     <FloatingCard className="flex h-full min-h-[480px] md:min-h-[600px] w-full min-w-0 flex-col">
-                      <div className="aspect-[4/3] rounded-2xl overflow-hidden mb-6 -mt-2 flex-shrink-0">
+                      <div className="aspect-[5/6] rounded-2xl overflow-hidden mb-6 -mt-2 flex-shrink-0 bg-[var(--farm-section-alt-bg)] ring-1 ring-[var(--farm-border)]/40">
                         <ImageWithFallback
                           src={horse.image || horse.images?.[0] || 'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=1080&q=80'}
                           alt={horse.name}
-                          className="w-full h-full object-cover"
+                          className="h-full w-full object-cover"
+                          style={horseCardObjectPositionStyle(horse)}
                         />
                       </div>
                       <h3 className="text-2xl font-bold text-[var(--farm-primary-text)] mb-4">

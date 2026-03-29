@@ -40,17 +40,17 @@ export function Modal({ isOpen, onClose, children, title, onPrevious, onNext }: 
           />
 
           {/* Modal */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 pointer-events-none">
+          <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-2 pt-[max(0.5rem,env(safe-area-inset-top,0px))] pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] sm:p-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.15 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-6xl h-[95vh] sm:h-[90vh] flex flex-col pointer-events-auto overflow-hidden"
+              className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl flex h-[min(94dvh,100vh)] max-h-[100dvh] w-full max-w-6xl flex-col overflow-hidden pointer-events-auto sm:h-[min(88dvh,90vh)]"
             >
               {/* Header */}
-              <div className="flex-shrink-0 border-b border-gray-100 px-4 sm:px-8 py-4 sm:py-6 flex items-center justify-between">
+              <div className="flex flex-shrink-0 items-center justify-between border-b border-gray-100 py-4 pl-[max(1rem,env(safe-area-inset-left,0px))] pr-[max(1rem,env(safe-area-inset-right,0px))] sm:px-8 sm:py-6">
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-[var(--farm-primary-text)] pr-2 line-clamp-1">
                   {title}
                 </h2>
@@ -92,7 +92,7 @@ export function Modal({ isOpen, onClose, children, title, onPrevious, onNext }: 
               </div>
 
               {/* Content — min-h-0 umožní vnořenému obsahu (flex + overflow) správně scrollovat */}
-              <div className="min-h-0 flex-1 overflow-hidden p-4 sm:p-8">
+              <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden p-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 sm:p-6 sm:pb-8 sm:pt-6 md:p-8">
                 {children}
               </div>
             </motion.div>
