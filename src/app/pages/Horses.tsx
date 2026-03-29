@@ -310,17 +310,17 @@ export function Horses() {
           <div className="flex min-h-0 min-w-0 max-w-full flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto overscroll-y-contain pb-2 md:flex-row md:gap-5 md:overflow-y-auto md:overscroll-y-contain md:pb-0 lg:gap-7">
             {/* Galerie — na mobilu bez aspect-ratio (kvůli ořezu); výška dle svh; od md pevnější box */}
             <div className="flex w-full min-h-0 min-w-0 flex-shrink-0 flex-col md:flex-[1.45] md:self-stretch">
-              <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-start gap-3 md:max-h-full md:justify-center">
+              <div className="flex w-full max-md:flex-none flex-col items-center justify-start gap-3 md:min-h-0 md:flex-1 md:max-h-full md:justify-center">
                 <div className="relative mx-auto flex w-full min-w-0 max-w-full justify-center md:min-h-0 md:flex-1 md:items-center">
                   {/* inline-block + object-contain: celý snímek vidět; rámeček obepne fotku (žádný pevný 5/6 cover-ořez) */}
                   <div className="relative inline-block max-w-full overflow-hidden rounded-2xl bg-[var(--farm-section-alt-bg)]">
                     <ImageWithFallback
                       src={selectedHorse.images[currentImageIndex]}
                       alt={selectedHorse.name}
-                      className={`mx-auto block h-auto max-w-full object-contain object-center max-md:max-h-[min(48svh,380px)] max-md:landscape:max-h-[min(34svh,228px)] sm:max-md:max-h-[min(50svh,400px)] sm:max-md:landscape:max-h-[min(38svh,252px)] ${
+                      className={`mx-auto block h-auto max-w-full rounded-2xl object-contain object-center max-md:max-h-[min(44svh,340px)] max-md:landscape:max-h-[min(32svh,216px)] sm:max-md:max-h-[min(46svh,360px)] sm:max-md:landscape:max-h-[min(36svh,236px)] ${
                         selectedHorse.images.length > 1
-                          ? 'md:max-h-[min(520px,62dvh,calc(100dvh-14rem))]'
-                          : 'md:max-h-[min(720px,78dvh,calc(100dvh-11rem))]'
+                          ? 'md:max-h-[min(460px,54dvh,calc(100dvh-16.5rem))]'
+                          : 'md:max-h-[min(600px,64dvh,calc(100dvh-13.5rem))]'
                       }`}
                       style={horseGalleryImagePositionStyle(selectedHorse, currentImageIndex)}
                     />
@@ -383,9 +383,9 @@ export function Horses() {
               </div>
             </div>
 
-            {/* Text + meta — užší sloupec, scroll jen u dlouhého textu */}
-            <div className="flex min-h-0 w-full min-w-0 max-w-full flex-col md:max-w-[min(100%,22rem)] md:flex-shrink-0 md:self-stretch lg:max-w-sm">
-              <div className="min-h-0 flex-1 overflow-y-auto pr-1 md:min-h-0">
+            {/* Text + meta — mobil: jeden scroll s fotkou; desktop: scroll jen v textu při dlouhém obsahu */}
+            <div className="flex w-full min-w-0 max-w-full flex-col max-md:flex-none md:min-h-0 md:max-w-[min(100%,22rem)] md:flex-shrink-0 md:self-stretch lg:max-w-sm">
+              <div className="pr-1 md:min-h-0 md:flex-1 md:overflow-y-auto">
                 <h3 className="mb-2 text-base font-semibold text-[var(--farm-primary-text)] sm:mb-3 sm:text-lg md:text-xl">
                   Informace
                 </h3>
@@ -416,27 +416,26 @@ export function Horses() {
                       {selectedHorse.description}
                     </p>
                   </div>
-                </div>
-              </div>
-
-              <div className="mt-4 shrink-0 space-y-2 border-t border-gray-200 pt-3 md:mt-3 md:pt-3">
-                <div className="flex items-center gap-2 rounded-xl bg-[var(--farm-section-alt-bg)] p-2.5 sm:p-3">
-                  <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[var(--farm-accent-green)]/10 sm:h-10 sm:w-10">
-                    <Heart className="h-4 w-4 text-[var(--farm-accent-green)] sm:h-5 sm:w-5" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-[10px] text-[var(--farm-secondary-text)] sm:text-xs">Plemeno</div>
-                    <div className="truncate text-sm font-semibold text-[var(--farm-primary-text)]">{selectedHorse.breed}</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 rounded-xl bg-[var(--farm-section-alt-bg)] p-2.5 sm:p-3">
-                  <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[var(--farm-accent-green)]/10 sm:h-10 sm:w-10">
-                    <Calendar className="h-4 w-4 text-[var(--farm-accent-green)] sm:h-5 sm:w-5" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-[10px] text-[var(--farm-secondary-text)] sm:text-xs">Datum narození</div>
-                    <div className="text-sm font-semibold leading-snug text-[var(--farm-primary-text)]">
-                      {horseLifeSummaryDetail(selectedHorse)}
+                  <div className="space-y-2 border-t border-gray-200 pt-3 sm:pt-4">
+                    <div className="flex items-center gap-2 rounded-xl bg-[var(--farm-section-alt-bg)] p-2.5 sm:p-3">
+                      <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[var(--farm-accent-green)]/10 sm:h-10 sm:w-10">
+                        <Heart className="h-4 w-4 text-[var(--farm-accent-green)] sm:h-5 sm:w-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-[10px] text-[var(--farm-secondary-text)] sm:text-xs">Plemeno</div>
+                        <div className="truncate text-sm font-semibold text-[var(--farm-primary-text)]">{selectedHorse.breed}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 rounded-xl bg-[var(--farm-section-alt-bg)] p-2.5 sm:p-3">
+                      <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[var(--farm-accent-green)]/10 sm:h-10 sm:w-10">
+                        <Calendar className="h-4 w-4 text-[var(--farm-accent-green)] sm:h-5 sm:w-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-[10px] text-[var(--farm-secondary-text)] sm:text-xs">Datum narození</div>
+                        <div className="text-sm font-semibold leading-snug text-[var(--farm-primary-text)]">
+                          {horseLifeSummaryDetail(selectedHorse)}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
