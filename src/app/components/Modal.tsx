@@ -91,8 +91,8 @@ export function Modal({ isOpen, onClose, children, title, onPrevious, onNext }: 
                 </div>
               </div>
 
-              {/* Content */}
-              <div className="flex-1 overflow-hidden p-4 sm:p-8">
+              {/* Content — min-h-0 umožní vnořenému obsahu (flex + overflow) správně scrollovat */}
+              <div className="min-h-0 flex-1 overflow-hidden p-4 sm:p-8">
                 {children}
               </div>
             </motion.div>

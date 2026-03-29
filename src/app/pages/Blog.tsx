@@ -165,41 +165,41 @@ export function Blog() {
         onNext={handleNextEvent}
       >
         {selectedEvent && (
-          <div className="flex flex-col md:flex-row gap-0 h-full">
-            {/* Left Side - Large Image (40%) */}
-            <div className="md:w-[40%] flex-shrink-0 relative">
-              <div className="h-[300px] md:h-full rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none overflow-hidden">
-                <ImageWithFallback
-                  src={selectedEvent.image}
-                  alt={selectedEvent.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-
-            {/* Right Side - Article Content (60%) */}
-            <div className="md:w-[60%] flex flex-col overflow-hidden">
-              <div className="overflow-y-auto flex-1 px-6 md:px-12 py-6 md:py-10" style={{ maxHeight: 'calc(80vh - 40px)' }}>
-                {/* Main Title */}
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--farm-primary-text)] mb-8 leading-tight">
-                  {selectedEvent.title}
-                </h2>
-
-                {/* Highlighted Intro/Perex */}
-                <div className="bg-[var(--farm-primary-light)]/30 border-l-4 border-[var(--farm-accent-green)] rounded-r-xl p-6 mb-8">
-                  <p className="text-base md:text-lg text-[var(--farm-text-primary)] italic leading-relaxed">
-                    {selectedEvent.description}
-                  </p>
+          <div className="flex h-full min-h-0 flex-col md:flex-row gap-0">
+            {/* Mobil: jeden posuvný sloupec (obrázek + článek). Desktop: řádek, scroll jen v textu. */}
+            <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain md:h-full md:flex-row md:overflow-hidden">
+              {/* Obrázek */}
+              <div className="relative flex-shrink-0 md:w-[40%]">
+                <div className="h-[300px] overflow-hidden rounded-t-2xl md:h-full md:min-h-0 md:rounded-l-2xl md:rounded-tr-none">
+                  <ImageWithFallback
+                    src={selectedEvent.image}
+                    alt={selectedEvent.title}
+                    className="h-full w-full object-cover"
+                  />
                 </div>
+              </div>
 
-                {/* Main Content */}
-                <div className="mb-8">
-                  <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-4">
-                    Obsah:
-                  </h3>
-                  <div className="prose prose-base max-w-none">
-                    <div className="text-[var(--farm-text-primary)] leading-relaxed whitespace-pre-line">
-                      {selectedEvent.fullDescription}
+              {/* Text článku */}
+              <div className="flex min-h-0 flex-shrink-0 flex-col md:w-[60%] md:flex-1 md:overflow-hidden">
+                <div className="px-6 py-6 md:flex-1 md:overflow-y-auto md:px-12 md:py-10 md:min-h-0">
+                  <h2 className="mb-8 text-3xl font-bold leading-tight text-[var(--farm-primary-text)] md:text-4xl lg:text-5xl">
+                    {selectedEvent.title}
+                  </h2>
+
+                  <div className="mb-8 rounded-r-xl border-l-4 border-[var(--farm-accent-green)] bg-[var(--farm-primary-light)]/30 p-6">
+                    <p className="text-base italic leading-relaxed text-[var(--farm-text-primary)] md:text-lg">
+                      {selectedEvent.description}
+                    </p>
+                  </div>
+
+                  <div className="mb-8">
+                    <h3 className="mb-4 text-lg font-semibold text-[var(--farm-primary-text)]">
+                      Obsah:
+                    </h3>
+                    <div className="prose prose-base max-w-none">
+                      <div className="whitespace-pre-line leading-relaxed text-[var(--farm-text-primary)]">
+                        {selectedEvent.fullDescription}
+                      </div>
                     </div>
                   </div>
                 </div>
