@@ -152,7 +152,8 @@
   body {
     @apply text-foreground;
     background-color: #fafaf9;
-    overflow-x: clip;
+    /* hidden místo clip — clip u kořene může u fixed navigace ořezávat přesah loga pod lištou */
+    overflow-x: hidden;
     min-width: 0;
   }
 
@@ -163,7 +164,7 @@
 
   html {
     font-size: var(--font-size);
-    overflow-x: clip;
+    overflow-x: hidden;
     max-width: 100%;
   }
 

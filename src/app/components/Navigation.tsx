@@ -43,9 +43,11 @@ export function Navigation() {
   return (
     <>
       {/* Desktop & Mobile Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md transition-all duration-300 ${isScrolled ? 'shadow-[var(--farm-shadow-md)]' : ''}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20 lg:justify-start">
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 overflow-visible bg-white/95 backdrop-blur-md transition-all duration-300 ${isScrolled ? 'shadow-[var(--farm-shadow-md)]' : ''}`}
+      >
+        <div className="mx-auto max-w-7xl overflow-visible px-4 sm:px-6 lg:px-8">
+          <div className="relative flex h-20 items-center justify-between overflow-visible lg:justify-start">
             {/* Spacer for mobile symmetry - same width as hamburger button */}
             <div className="lg:hidden w-10"></div>
 
@@ -119,13 +121,16 @@ export function Navigation() {
               </Link>
             </div>
 
-            {/* Center Logo */}
-            <div className="absolute left-1/2 -translate-x-1/2 lg:relative lg:left-auto lg:translate-x-0 flex items-center justify-center lg:flex-none">
-              <Link to="/" className="flex items-center justify-center relative">
+            {/* Center Logo — max-lg: velké logo přesahuje pod spodní hranu lišty (h-20), dokud není scroll / menu */}
+            <div className="pointer-events-none absolute left-1/2 top-0 z-[60] flex -translate-x-1/2 justify-center lg:pointer-events-auto lg:relative lg:left-auto lg:top-auto lg:z-auto lg:translate-x-0 lg:flex-none">
+              <Link
+                to="/"
+                className="pointer-events-auto flex items-center justify-center"
+              >
                 <img
                   src={navLogo}
                   alt="Farma pod Janovou horou"
-                  className="w-auto max-w-[min(280px,calc(100vw-5.5rem))] object-contain transition-all duration-300"
+                  className="w-auto max-w-[min(300px,calc(100vw-3rem))] object-contain transition-all duration-300 lg:max-w-none"
                   style={{
                     height: !isScrolled && !isMobileMenuOpen ? '120px' : '68px',
                     transform: !isScrolled && !isMobileMenuOpen ? 'translateY(30px)' : 'translateY(0)',
