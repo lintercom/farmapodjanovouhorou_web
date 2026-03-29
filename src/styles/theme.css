@@ -216,24 +216,32 @@
     border-radius: var(--farm-radius-xl) !important;
   }
 
-  .services-slider .slick-track {
+  .services-slider .slick-track,
+  .home-carousel-slider .slick-track {
     display: flex !important;
     align-items: stretch;
   }
 
-  .services-slider .slick-slide {
+  .services-slider .slick-slide,
+  .home-carousel-slider .slick-slide {
     display: flex !important;
     height: auto !important;
+    min-width: 0;
+    box-sizing: border-box;
   }
 
-  .services-slider .slick-slide > div {
+  .services-slider .slick-slide > div,
+  .home-carousel-slider .slick-slide > div {
     display: flex;
     height: 100%;
     width: 100%;
+    min-width: 0;
   }
 
-  .services-slider .slick-slide > div > div {
+  .services-slider .slick-slide > div > div,
+  .home-carousel-slider .slick-slide > div > div {
     width: 100%;
+    min-width: 0;
   }
 
   /* Prose styles for legal pages */

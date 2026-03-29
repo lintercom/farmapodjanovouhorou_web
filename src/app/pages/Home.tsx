@@ -1,3 +1,4 @@
+import { useLayoutEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '../components/Button';
@@ -15,6 +16,14 @@ import { defaultPageContent } from '../utils/defaultPageContent';
 import { useGlobalSettings } from '../hooks/useGlobalSettings';
 import { resolveCmsImageUrl } from '../utils/media';
 import { normalizeCmsInternalHref } from '../utils/cmsInternalLinks';
+
+function getCarouselSlidesToShow(): number {
+  if (typeof window === 'undefined') return 1;
+  const w = window.innerWidth;
+  if (w >= 1024) return 3;
+  if (w >= 640) return 2;
+  return 1;
+}
 
 export function Home() {
   const { data: pageData, isLoading } = usePageData('domu');
@@ -34,6 +43,14 @@ export function Home() {
 
   // Načíst koně ze stránky Naši koně, fallback na výchozí data z CMS defaultů.
   const horses = horsesData?.horses || horsesFallback;
+
+  const [carouselSlides, setCarouselSlides] = useState(1);
+  useLayoutEffect(() => {
+    setCarouselSlides(getCarouselSlidesToShow());
+    const onResize = () => setCarouselSlides(getCarouselSlidesToShow());
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   // Custom arrow components for carousel
   const NextArrow = (props: any) => {
@@ -66,33 +83,13 @@ export function Home() {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 3,
+    slidesToShow: carouselSlides,
     slidesToScroll: 1,
     autoplay: false,
     lazyLoad: 'ondemand' as const,
     nextArrow: <NextArrow />,
     prevArrow: <PrevArrow />,
-    responsive: [
-      {
-        breakpoint: 1024,
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 1,
-          arrows: true,
-          dots: true,
-        }
-      },
-      {
-        breakpoint: 640,
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-          arrows: false,
-          dots: true,
-          centerMode: false,
-        }
-      }
-    ]
+    arrows: carouselSlides > 1,
   };
 
   const navigate = useNavigate();
@@ -123,7 +120,7 @@ export function Home() {
         {!isLoading && (
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-24 md:pt-32">
             <div className="max-w-3xl">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 md:mb-7 drop-shadow-2xl leading-tight whitespace-nowrap">
+              <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 md:mb-7 drop-shadow-2xl leading-[1.12] sm:leading-tight max-w-full text-pretty">
                 {hero.title || 'Farma pod Janovou horou'}
               </h1>
               <p className="text-lg sm:text-xl md:text-2xl text-white/95 mb-8 md:mb-10 drop-shadow-lg leading-relaxed max-w-2xl">
@@ -163,11 +160,11 @@ export function Home() {
           </div>
 
           {/* Services Carousel */}
-          <div className="relative px-8 pt-6 pb-10 mb-4 overflow-visible">
-            <Slider {...sliderSettings} className="services-slider">
+          <div className="relative px-2 sm:px-6 lg:px-8 pt-6 pb-10 mb-4 overflow-visible">
+            <Slider {...sliderSettings} className="home-carousel-slider">
               {services.map((service, index) => (
-                <div key={service.id} className="flex h-full px-4 pb-4 pt-4">
-                  <FloatingCard className="flex h-full min-h-[600px] w-full flex-col">
+                <div key={service.id} className="flex h-full px-2 sm:px-4 pb-4 pt-4 min-w-0">
+                  <FloatingCard className="flex h-full min-h-[480px] md:min-h-[600px] w-full min-w-0 flex-col">
                     <div className="aspect-[4/3] rounded-2xl overflow-hidden mb-6 -mt-2 flex-shrink-0">
                       <ImageWithFallback
                         src={service.image}
@@ -207,32 +204,35 @@ export function Home() {
             </p>
           </div>
 
-          <div className="relative px-8 pt-10 pb-10 mb-4 overflow-visible">
-            <Slider {...sliderSettings}>
+          <div className="relative px-2 sm:px-6 lg:px-8 pt-10 pb-10 mb-4 overflow-visible">
+            <Slider {...sliderSettings} className="home-carousel-slider">
               {horses.slice(0, 6).map((horse, index) => (
-                <div key={horse.id || horse.name || index} className="px-4 pb-4 pt-4">
-                  <Link 
+                <div key={horse.id || horse.name || index} className="flex h-full px-2 sm:px-4 pb-4 pt-4 min-w-0">
+                  <Link
                     to={`/nasi-kone#${(horse.id || horse.name || '').toString().toLowerCase().replace(/\s+/g, '-')}`}
-                    className="block bg-white rounded-3xl p-6 shadow-[var(--farm-shadow-lg)] border-2 border-[var(--farm-border)] hover:shadow-[var(--farm-shadow-xl)] transition-all duration-300 md:h-[520px] flex flex-col cursor-pointer hover:scale-[1.02] hover:border-[var(--farm-accent-green)]"
+                    className="group flex h-full w-full min-w-0 no-underline text-inherit focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--farm-primary)] rounded-2xl"
                   >
-                    <div className="aspect-square rounded-2xl overflow-hidden mb-5 ring-2 ring-[var(--farm-primary)]/10 flex-shrink-0">
-                      <ImageWithFallback
-                        src={horse.image || horse.images?.[0] || 'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=1080&q=80'}
-                        alt={horse.name}
-                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                      />
-                    </div>
-                    <div className="text-center flex flex-col">
-                      <h3 className="text-2xl font-semibold text-[var(--farm-primary-text)] mb-2">
+                    <FloatingCard className="flex h-full min-h-[480px] md:min-h-[600px] w-full min-w-0 flex-col">
+                      <div className="aspect-[4/3] rounded-2xl overflow-hidden mb-6 -mt-2 flex-shrink-0">
+                        <ImageWithFallback
+                          src={horse.image || horse.images?.[0] || 'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=1080&q=80'}
+                          alt={horse.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <h3 className="text-2xl font-bold text-[var(--farm-primary-text)] mb-4">
                         {horse.name}
                       </h3>
                       <p className="text-base text-[var(--farm-warm-brown)] font-medium mb-4">
                         {horse.breed}
                       </p>
-                      <p className="text-[var(--farm-secondary-text)] leading-relaxed md:line-clamp-2">
+                      <p className="text-[var(--farm-secondary-text)] leading-relaxed flex-grow">
                         {horse.description || horse.temperament}
                       </p>
-                    </div>
+                      <span className="mt-6 w-full px-6 py-3 rounded-full font-medium transition-all duration-300 inline-flex items-center justify-center border-2 border-[var(--farm-primary)] text-[var(--farm-primary)] group-hover:bg-[var(--farm-primary)] group-hover:text-white group-hover:shadow-md group-hover:-translate-y-0.5 group-active:translate-y-0 text-center flex-shrink-0">
+                        Zjistit více
+                      </span>
+                    </FloatingCard>
                   </Link>
                 </div>
               ))}
