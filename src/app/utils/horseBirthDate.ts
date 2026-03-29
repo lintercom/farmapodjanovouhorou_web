@@ -44,22 +44,22 @@ export function computeHorseAgeYears(dateStr: string, ref = new Date()): number 
   return Math.max(0, years);
 }
 
-/** Karta / seznam: pouze datum narození (věk se nezobrazuje). */
+/** Karta / seznam: datum narození; bez data legacy `age` (např. „8 let“). */
 export function horseLifeSummaryShort(horse: { birthDate?: string; age?: number | string }): string {
   const birth = normalizeHorseBirthDateInput(horse.birthDate);
   if (birth) {
     return formatHorseBirthDateCs(birth, 'short') || birth;
   }
-  return '—';
+  return formatLegacyHorseAge(horse.age) || '—';
 }
 
-/** Modal / detail: pouze datum narození (dlouhý formát). */
+/** Modal / detail: datum narození (dlouhý formát); bez data legacy `age`. */
 export function horseLifeSummaryDetail(horse: { birthDate?: string; age?: number | string }): string {
   const birth = normalizeHorseBirthDateInput(horse.birthDate);
   if (birth) {
     return formatHorseBirthDateCs(birth, 'long') || birth;
   }
-  return '—';
+  return formatLegacyHorseAge(horse.age) || '—';
 }
 
 /** Hodnota pro <input type="date" />. */

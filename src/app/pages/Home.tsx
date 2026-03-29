@@ -17,6 +17,7 @@ import { useGlobalSettings } from '../hooks/useGlobalSettings';
 import { resolveCmsImageUrl } from '../utils/media';
 import { normalizeCmsInternalHref } from '../utils/cmsInternalLinks';
 import { cardImageObjectPositionStyle, horseGalleryImagePositionStyle } from '../utils/horseCardImage';
+import { horseLifeSummaryDetail } from '../utils/horseBirthDate';
 
 function getCarouselSlidesToShow(): number {
   if (typeof window === 'undefined') return 1;
@@ -129,6 +130,12 @@ export function Home() {
     nextArrow: <NextArrow />,
     prevArrow: <PrevArrow />,
     arrows: carouselSlides > 1,
+  };
+
+  /** Koně: výška řádku pod obsah každého snímku (jinak slick srovná výšky a spodní text mizí). */
+  const horsesSliderSettings = {
+    ...sliderSettings,
+    adaptiveHeight: true,
   };
 
   const navigate = useNavigate();
@@ -249,14 +256,14 @@ export function Home() {
           </div>
 
           <div className="relative px-2 sm:px-6 lg:px-8 pt-12 pb-12 mb-4 overflow-visible">
-            <Slider {...sliderSettings} className="home-carousel-slider">
+            <Slider {...horsesSliderSettings} className="home-carousel-slider">
               {horses.slice(0, 6).map((horse, index) => (
                 <div key={horse.id || horse.name || index} className="flex h-full px-2 sm:px-4 pb-4 pt-4 min-w-0">
                   <Link
                     to={`/nasi-kone#${(horse.id || horse.name || '').toString().toLowerCase().replace(/\s+/g, '-')}`}
                     className="group flex h-full w-full min-w-0 no-underline text-inherit focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--farm-primary)] rounded-2xl"
                   >
-                    <FloatingCard className="flex h-full min-h-[480px] md:min-h-[600px] w-full min-w-0 flex-col">
+                    <FloatingCard className="flex h-full min-h-[480px] md:min-h-[560px] w-full min-w-0 flex-col">
                       <div className="aspect-[5/6] rounded-2xl overflow-hidden mb-6 -mt-2 flex-shrink-0 bg-[var(--farm-section-alt-bg)] ring-1 ring-[var(--farm-border)]/40">
                         <ImageWithFallback
                           src={horse.image || horse.images?.[0] || 'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=1080&q=80'}
@@ -265,13 +272,27 @@ export function Home() {
                           style={horseGalleryImagePositionStyle(horse, 0)}
                         />
                       </div>
-                      <h3 className="text-2xl font-bold text-[var(--farm-primary-text)] mb-4">
+                      <h3 className="text-2xl font-bold text-[var(--farm-primary-text)] mb-3">
                         {horse.name}
                       </h3>
-                      <p className="text-base text-[var(--farm-warm-brown)] font-medium mb-4">
-                        {horse.breed}
-                      </p>
-                      <p className="text-[var(--farm-secondary-text)] leading-relaxed flex-grow">
+                      <div className="mb-4 flex-shrink-0 space-y-3">
+                        <div>
+                          <div className="mb-0.5 text-xs text-[var(--farm-secondary-text)]">Plemeno</div>
+                          <p className="text-base font-medium text-[var(--farm-warm-brown)]">
+                            {typeof horse.breed === 'string' && horse.breed.trim() ? horse.breed : '—'}
+                          </p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <Calendar className="mt-0.5 h-4 w-4 flex-shrink-0 text-[var(--farm-accent-green)] sm:h-5 sm:w-5" />
+                          <div className="min-w-0">
+                            <div className="mb-0.5 text-xs text-[var(--farm-secondary-text)]">Datum narození</div>
+                            <p className="text-sm font-medium text-[var(--farm-primary-text)] sm:text-base">
+                              {horseLifeSummaryDetail(horse)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <p className="min-h-0 flex-1 text-[var(--farm-secondary-text)] leading-relaxed line-clamp-5 md:line-clamp-6">
                         {horse.description || horse.temperament}
                       </p>
                       <span className="mt-6 w-full px-6 py-3 rounded-full font-medium transition-all duration-300 inline-flex items-center justify-center border-2 border-[var(--farm-primary)] text-[var(--farm-primary)] group-hover:bg-[var(--farm-primary)] group-hover:text-white group-hover:shadow-md group-hover:-translate-y-0.5 group-active:translate-y-0 text-center flex-shrink-0">
