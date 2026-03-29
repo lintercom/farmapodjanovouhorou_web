@@ -25,12 +25,42 @@ function getCarouselSlidesToShow(): number {
   return 1;
 }
 
-/** Na užších šířkách zarovnání: první řádek = první slovo, druhý = zbytek (např. „Farma“ / „pod Janovou horou“). */
-function splitHeroTitle(title: string): { first: string; rest: string } {
-  const t = title.trim();
-  const i = t.indexOf(' ');
-  if (i === -1) return { first: t, rest: '' };
-  return { first: t.slice(0, i), rest: t.slice(i + 1).trim() };
+/** Rozdělení nadpisu na slova pro postupné zalamování v hero (viz HeroTitle). */
+function splitHeroTitleSegments(title: string): string[] {
+  const parts = title.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return [''];
+  if (parts.length === 1) return [parts[0]];
+  if (parts.length === 2) return [parts[0], parts[1]];
+  return [parts[0], parts[1], parts.slice(2).join(' ')];
+}
+
+/** xl+: jeden řádek · md–xl: Farma / pod Janovou… · max-md: Farma / pod / zbytek */
+function HeroTitle({ segments }: { segments: string[] }) {
+  const [a, b, c] = [segments[0] ?? '', segments[1] ?? '', segments[2] ?? ''];
+
+  if (!b) {
+    return <span>{a}</span>;
+  }
+
+  if (!c) {
+    return (
+      <>
+        <span className="block xl:inline">{a}</span>
+        <span className="hidden xl:inline"> </span>
+        <span className="block md:inline">{b}</span>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <span className="block xl:inline">{a}</span>
+      <span className="hidden xl:inline"> </span>
+      <span className="block md:inline">{b}</span>
+      <span className="hidden max-md:hidden md:inline xl:inline"> </span>
+      <span className="block md:inline">{c}</span>
+    </>
+  );
 }
 
 export function Home() {
@@ -103,7 +133,7 @@ export function Home() {
   const navigate = useNavigate();
 
   const heroTitleText = hero.title || 'Farma pod Janovou horou';
-  const { first: heroTitleFirst, rest: heroTitleRest } = splitHeroTitle(heroTitleText);
+  const heroTitleSegments = splitHeroTitleSegments(heroTitleText);
 
   return (
     <div>
@@ -130,15 +160,10 @@ export function Home() {
         
         {!isLoading && (
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-24 md:pt-32">
-            <div className="max-w-3xl">
-              <h1 className="max-w-full text-3xl font-bold leading-[1.15] text-white drop-shadow-2xl sm:text-5xl md:text-6xl lg:text-7xl lg:text-pretty lg:leading-tight mb-6 md:mb-7">
-                <span className="max-lg:block lg:inline">{heroTitleFirst}</span>
-                {heroTitleRest ? (
-                  <>
-                    <span className="hidden lg:inline"> </span>
-                    <span className="max-lg:block lg:inline">{heroTitleRest}</span>
-                  </>
-                ) : null}
+            {/* max-w-3xl jen do xl — nad 1280px širší pás, aby dlouhý nadpis byl na jednom řádku (dřív ~768px tlačilo zalamování) */}
+            <div className="max-w-3xl xl:max-w-none">
+              <h1 className="mb-6 max-w-full text-3xl font-bold leading-[1.15] text-white drop-shadow-2xl sm:text-5xl md:text-6xl lg:text-7xl md:mb-7 xl:whitespace-nowrap xl:text-pretty xl:leading-tight">
+                <HeroTitle segments={heroTitleSegments} />
               </h1>
               <p className="text-lg sm:text-xl md:text-2xl text-white/95 mb-8 md:mb-10 drop-shadow-lg leading-relaxed max-w-2xl">
                 {hero.subtitle || 'Rodinná farma zaměřená na práci s dětmi a koňmi. Nabízíme jezdecké kroužky, tábory a vyjížďky v krásné přírodě.'}
