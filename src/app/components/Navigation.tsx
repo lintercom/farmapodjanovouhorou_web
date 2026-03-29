@@ -125,11 +125,11 @@ export function Navigation() {
                 <img
                   src={navLogo}
                   alt="Farma pod Janovou horou"
-                  className="w-auto object-contain transition-all duration-400"
-                  style={{
-                    height: !isScrolled && !isMobileMenuOpen ? '120px' : '68px',
-                    transform: !isScrolled && !isMobileMenuOpen ? 'translateY(30px)' : 'translateY(0)'
-                  }}
+                  className={`max-w-[min(220px,46vw)] w-auto object-contain transition-all duration-300 ${
+                    !isScrolled && !isMobileMenuOpen
+                      ? 'h-[4.25rem] translate-y-2 sm:h-20 sm:translate-y-3 lg:h-[7.5rem] lg:translate-y-[1.75rem]'
+                      : 'h-12 translate-y-0 sm:h-14 lg:h-[4.25rem]'
+                  }`}
                 />
               </Link>
             </div>

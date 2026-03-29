@@ -98,7 +98,7 @@ export function Home() {
     return (
       <button
         onClick={onClick}
-        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-[var(--farm-primary)] hover:text-white transition-all -mr-6"
+        className="absolute right-1 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg transition-all hover:bg-[var(--farm-primary)] hover:text-white sm:right-0 sm:h-12 sm:w-12 md:-right-1"
         aria-label="DalĹˇĂ­"
       >
         <ChevronRight className="w-6 h-6" />
@@ -111,7 +111,7 @@ export function Home() {
     return (
       <button
         onClick={onClick}
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-[var(--farm-primary)] hover:text-white transition-all -ml-6"
+        className="absolute left-1 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg transition-all hover:bg-[var(--farm-primary)] hover:text-white sm:left-0 sm:h-12 sm:w-12 md:-left-1"
         aria-label="PĹ™edchozĂ­"
       >
         <ChevronLeft className="w-6 h-6" />
@@ -144,9 +144,9 @@ export function Home() {
   const heroTitleSegments = splitHeroTitleSegments(heroTitleText);
 
   return (
-    <div>
+    <div className="min-w-0">
       {/* Hero Section */}
-      <section className="relative h-[700px] md:h-[800px] flex items-center justify-center shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
+      <section className="relative flex min-h-[22rem] h-[min(100svh,44rem)] items-center justify-center shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] md:h-[50rem] lg:h-[52rem]">
         <div className="absolute inset-0">
           <ImageWithFallback
             src={resolvedHeroImage}
@@ -322,7 +322,7 @@ export function Home() {
         <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-page-bg)] to-transparent backdrop-blur-sm" />
         
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <FloatingCard hover={false} className="p-10 md:p-14 lg:p-16 bg-white shadow-[var(--farm-shadow-xl)]">
+          <FloatingCard hover={false} className="px-5 py-8 sm:p-10 md:p-14 lg:p-16 bg-white shadow-[var(--farm-shadow-xl)]">
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--farm-primary-text)] mb-6 leading-tight">
               {giftCard.title || 'Dárkový poukaz'}
             </h2>

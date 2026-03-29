@@ -21,7 +21,7 @@ export function HomeCMS() {
     return (
       <button
         onClick={onClick}
-        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-[var(--farm-primary)] hover:text-white transition-all -mr-6"
+        className="absolute right-1 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg transition-all hover:bg-[var(--farm-primary)] hover:text-white sm:right-0 sm:h-12 sm:w-12 md:-right-1"
         aria-label="DalĹˇĂ­"
       >
         <ChevronRight className="w-6 h-6" />
@@ -34,7 +34,7 @@ export function HomeCMS() {
     return (
       <button
         onClick={onClick}
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-[var(--farm-primary)] hover:text-white transition-all -ml-6"
+        className="absolute left-1 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg transition-all hover:bg-[var(--farm-primary)] hover:text-white sm:left-0 sm:h-12 sm:w-12 md:-left-1"
         aria-label="PĹ™edchozĂ­"
       >
         <ChevronLeft className="w-6 h-6" />

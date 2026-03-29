@@ -152,6 +152,8 @@
   body {
     @apply text-foreground;
     background-color: #fafaf9;
+    overflow-x: clip;
+    min-width: 0;
   }
 
   /**
@@ -161,6 +163,8 @@
 
   html {
     font-size: var(--font-size);
+    overflow-x: clip;
+    max-width: 100%;
   }
 
   h1 {

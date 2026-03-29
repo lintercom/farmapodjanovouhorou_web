@@ -52,9 +52,9 @@ export function Root() {
   return (
     <>
       <RouteSeo />
-      <div className="min-h-screen bg-[var(--farm-page-bg)]">
+      <div className="min-h-screen min-w-0 bg-[var(--farm-page-bg)]">
         <Navigation />
-        <main>
+        <main className="min-w-0">
           <Outlet />
         </main>
         <Footer />

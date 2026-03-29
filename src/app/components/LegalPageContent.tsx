@@ -129,7 +129,7 @@ export function LegalPageContent({ pageId, defaultTitle, defaultContent }: Legal
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative h-[500px] md:h-[600px] flex items-center justify-center shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
+      <section className="relative flex min-h-[18rem] h-[min(88svh,31rem)] items-center justify-center shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] md:h-[37.5rem]">
         <div className="absolute inset-0">
           <ImageWithFallback
             src={resolvedHeroImage}

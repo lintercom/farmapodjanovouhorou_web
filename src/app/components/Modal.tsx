@@ -47,7 +47,7 @@ export function Modal({ isOpen, onClose, children, title, onPrevious, onNext }: 
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.15 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl flex h-[min(94dvh,100vh)] max-h-[100dvh] w-full max-w-6xl flex-col overflow-hidden pointer-events-auto sm:h-[min(88dvh,90vh)]"
+              className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl flex h-[min(94dvh,100svh)] max-h-[100dvh] w-full min-w-0 max-w-[min(100%,72rem)] flex-col overflow-hidden pointer-events-auto sm:h-[min(88dvh,90svh)]"
             >
               {/* Header */}
               <div className="flex flex-shrink-0 items-center justify-between border-b border-gray-100 py-4 pl-[max(1rem,env(safe-area-inset-left,0px))] pr-[max(1rem,env(safe-area-inset-right,0px))] sm:px-8 sm:py-6">
