@@ -142,7 +142,7 @@ export function Navigation() {
                       : 'translate-y-0'
                   }`}
                   style={{
-                    height: !isScrolled && !isMobileMenuOpen ? '133px' : '68px',
+                    height: !isScrolled && !isMobileMenuOpen ? '135px' : '68px',
                   }}
                 />
               </Link>
