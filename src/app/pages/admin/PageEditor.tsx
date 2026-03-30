@@ -275,8 +275,8 @@ export function PageEditor() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="min-w-0 flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-5xl p-4 sm:p-6">
+      <main className="min-w-0 flex-1 overflow-y-auto max-lg:pb-10">
+        <div className="mx-auto w-full max-w-5xl px-3 py-4 sm:px-4 lg:px-8 lg:py-6">
           {/* Header */}
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 items-start gap-3 sm:items-center">
@@ -298,10 +298,10 @@ export function PageEditor() {
                 </p>
               </div>
             </div>
-            <div className="flex shrink-0 items-center gap-3 sm:ml-auto">
+            <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-3 sm:ml-auto">
               <Button 
                 variant="primary" 
-                className="gap-2" 
+                className="w-full justify-center gap-2 sm:w-auto" 
                 onClick={handleSave}
                 disabled={isSaving}
               >
@@ -385,7 +385,7 @@ export function PageEditor() {
               
               {/* Simple 404 page */}
               {selectedPageId === '404' && (
-                <FloatingCard hover={false}>
+                <FloatingCard hover={false} adminCompact>
                   <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-6">Obsah stránky 404</h3>
                   <div className="space-y-6">
                     <div>

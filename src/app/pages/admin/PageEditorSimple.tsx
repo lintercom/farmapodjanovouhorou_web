@@ -230,7 +230,7 @@ export function PageEditorSimple() {
           )}
 
           {/* JSON Editor */}
-          <FloatingCard hover={false}>
+          <FloatingCard hover={false} adminCompact>
             {isLoading ? (
               <div className="flex items-center justify-center py-20">
                 <Loader2 className="w-8 h-8 animate-spin text-[var(--farm-accent-green)]" />

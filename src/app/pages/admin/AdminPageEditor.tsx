@@ -311,7 +311,7 @@ export function AdminPageEditor() {
 
           {/* Media Library View */}
           {isMediaPage ? (
-            <FloatingCard>
+            <FloatingCard adminCompact>
               <div className="mb-6">
                 <h2 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-4">
                   Knihovna médií
@@ -349,7 +349,7 @@ export function AdminPageEditor() {
               {/* Sections List (for non-media pages) */}
               <div className="space-y-4 mb-6">
                 {sections.map((section) => (
-                  <FloatingCard key={section.id} hover={false}>
+                  <FloatingCard key={section.id} hover={false} adminCompact>
                     {/* Section Header */}
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
@@ -455,7 +455,7 @@ export function AdminPageEditor() {
 
                   <div className="space-y-4">
                     {serviceItems.map((item, index) => (
-                      <FloatingCard key={item.id} hover={false}>
+                      <FloatingCard key={item.id} hover={false} adminCompact>
                         <div className="flex items-start gap-4">
                           <button className="cursor-move text-[var(--farm-neutral-400)] hover:text-[var(--farm-primary-text)] mt-2">
                             <GripVertical className="w-5 h-5" />

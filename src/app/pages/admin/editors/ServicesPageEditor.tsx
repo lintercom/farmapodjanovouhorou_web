@@ -33,7 +33,7 @@ export function ServicesPageEditor({ data, updateField, addArrayItem, setArrayIt
   return (
     <>
       {/* Hero Section */}
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-4">Hero sekce</h3>
         <div className="space-y-4">
           <input
@@ -54,7 +54,7 @@ export function ServicesPageEditor({ data, updateField, addArrayItem, setArrayIt
       </FloatingCard>
 
       {/* Services List */}
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <CmsCollectionEditor
           title="Seznam služeb"
           addLabel="Přidat službu"
@@ -140,7 +140,7 @@ export function ServicesPageEditor({ data, updateField, addArrayItem, setArrayIt
                 </div>
               ) : null}
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <div>
                   <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Text tlačítka</label>
                   <input
@@ -160,7 +160,7 @@ export function ServicesPageEditor({ data, updateField, addArrayItem, setArrayIt
               </div>
 
               <div className="rounded-2xl border border-[var(--farm-border)] bg-white p-4">
-                <div className="mb-3 flex items-center justify-between">
+                <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <h5 className="font-medium text-[var(--farm-primary-text)]">Detaily služby</h5>
                   <button
                     type="button"
@@ -168,7 +168,7 @@ export function ServicesPageEditor({ data, updateField, addArrayItem, setArrayIt
                       ...prev,
                       details: [...(prev.details || []), { title: '', description: '' }],
                     } : prev)}
-                    className="rounded-lg bg-[var(--farm-accent-green)] px-3 py-1.5 text-sm text-white transition-colors hover:bg-[var(--farm-accent-green)]/90"
+                    className="w-full rounded-lg bg-[var(--farm-accent-green)] px-3 py-2 text-sm text-white transition-colors hover:bg-[var(--farm-accent-green)]/90 sm:w-auto sm:py-1.5"
                   >
                     + Přidat detail
                   </button>
@@ -177,21 +177,23 @@ export function ServicesPageEditor({ data, updateField, addArrayItem, setArrayIt
                 <div className="space-y-3">
                   {(draft.details || []).map((detail: any, detailIndex: number) => (
                     <div key={detailIndex} className="rounded-xl bg-[var(--farm-section-alt-bg)] p-3">
-                      <div className="mb-3 flex items-center justify-between">
-                        <span className="text-sm font-medium text-[var(--farm-primary-text)]">Detail #{detailIndex + 1}</span>
+                      <div className="mb-3 flex flex-row items-center justify-between gap-2">
+                        <span className="min-w-0 flex-1 text-sm font-medium text-[var(--farm-primary-text)]">
+                          Detail #{detailIndex + 1}
+                        </span>
                         <button
                           type="button"
                           onClick={() => setDraft((prev) => prev ? {
                             ...prev,
                             details: (prev.details || []).filter((_: any, idx: number) => idx !== detailIndex),
                           } : prev)}
-                          className="p-2 text-red-600 transition-colors hover:bg-red-50 rounded-lg"
+                          className="shrink-0 rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
 
-                      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
                         <input
                           type="text"
                           placeholder="Nadpis"

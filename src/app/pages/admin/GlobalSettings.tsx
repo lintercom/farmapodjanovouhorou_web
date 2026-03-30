@@ -71,7 +71,7 @@ function mergeSettingsFromApi(raw: Record<string, unknown> | null | undefined): 
 type SectionId = 'general' | 'design' | 'security' | null;
 
 const modalContentClass =
-  'max-h-[90vh] overflow-hidden border border-[var(--farm-border)] bg-[var(--farm-page-bg)] p-0 shadow-[var(--farm-shadow-xl)] rounded-[2rem] sm:max-w-2xl [&>button]:top-5 [&>button]:right-5 [&>button]:rounded-full [&>button]:border [&>button]:border-[var(--farm-border)] [&>button]:bg-white [&>button]:p-2 [&>button]:text-[var(--farm-primary-text)] [&>button]:opacity-100 [&>button]:shadow-sm [&>button]:transition-colors [&>button]:hover:bg-[var(--farm-primary-light)]';
+  'max-h-[min(90dvh,100vh-0.5rem)] w-[calc(100vw-0.75rem)] max-w-[calc(100vw-0.75rem)] overflow-hidden rounded-2xl border border-[var(--farm-border)] bg-[var(--farm-page-bg)] p-0 shadow-[var(--farm-shadow-xl)] lg:max-h-[90vh] lg:w-full lg:max-w-2xl lg:rounded-[2rem] [&>button]:top-3 [&>button]:right-3 [&>button]:rounded-full [&>button]:border [&>button]:border-[var(--farm-border)] [&>button]:bg-white [&>button]:p-2 [&>button]:text-[var(--farm-primary-text)] [&>button]:opacity-100 [&>button]:shadow-sm [&>button]:transition-colors [&>button]:hover:bg-[var(--farm-primary-light)] lg:[&>button]:top-5 lg:[&>button]:right-5';
 
 export function GlobalSettings() {
   const [settings, setSettings] = useState<GlobalSettingsData>({ ...DEFAULT_SETTINGS });
@@ -285,23 +285,23 @@ export function GlobalSettings() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--farm-page-bg)] py-12 px-4">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-[var(--farm-primary-text)]">Globální nastavení</h1>
-            <p className="text-sm text-[var(--farm-secondary-text)] mt-1">
+    <div className="min-h-screen bg-[var(--farm-page-bg)] px-3 py-8 max-lg:pb-12 sm:px-4 lg:px-4 lg:py-12">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold text-[var(--farm-primary-text)] lg:text-2xl">Globální nastavení</h1>
+            <p className="mt-1 text-sm text-[var(--farm-secondary-text)]">
               Upravte sekce v dialozích a změny odešlete tlačítkem „Uložit změny“.
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <Link to="/admin">
-              <Button variant="outline" className="gap-2">
+          <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:gap-3 lg:w-auto">
+            <Link to="/admin" className="w-full sm:w-auto">
+              <Button variant="outline" className="w-full gap-2 sm:w-auto">
                 <ArrowLeft className="w-4 h-4" />
                 Zpět
               </Button>
             </Link>
-            <Button variant="primary" className="gap-2" onClick={handleSave} disabled={isSaving}>
+            <Button variant="primary" className="w-full gap-2 sm:w-auto" onClick={handleSave} disabled={isSaving}>
               {isSaving ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -351,7 +351,7 @@ export function GlobalSettings() {
           </div>
         )}
 
-        <FloatingCard hover={false} className="mb-6">
+        <FloatingCard hover={false} adminCompact className="mb-6">
           <h2 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-1">Přehled sekcí</h2>
           <p className="text-sm text-[var(--farm-secondary-text)]">
             SEO meta tagy a strukturovaná data jsou řešené v kódu (komponenta RouteSeo a stránky). Zde je pouze obsah,
@@ -365,15 +365,15 @@ export function GlobalSettings() {
             return (
               <div
                 key={section.id}
-                className="rounded-3xl border border-[var(--farm-border)] bg-white p-5 shadow-[var(--farm-shadow-sm)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[var(--farm-shadow-md)]"
+                className="rounded-2xl border border-[var(--farm-border)] bg-white p-4 shadow-[var(--farm-shadow-sm)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[var(--farm-shadow-md)] lg:rounded-3xl lg:p-5"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex min-w-0 gap-4">
-                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-[var(--farm-primary-light)] text-[var(--farm-primary)]">
-                      <Icon className="w-6 h-6" />
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                  <div className="flex min-w-0 gap-3 sm:gap-4">
+                    <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-[var(--farm-primary-light)] text-[var(--farm-primary)] sm:h-12 sm:w-12">
+                      <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="text-lg font-semibold text-[var(--farm-primary-text)]">{section.title}</h3>
+                      <h3 className="text-base font-semibold text-[var(--farm-primary-text)] lg:text-lg">{section.title}</h3>
                       <p className="mt-1 text-sm leading-relaxed text-[var(--farm-secondary-text)]">
                         {section.description}
                       </p>
@@ -382,7 +382,7 @@ export function GlobalSettings() {
                   <button
                     type="button"
                     onClick={section.onOpen}
-                    className="inline-flex flex-shrink-0 items-center gap-2 rounded-full border border-[var(--farm-primary)]/20 bg-[var(--farm-primary-light)] px-4 py-2 text-sm font-medium text-[var(--farm-primary-text)] shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--farm-primary)]/35 hover:bg-white hover:shadow-[var(--farm-shadow-sm)]"
+                    className="inline-flex w-full flex-shrink-0 items-center justify-center gap-2 rounded-xl border border-[var(--farm-primary)]/20 bg-[var(--farm-primary-light)] px-4 py-2.5 text-sm font-medium text-[var(--farm-primary-text)] shadow-sm transition-all duration-300 hover:border-[var(--farm-primary)]/35 hover:bg-white hover:shadow-[var(--farm-shadow-sm)] sm:w-auto sm:rounded-full lg:hover:-translate-y-0.5"
                   >
                     <Pencil className="w-4 h-4" />
                     Upravit
@@ -405,7 +405,7 @@ export function GlobalSettings() {
         >
           <DialogContent className={modalContentClass}>
             <div className="flex max-h-[90vh] flex-col">
-              <DialogHeader className="border-b border-[var(--farm-border)] bg-white/80 px-6 py-5 pr-16 text-left backdrop-blur-sm">
+              <DialogHeader className="border-b border-[var(--farm-border)] bg-white/80 px-4 py-4 pr-14 text-left backdrop-blur-sm lg:px-6 lg:py-5 lg:pr-16">
                 <div className="mb-3 inline-flex w-fit rounded-full bg-[var(--farm-primary-light)] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[var(--farm-primary)]">
                   Globální nastavení
                 </div>
@@ -414,7 +414,7 @@ export function GlobalSettings() {
                   Základní údaje webu a kontakty. Podrobné údaje na stránce Kontakt upravujte v editoru stránky Kontakt.
                 </DialogDescription>
               </DialogHeader>
-              <div className="flex-1 overflow-y-auto px-6 py-5 bg-[linear-gradient(180deg,rgba(255,255,255,0.45),rgba(244,252,241,0.35))]">
+              <div className="flex-1 overflow-y-auto overscroll-contain bg-[linear-gradient(180deg,rgba(255,255,255,0.45),rgba(244,252,241,0.35))] px-4 py-4 lg:px-6 lg:py-5">
                 {generalDraft && (
                   <div className="space-y-4">
                     <div>
@@ -475,7 +475,7 @@ export function GlobalSettings() {
                   </div>
                 )}
               </div>
-              <DialogFooter className="border-t border-[var(--farm-border)] bg-white/90 px-6 py-4 sm:justify-between backdrop-blur-sm">
+              <DialogFooter className="flex flex-col gap-2 border-t border-[var(--farm-border)] bg-white/90 px-4 py-3 backdrop-blur-sm max-lg:pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:flex-row sm:justify-between sm:px-6 sm:py-4">
                 <Button
                   type="button"
                   variant="outline"
@@ -507,7 +507,7 @@ export function GlobalSettings() {
         >
           <DialogContent className={modalContentClass}>
             <div className="flex max-h-[90vh] flex-col">
-              <DialogHeader className="border-b border-[var(--farm-border)] bg-white/80 px-6 py-5 pr-16 text-left backdrop-blur-sm">
+              <DialogHeader className="border-b border-[var(--farm-border)] bg-white/80 px-4 py-4 pr-14 text-left backdrop-blur-sm lg:px-6 lg:py-5 lg:pr-16">
                 <div className="mb-3 inline-flex w-fit rounded-full bg-[var(--farm-primary-light)] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[var(--farm-primary)]">
                   Globální nastavení
                 </div>
@@ -517,7 +517,7 @@ export function GlobalSettings() {
                   nemá vlastní obrázek. Barvy písma a paletu webu určuje soubor theme.css v projektu — v CMS je neupravujte.
                 </DialogDescription>
               </DialogHeader>
-              <div className="flex-1 overflow-y-auto px-6 py-5 bg-[linear-gradient(180deg,rgba(255,255,255,0.45),rgba(244,252,241,0.35))]">
+              <div className="flex-1 overflow-y-auto overscroll-contain bg-[linear-gradient(180deg,rgba(255,255,255,0.45),rgba(244,252,241,0.35))] px-4 py-4 lg:px-6 lg:py-5">
                 {designDraft && (
                   <div className="space-y-4">
                     <ImageUpload
@@ -538,7 +538,7 @@ export function GlobalSettings() {
                   </div>
                 )}
               </div>
-              <DialogFooter className="border-t border-[var(--farm-border)] bg-white/90 px-6 py-4 sm:justify-between backdrop-blur-sm">
+              <DialogFooter className="flex flex-col gap-2 border-t border-[var(--farm-border)] bg-white/90 px-4 py-3 backdrop-blur-sm max-lg:pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:flex-row sm:justify-between sm:px-6 sm:py-4">
                 <Button
                   type="button"
                   variant="outline"
@@ -567,7 +567,7 @@ export function GlobalSettings() {
         >
           <DialogContent className={modalContentClass}>
             <div className="flex max-h-[90vh] flex-col">
-              <DialogHeader className="border-b border-[var(--farm-border)] bg-white/80 px-6 py-5 pr-16 text-left backdrop-blur-sm">
+              <DialogHeader className="border-b border-[var(--farm-border)] bg-white/80 px-4 py-4 pr-14 text-left backdrop-blur-sm lg:px-6 lg:py-5 lg:pr-16">
                 <div className="mb-3 inline-flex w-fit rounded-full bg-[var(--farm-primary-light)] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[var(--farm-primary)]">
                   Globální nastavení
                 </div>
@@ -576,7 +576,7 @@ export function GlobalSettings() {
                   Změna hesla pro přístup do administrace.
                 </DialogDescription>
               </DialogHeader>
-              <div className="flex-1 overflow-y-auto px-6 py-5 bg-[linear-gradient(180deg,rgba(255,255,255,0.45),rgba(244,252,241,0.35))]">
+              <div className="flex-1 overflow-y-auto overscroll-contain bg-[linear-gradient(180deg,rgba(255,255,255,0.45),rgba(244,252,241,0.35))] px-4 py-4 lg:px-6 lg:py-5">
                 {passwordError && (
                   <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-800 text-sm">
                     {passwordError}
@@ -650,7 +650,7 @@ export function GlobalSettings() {
                   </div>
                 </div>
               </div>
-              <DialogFooter className="border-t border-[var(--farm-border)] bg-white/90 px-6 py-4 sm:justify-between backdrop-blur-sm">
+              <DialogFooter className="flex flex-col gap-2 border-t border-[var(--farm-border)] bg-white/90 px-4 py-3 backdrop-blur-sm max-lg:pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:flex-row sm:justify-between sm:px-6 sm:py-4">
                 <Button
                   type="button"
                   variant="outline"

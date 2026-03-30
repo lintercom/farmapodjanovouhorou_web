@@ -58,7 +58,7 @@ export function HomePageEditor({ data, updateField }: any) {
   return (
     <>
       {/* Hero Section */}
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-4">Hero sekce</h3>
         <div className="space-y-4">
           <div>
@@ -80,10 +80,10 @@ export function HomePageEditor({ data, updateField }: any) {
               value={data?.hero?.subtitle || ''}
               onChange={(e) => updateField(['hero', 'subtitle'], e.target.value)}
               rows={3}
-              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-4 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all resize-none text-[var(--farm-primary-text)]"
+              className="w-full resize-none rounded-xl border border-[var(--farm-border)] px-4 py-3 text-[var(--farm-primary-text)] transition-all focus:border-[var(--farm-accent-green)] focus:outline-none focus:ring-4 focus:ring-[var(--farm-accent-green)]/20 max-lg:min-h-[6rem] max-lg:resize-y lg:resize-none"
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-[var(--farm-primary-text)] mb-2">
                 Text primárního tlačítka
@@ -121,7 +121,7 @@ export function HomePageEditor({ data, updateField }: any) {
       </FloatingCard>
 
       {/* Dárkový poukaz */}
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-4">Dárkový poukaz</h3>
         <div className="space-y-4">
           <div>
@@ -139,10 +139,10 @@ export function HomePageEditor({ data, updateField }: any) {
               value={data?.giftCard?.subtitle || ''}
               onChange={(e) => updateField(['giftCard', 'subtitle'], e.target.value)}
               rows={3}
-              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-4 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all resize-none text-[var(--farm-primary-text)]"
+              className="w-full resize-none rounded-xl border border-[var(--farm-border)] px-4 py-3 text-[var(--farm-primary-text)] transition-all focus:border-[var(--farm-accent-green)] focus:outline-none focus:ring-4 focus:ring-[var(--farm-accent-green)]/20 max-lg:min-h-[5.5rem] max-lg:resize-y lg:resize-none"
             />
           </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-[var(--farm-primary-text)] mb-2">Text tlačítka</label>
               <input
@@ -162,7 +162,7 @@ export function HomePageEditor({ data, updateField }: any) {
       </FloatingCard>
 
       {/* Reference */}
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-4">Co o nás říkají</h3>
         <p className="text-sm text-[var(--farm-secondary-text)] mb-6">
           Nadpis a podnadpis celé sekce upravíte zde; jednotlivé reference přidávejte a upravujte v dialogu níže.
@@ -200,14 +200,14 @@ export function HomePageEditor({ data, updateField }: any) {
           emptyStateText="Zatím nemáte žádnou referenci. Přidejte první pomocí tlačítka výše."
           dialogTitle={{ create: 'Přidat referenci', edit: 'Upravit referenci' }}
           dialogDescription="Vyplňte údaje o autorovi a text doporučení. Po uložení se změny promítnou na domovskou stránku."
-          dialogClassName="sm:max-w-2xl"
+          dialogClassName="lg:max-w-2xl"
           onSaveItem={saveTestimonial}
           onDeleteItem={(index) =>
             setTestimonialsItems(testimonialsItems.filter((_: any, i: number) => i !== index))
           }
           renderForm={({ draft, setDraft }) => (
             <div className="space-y-5">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Iniciály</label>
                   <input
@@ -220,7 +220,7 @@ export function HomePageEditor({ data, updateField }: any) {
                     className="w-full rounded-xl border border-[var(--farm-border)] bg-white px-4 py-3 text-[var(--farm-primary-text)] focus:border-[var(--farm-accent-green)] focus:outline-none focus:ring-2 focus:ring-[var(--farm-accent-green)]/20"
                   />
                 </div>
-                <div className="sm:col-span-2">
+                <div className="lg:col-span-2">
                   <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Jméno</label>
                   <input
                     type="text"
@@ -286,7 +286,7 @@ export function HomePageEditor({ data, updateField }: any) {
       </FloatingCard>
 
       {/* FAQ */}
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-4">Často kladené dotazy</h3>
         <p className="text-sm text-[var(--farm-secondary-text)] mb-6">
           Záhlaví sekce upravíte zde; jednotlivé otázky přidávejte a upravujte v dialogu níže.
@@ -322,7 +322,7 @@ export function HomePageEditor({ data, updateField }: any) {
           emptyStateText="Zatím nemáte žádnou otázku. Přidejte první pomocí tlačítka výše."
           dialogTitle={{ create: 'Přidat otázku', edit: 'Upravit otázku' }}
           dialogDescription="Zadejte znění otázky a odpověď pro rozbalovací blok na webu."
-          dialogClassName="sm:max-w-2xl"
+          dialogClassName="lg:max-w-2xl"
           onSaveItem={saveFaqItem}
           onDeleteItem={(index) => setFaqItems(faqItems.filter((_: any, i: number) => i !== index))}
           renderForm={({ draft, setDraft }) => (

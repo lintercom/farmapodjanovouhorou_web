@@ -43,7 +43,7 @@ export function SeedData() {
   };
 
   return (
-    <FloatingCard hover={false} className="max-w-2xl mx-auto text-center">
+    <FloatingCard hover={false} adminCompact className="max-w-2xl mx-auto text-center">
       <div className="py-8">
         <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[var(--farm-primary-light)] flex items-center justify-center">
           <Upload className="w-8 h-8 text-[var(--farm-primary)]" />

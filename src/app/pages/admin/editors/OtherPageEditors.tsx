@@ -162,7 +162,7 @@ export function EventsPageEditor({ data, updateField, addArrayItem, setArrayItem
 
   return (
     <>
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-4">Hero sekce</h3>
         <div className="space-y-4">
           <input type="text" value={data?.hero?.title || ''} onChange={(e) => updateField(['hero', 'title'], e.target.value)} className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]" />
@@ -170,7 +170,7 @@ export function EventsPageEditor({ data, updateField, addArrayItem, setArrayItem
         </div>
       </FloatingCard>
 
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <CmsCollectionEditor
           title="Příspěvky"
           addLabel="Přidat článek"
@@ -277,7 +277,7 @@ export function HorsesPageEditor({ data, updateField, addArrayItem, setArrayItem
 
   return (
     <>
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-4">Hero sekce</h3>
         <div className="space-y-4">
           <div>
@@ -303,7 +303,7 @@ export function HorsesPageEditor({ data, updateField, addArrayItem, setArrayItem
         </div>
       </FloatingCard>
 
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <CmsCollectionEditor
           title="Naši koně"
           addLabel="Přidat koně"
@@ -321,7 +321,7 @@ export function HorsesPageEditor({ data, updateField, addArrayItem, setArrayItem
           onDeleteItem={(index) => removeArrayItem(['horses'], index)}
           renderForm={({ draft, setDraft }) => (
             <div className="space-y-5">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <div>
                   <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Jméno</label>
                   <input
@@ -344,7 +344,7 @@ export function HorsesPageEditor({ data, updateField, addArrayItem, setArrayItem
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <div>
                   <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
                     Datum narození
@@ -400,7 +400,7 @@ export function HorsesPageEditor({ data, updateField, addArrayItem, setArrayItem
               </div>
 
               <div className="rounded-2xl border border-[var(--farm-border)] bg-white p-4">
-                <div className="mb-3 flex items-center justify-between">
+                <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <label className="block text-sm font-medium text-[var(--farm-primary-text)]">
                     Galerie obrázků ({draft.images?.length || 0})
                   </label>
@@ -415,7 +415,7 @@ export function HorsesPageEditor({ data, updateField, addArrayItem, setArrayItem
                         return { ...prev, images: nextImages, galleryImageFocus: prevG };
                       })
                     }
-                    className="flex items-center gap-2 rounded-lg bg-[var(--farm-accent-green)] px-3 py-1.5 text-sm text-white transition-colors hover:bg-[var(--farm-primary)]"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--farm-accent-green)] px-3 py-2 text-sm text-white transition-colors hover:bg-[var(--farm-primary)] sm:w-auto sm:py-1.5"
                   >
                     <Plus className="w-4 h-4" />
                     Přidat obrázek
@@ -540,7 +540,7 @@ export function AboutPageEditor({ data, updateField, addArrayItem, setArrayItem,
 
   return (
     <>
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-4">Hero sekce</h3>
         <div className="space-y-4">
           <div>
@@ -566,7 +566,7 @@ export function AboutPageEditor({ data, updateField, addArrayItem, setArrayItem,
         </div>
       </FloatingCard>
 
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-4">Náš příběh</h3>
         <div className="space-y-4">
           <div>
@@ -605,7 +605,7 @@ export function AboutPageEditor({ data, updateField, addArrayItem, setArrayItem,
         </div>
       </FloatingCard>
 
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-2">Sekce Naše hodnoty</h3>
           <p className="text-sm text-[var(--farm-secondary-text)]">Nadpis a popis celé sekce</p>
@@ -634,7 +634,7 @@ export function AboutPageEditor({ data, updateField, addArrayItem, setArrayItem,
         </div>
       </FloatingCard>
 
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <CmsCollectionEditor
           title="Hodnoty (jednotlivé karty)"
           addLabel="Přidat hodnotu"
@@ -688,7 +688,7 @@ export function AboutPageEditor({ data, updateField, addArrayItem, setArrayItem,
         />
       </FloatingCard>
 
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-2">Sekce Náš tým</h3>
           <p className="text-sm text-[var(--farm-secondary-text)]">Nadpis a popis celé sekce</p>
@@ -717,7 +717,7 @@ export function AboutPageEditor({ data, updateField, addArrayItem, setArrayItem,
         </div>
       </FloatingCard>
 
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <CmsCollectionEditor
           title="Členové týmu"
           addLabel="Přidat člena týmu"
@@ -773,7 +773,7 @@ export function AboutPageEditor({ data, updateField, addArrayItem, setArrayItem,
         />
       </FloatingCard>
 
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-2">Sekce Naše lokalita</h3>
           <p className="text-sm text-[var(--farm-secondary-text)]">Informace o umístění farmy</p>
@@ -819,7 +819,7 @@ export function AboutPageEditor({ data, updateField, addArrayItem, setArrayItem,
         </div>
       </FloatingCard>
 
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <CmsCollectionEditor
           title="Dopravní instrukce"
           addLabel="Přidat instrukci"
@@ -828,7 +828,7 @@ export function AboutPageEditor({ data, updateField, addArrayItem, setArrayItem,
           getItemTitle={(direction: any, index) => direction.text || `Instrukce #${index + 1}`}
           emptyStateText="Zatím žádné instrukce."
           dialogTitle={{ create: 'Přidat instrukci', edit: 'Upravit instrukci' }}
-          dialogClassName="sm:max-w-2xl"
+          dialogClassName="lg:max-w-2xl"
           onSaveItem={saveDirection}
           onDeleteItem={(index) => removeArrayItem(['location', 'directions'], index)}
           renderForm={({ draft, setDraft }) => (
@@ -918,7 +918,7 @@ export function ContactPageEditor({ data, updateField }: any) {
 
   return (
     <>
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <h3 className="mb-4 text-lg font-semibold text-[var(--farm-primary-text)]">Hero sekce</h3>
         <div className="space-y-4">
           <input
@@ -938,7 +938,7 @@ export function ContactPageEditor({ data, updateField }: any) {
         </div>
       </FloatingCard>
 
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <CmsCollectionEditor
           title="Karty a rezervační záložky"
           addLabel="Přidat kartu"
@@ -956,7 +956,7 @@ export function ContactPageEditor({ data, updateField }: any) {
           onDeleteItem={deleteReservationTab}
           renderForm={({ draft, setDraft }) => (
             <div className="space-y-5">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Text na kartě</label>
                   <input
@@ -979,7 +979,7 @@ export function ContactPageEditor({ data, updateField }: any) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Nadpis po rozkliknutí</label>
                   <input
@@ -1086,7 +1086,7 @@ export function ContactPageEditor({ data, updateField }: any) {
                     onChange={(v) => setDraft((prev) => (prev ? { ...prev, buttonLink: v } : prev))}
                     contactReservationTabs={reservationTabs}
                   />
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                     <div>
                       <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Text tlačítka</label>
                       <input
@@ -1130,7 +1130,7 @@ export function ContactPageEditor({ data, updateField }: any) {
         />
       </FloatingCard>
 
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <h3 className="mb-4 text-lg font-semibold text-[var(--farm-primary-text)]">Kontaktní údaje</h3>
         <div className="space-y-4">
           <div>
@@ -1166,7 +1166,7 @@ export function ContactPageEditor({ data, updateField }: any) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">PSČ</label>
               <input
@@ -1191,9 +1191,9 @@ export function ContactPageEditor({ data, updateField }: any) {
         </div>
       </FloatingCard>
 
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <h3 className="mb-4 text-lg font-semibold text-[var(--farm-primary-text)]">Levá karta kontaktu</h3>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div>
             <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Nadpis sekce</label>
             <input
@@ -1251,10 +1251,10 @@ export function ContactPageEditor({ data, updateField }: any) {
         </div>
       </FloatingCard>
 
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <h3 className="mb-4 text-lg font-semibold text-[var(--farm-primary-text)]">Otevírací doba a sociální sítě</h3>
         <div className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Pracovní dny (Po - Pá)</label>
               <input
@@ -1277,7 +1277,7 @@ export function ContactPageEditor({ data, updateField }: any) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Facebook URL</label>
               <input
@@ -1302,10 +1302,10 @@ export function ContactPageEditor({ data, updateField }: any) {
         </div>
       </FloatingCard>
 
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <h3 className="mb-4 text-lg font-semibold text-[var(--farm-primary-text)]">Nezisková sekce a formulář</h3>
         <div className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Nadpis neziskové sekce</label>
               <input
@@ -1338,7 +1338,7 @@ export function ContactPageEditor({ data, updateField }: any) {
             className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
           />
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Nadpis formuláře</label>
               <input
@@ -1366,7 +1366,7 @@ export function ContactPageEditor({ data, updateField }: any) {
             className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none resize-none text-[var(--farm-primary-text)]"
           />
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <input
               type="text"
               value={contactForm.nameLabel}
@@ -1427,10 +1427,10 @@ export function ContactPageEditor({ data, updateField }: any) {
         </div>
       </FloatingCard>
 
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <h3 className="mb-4 text-lg font-semibold text-[var(--farm-primary-text)]">Mapa a navigace</h3>
         <div className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Nadpis mapové sekce</label>
               <input
@@ -1458,7 +1458,7 @@ export function ContactPageEditor({ data, updateField }: any) {
             className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none resize-none text-[var(--farm-primary-text)]"
           />
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <input
               type="text"
               value={location.mapCardTitle}
@@ -1493,7 +1493,7 @@ export function ContactPageEditor({ data, updateField }: any) {
         </div>
       </FloatingCard>
 
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <CmsCollectionEditor
           title="Instrukce k dopravě"
           addLabel="Přidat instrukci"
@@ -1502,7 +1502,7 @@ export function ContactPageEditor({ data, updateField }: any) {
           getItemTitle={(direction: any, index) => direction.text || `Instrukce #${index + 1}`}
           emptyStateText="Zatím nejsou přidané žádné instrukce."
           dialogTitle={{ create: 'Přidat instrukci', edit: 'Upravit instrukci' }}
-          dialogClassName="sm:max-w-2xl"
+          dialogClassName="lg:max-w-2xl"
           onSaveItem={saveDirection}
           onDeleteItem={deleteDirection}
           renderForm={({ draft, setDraft }) => (
@@ -1545,7 +1545,7 @@ export function LegalPageEditor({ data, updateField, addArrayItem, setArrayItem,
 
   return (
     <>
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-6">Hlavní nadpis</h3>
         <div>
           <label className="block text-sm font-medium text-[var(--farm-primary-text)] mb-2">
@@ -1561,7 +1561,7 @@ export function LegalPageEditor({ data, updateField, addArrayItem, setArrayItem,
         </div>
       </FloatingCard>
 
-      <FloatingCard hover={false}>
+      <FloatingCard hover={false} adminCompact>
         <CmsCollectionEditor
           title="Sekce obsahu"
           addLabel="Přidat sekci"
@@ -1602,12 +1602,12 @@ export function LegalPageEditor({ data, updateField, addArrayItem, setArrayItem,
               </div>
 
               <div className="rounded-2xl border border-[var(--farm-border)] bg-white p-4">
-                <div className="mb-3 flex items-center justify-between">
+                <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <label className="block text-sm font-medium text-[var(--farm-secondary-text)]">Seznam (odrážky)</label>
                   <button
                     type="button"
                     onClick={() => setDraft((prev) => prev ? { ...prev, list: [...(prev.list || []), ''] } : prev)}
-                    className="text-sm text-[var(--farm-accent-green)] hover:underline"
+                    className="w-full rounded-lg border border-[var(--farm-primary-light)] bg-[var(--farm-primary-light)]/40 py-2 text-center text-sm text-[var(--farm-accent-green)] sm:w-auto sm:border-0 sm:bg-transparent sm:py-0 sm:text-left sm:hover:underline"
                   >
                     + Přidat položku
                   </button>
@@ -1643,7 +1643,7 @@ export function LegalPageEditor({ data, updateField, addArrayItem, setArrayItem,
               </div>
 
               <div className="rounded-2xl border border-[var(--farm-border)] bg-white p-4">
-                <div className="mb-3 flex items-center justify-between">
+                <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <label className="block text-sm font-medium text-[var(--farm-secondary-text)]">Podsekce</label>
                   <button
                     type="button"
@@ -1651,7 +1651,7 @@ export function LegalPageEditor({ data, updateField, addArrayItem, setArrayItem,
                       ...prev,
                       subsections: [...(prev.subsections || []), { title: '', content: '', list: [] }],
                     } : prev)}
-                    className="text-sm text-[var(--farm-accent-green)] hover:underline"
+                    className="w-full rounded-lg border border-[var(--farm-primary-light)] bg-[var(--farm-primary-light)]/40 py-2 text-center text-sm text-[var(--farm-accent-green)] sm:w-auto sm:border-0 sm:bg-transparent sm:py-0 sm:text-left sm:hover:underline"
                   >
                     + Přidat podsekci
                   </button>
@@ -1660,15 +1660,17 @@ export function LegalPageEditor({ data, updateField, addArrayItem, setArrayItem,
                 <div className="space-y-3">
                   {(draft.subsections || []).map((subsection: any, subsectionIndex: number) => (
                     <div key={subsectionIndex} className="rounded-xl border border-[var(--farm-border)] bg-[var(--farm-section-alt-bg)] p-4">
-                      <div className="mb-3 flex items-center justify-between">
-                        <span className="text-sm font-medium text-[var(--farm-primary-text)]">Podsekce #{subsectionIndex + 1}</span>
+                      <div className="mb-3 flex flex-row items-center justify-between gap-2">
+                        <span className="min-w-0 flex-1 text-sm font-medium text-[var(--farm-primary-text)]">
+                          Podsekce #{subsectionIndex + 1}
+                        </span>
                         <button
                           type="button"
                           onClick={() => setDraft((prev) => prev ? {
                             ...prev,
                             subsections: (prev.subsections || []).filter((_: any, idx: number) => idx !== subsectionIndex),
                           } : prev)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                          className="shrink-0 rounded-lg p-2 text-red-600 hover:bg-red-50"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -1707,7 +1709,7 @@ export function LegalPageEditor({ data, updateField, addArrayItem, setArrayItem,
                         />
 
                         <div>
-                          <div className="mb-2 flex items-center justify-between">
+                          <div className="mb-2 flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
                             <span className="text-xs text-[var(--farm-secondary-text)]">Seznam v podsekci</span>
                             <button
                               type="button"
@@ -1721,7 +1723,7 @@ export function LegalPageEditor({ data, updateField, addArrayItem, setArrayItem,
                                 };
                                 return { ...prev, subsections };
                               })}
-                              className="text-xs text-[var(--farm-accent-green)] hover:underline"
+                              className="text-xs text-[var(--farm-accent-green)] sm:hover:underline"
                             >
                               + Položka
                             </button>

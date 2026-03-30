@@ -1,0 +1,14 @@
+/**
+ * Úpravy pouze pro administraci na úzkých displejích (< lg).
+ * Veřejný web zůstává beze změny — třída .cms-admin-scope je jen na AdminLayout.
+ */
+@media (max-width: 1023px) {
+  .cms-admin-scope h1,
+  .cms-admin-scope h2,
+  .cms-admin-scope h3,
+  .cms-admin-scope h4 {
+    font-family: var(--font-body);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+}
