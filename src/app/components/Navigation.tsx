@@ -121,8 +121,14 @@ export function Navigation() {
               </Link>
             </div>
 
-            {/* Center Logo — max-lg: velké logo přesahuje pod spodní hranu lišty (h-20), dokud není scroll / menu */}
-            <div className="pointer-events-none absolute left-1/2 top-0 z-[60] flex -translate-x-1/2 justify-center lg:pointer-events-auto lg:relative lg:left-auto lg:top-auto lg:z-auto lg:translate-x-0 lg:flex-none">
+            {/* Center Logo — mobil: po scrollu / otevřeném menu vycentrováno v h-20; velké logo jen mírný posun dolů (desktop ponecháno) */}
+            <div
+              className={`pointer-events-none absolute left-1/2 top-0 z-[60] flex -translate-x-1/2 justify-center lg:pointer-events-auto lg:relative lg:left-auto lg:top-auto lg:z-auto lg:h-auto lg:w-auto lg:max-w-none lg:translate-x-0 lg:flex-none lg:items-center ${
+                isScrolled || isMobileMenuOpen
+                  ? 'max-lg:h-20 max-lg:items-center max-lg:w-max max-lg:max-w-[min(300px,calc(100vw-5rem))]'
+                  : 'max-lg:items-start'
+              }`}
+            >
               <Link
                 to="/"
                 className="pointer-events-auto flex items-center justify-center"
@@ -130,10 +136,13 @@ export function Navigation() {
                 <img
                   src={navLogo}
                   alt="Farma pod Janovou horou"
-                  className="w-auto max-w-[min(300px,calc(100vw-3rem))] object-contain transition-all duration-300 lg:max-w-none"
+                  className={`w-auto max-w-[min(300px,calc(100vw-3rem))] object-contain transition-all duration-300 lg:max-w-none ${
+                    !isScrolled && !isMobileMenuOpen
+                      ? 'max-lg:translate-y-0 lg:translate-y-[30px]'
+                      : 'translate-y-0'
+                  }`}
                   style={{
                     height: !isScrolled && !isMobileMenuOpen ? '120px' : '68px',
-                    transform: !isScrolled && !isMobileMenuOpen ? 'translateY(30px)' : 'translateY(0)',
                   }}
                 />
               </Link>
