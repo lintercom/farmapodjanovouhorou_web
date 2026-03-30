@@ -138,12 +138,9 @@ export function Navigation() {
                   alt="Farma pod Janovou horou"
                   className={`w-auto max-w-[min(300px,calc(100vw-3rem))] object-contain transition-all duration-300 lg:max-w-none ${
                     !isScrolled && !isMobileMenuOpen
-                      ? 'max-lg:translate-y-0 lg:translate-y-[30px]'
-                      : 'translate-y-0'
+                      ? 'max-lg:h-[131px] lg:h-[135px] max-lg:translate-y-0 lg:translate-y-[30px]'
+                      : 'h-[68px] translate-y-0'
                   }`}
-                  style={{
-                    height: !isScrolled && !isMobileMenuOpen ? '135px' : '68px',
-                  }}
                 />
               </Link>
             </div>

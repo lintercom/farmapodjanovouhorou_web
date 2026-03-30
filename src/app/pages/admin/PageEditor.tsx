@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router';
 import { 
   Home, BookOpen, Calendar, Carrot, Users, Mail,
   AlertCircle, Shield, Cookie, FileText, AlertTriangle,
-  Save, Loader2, CheckCircle, XCircle
+  Save, Loader2, CheckCircle, XCircle, Menu, X
 } from 'lucide-react';
 import { FloatingCard } from '../../components/FloatingCard';
 import { Button } from '../../components/Button';
@@ -51,6 +51,7 @@ export function PageEditor() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Load page content when page selection changes
   useEffect(() => {
@@ -106,6 +107,7 @@ export function PageEditor() {
   const handlePageSelect = (pageId: string) => {
     setSelectedPageId(pageId);
     setSearchParams({ page: pageId });
+    setSidebarOpen(false);
   };
 
   const updateField = (path: string[], value: any) => {
@@ -198,13 +200,39 @@ export function PageEditor() {
   const selectedPage = pages.find(p => p.id === selectedPageId);
 
   return (
-    <div className="min-h-screen bg-[var(--farm-page-bg)] flex">
+    <div className="relative flex min-h-[calc(100vh-4rem)] bg-[var(--farm-page-bg)]">
+      {/* Mobil: ztmavení pozadí při otevřeném menu stránek */}
+      <div
+        className={`fixed inset-0 top-16 z-[45] bg-black/40 transition-opacity duration-300 lg:hidden ${
+          sidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+        }`}
+        aria-hidden={!sidebarOpen}
+        onClick={() => setSidebarOpen(false)}
+      />
+
       {/* Left Sidebar - Pages List */}
-      <aside className="w-64 bg-white border-r border-[var(--farm-neutral-200)] flex-shrink-0 overflow-y-auto">
+      <aside
+        className={`fixed bottom-0 left-0 top-16 z-50 w-64 max-w-[min(16rem,85vw)] flex-shrink-0 overflow-y-auto border-r border-[var(--farm-neutral-200)] bg-white transition-transform duration-300 ease-out lg:static lg:top-auto lg:z-auto lg:max-w-none lg:translate-x-0 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="flex items-center justify-between border-b border-[var(--farm-neutral-200)] px-2 py-2 lg:hidden">
+          <span className="px-2 text-xs font-semibold uppercase tracking-wider text-[var(--farm-secondary-text)]">
+            Stránky
+          </span>
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(false)}
+            className="rounded-lg p-2 text-[var(--farm-primary-text)] hover:bg-[var(--farm-neutral-100)]"
+            aria-label="Zavřít menu stránek"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
         <nav className="p-2">
           {/* Main Pages */}
           <div className="mb-4">
-            <p className="px-3 py-2 text-xs font-semibold text-[var(--farm-secondary-text)] uppercase tracking-wider">
+            <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-[var(--farm-secondary-text)]">
               Hlavní stránky
             </p>
             {pages.filter(p => p.category === 'main').map(page => (
@@ -247,22 +275,30 @@ export function PageEditor() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-5xl mx-auto p-6">
+      <main className="min-w-0 flex-1 overflow-y-auto">
+        <div className="mx-auto max-w-5xl p-4 sm:p-6">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              {selectedPage && <selectedPage.icon className="w-6 h-6 text-[var(--farm-accent-green)]" />}
-              <div>
-                <h1 className="text-2xl font-bold text-[var(--farm-primary-text)]">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-start gap-3 sm:items-center">
+              <button
+                type="button"
+                className="mt-0.5 shrink-0 rounded-lg p-2 text-[var(--farm-primary-text)] hover:bg-[var(--farm-neutral-100)] lg:hidden"
+                onClick={() => setSidebarOpen(true)}
+                aria-label="Otevřít menu stránek"
+              >
+                <Menu className="h-6 w-6" />
+              </button>
+              {selectedPage && <selectedPage.icon className="mt-1 h-6 w-6 shrink-0 text-[var(--farm-accent-green)] sm:mt-0" />}
+              <div className="min-w-0">
+                <h1 className="text-xl font-bold text-[var(--farm-primary-text)] sm:text-2xl">
                   {selectedPage?.label}
                 </h1>
-                <p className="text-sm text-[var(--farm-secondary-text)] mt-1">
+                <p className="mt-1 text-sm text-[var(--farm-secondary-text)]">
                   Upravte obsah stránky pomocí formulářů
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex shrink-0 items-center gap-3 sm:ml-auto">
               <Button 
                 variant="primary" 
                 className="gap-2" 
