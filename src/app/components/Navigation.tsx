@@ -160,17 +160,17 @@ export function Navigation() {
               </Link>
             </div>
 
-            {/* Logo: mobil — plynulá výška obalu 132↔80 + items-center; desktop — h-20; motion.img synchronně height+y */}
+            {/* Logo: mobil rozbaleno — items-start jako dřív (horní zarovnání); po scrollu items-center v h-20; desktop beze změny */}
             <div
-              className={`pointer-events-none absolute left-1/2 top-0 z-[60] flex -translate-x-1/2 justify-center overflow-visible max-lg:items-center max-lg:transition-[height] max-lg:duration-[720ms] max-lg:ease-[cubic-bezier(0.2,0.85,0.24,1)] max-lg:motion-reduce:transition-none lg:pointer-events-auto lg:relative lg:left-auto lg:top-auto lg:z-auto lg:h-20 lg:w-auto lg:max-w-none lg:translate-x-0 lg:flex-none lg:items-center lg:self-center lg:overflow-visible ${
+              className={`pointer-events-none absolute left-1/2 top-0 z-[60] flex -translate-x-1/2 justify-center overflow-visible max-lg:transition-[height] max-lg:duration-[720ms] max-lg:ease-[cubic-bezier(0.2,0.85,0.24,1)] max-lg:motion-reduce:transition-none lg:pointer-events-auto lg:relative lg:left-auto lg:top-auto lg:z-auto lg:h-20 lg:w-auto lg:max-w-none lg:translate-x-0 lg:flex-none lg:items-center lg:self-center lg:overflow-visible ${
                 isScrolled || isMobileMenuOpen
-                  ? 'max-lg:h-20 max-lg:w-max max-lg:max-w-[min(300px,calc(100vw-5rem))]'
-                  : 'max-lg:h-[132px] max-lg:w-max max-lg:max-w-[min(300px,calc(100vw-5rem))]'
+                  ? 'max-lg:h-20 max-lg:items-center max-lg:w-max max-lg:max-w-[min(300px,calc(100vw-5rem))]'
+                  : 'max-lg:h-[132px] max-lg:items-start max-lg:w-max max-lg:max-w-[min(300px,calc(100vw-5rem))]'
               }`}
             >
               <Link
                 to="/"
-                className="pointer-events-auto flex items-center justify-center lg:h-full lg:w-full"
+                className={`pointer-events-auto flex items-center justify-center lg:h-full lg:w-full ${logoExpanded ? 'max-lg:items-start' : ''}`}
               >
                 <motion.img
                   src={navLogo}
