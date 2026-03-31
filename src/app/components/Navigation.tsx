@@ -138,7 +138,7 @@ export function Navigation() {
                   alt="Farma pod Janovou horou"
                   className={`w-auto max-w-[min(300px,calc(100vw-3rem))] object-contain transition-all duration-300 lg:max-w-none ${
                     !isScrolled && !isMobileMenuOpen
-                      ? 'max-lg:h-[118px] lg:h-[140px] max-lg:translate-y-0 lg:translate-y-[30px]'//TADY SE NASTAVUJE POZICE LOGA V MOBILNÍM ZOBRAZENÍ - ZVĚTŠENÝ STAV
+                      ? 'max-lg:h-[118px] lg:h-[143px] max-lg:translate-y-0 lg:translate-y-[30px]'//TADY SE NASTAVUJE POZICE LOGA V MOBILNÍM ZOBRAZENÍ - ZVĚTŠENÝ STAV
                       : 'h-[68px] translate-y-0'
                   }`}
                 />
