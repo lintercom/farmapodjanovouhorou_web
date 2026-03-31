@@ -1,8 +1,25 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useSyncExternalStore } from 'react';
 import { Link, useLocation } from 'react-router';
 import { Menu, X, ChevronDown } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { useGlobalSettings } from '../hooks/useGlobalSettings';
+
+const LG_MIN_PX = 1024;
+
+function subscribeBelowLg(onChange: () => void) {
+  const mq = window.matchMedia(`(max-width: ${LG_MIN_PX - 1}px)`);
+  mq.addEventListener('change', onChange);
+  return () => mq.removeEventListener('change', onChange);
+}
+
+function getBelowLgSnapshot() {
+  return window.matchMedia(`(max-width: ${LG_MIN_PX - 1}px)`).matches;
+}
+
+/** Stejný breakpoint jako Tailwind `lg:` — animace loga (mobil vs desktop). */
+function useIsBelowLg() {
+  return useSyncExternalStore(subscribeBelowLg, getBelowLgSnapshot, () => false);
+}
 
 /** Veřejný asset z `public/` — bez importu modulu (typy URL řeší TS bez deklarace kořenové cesty). */
 const LOGO_PLACEHOLDER = '/logo-placeholder.svg';
@@ -19,6 +36,18 @@ export function Navigation() {
   const location = useLocation();
   const { settings } = useGlobalSettings();
   const navLogo = settings?.logo?.trim() ? settings.logo : LOGO_PLACEHOLDER;
+  const isBelowLg = useIsBelowLg();
+  const reduceMotion = useReducedMotion();
+  const logoExpanded = !isScrolled && !isMobileMenuOpen;
+  const logoYOffsetExpanded = isBelowLg ? 10 : 26;
+
+  const logoMotionTransition = reduceMotion
+    ? { duration: 0.12, ease: 'linear' as const }
+    : {
+        type: 'tween' as const,
+        duration: 0.72,
+        ease: [0.2, 0.85, 0.24, 1] as [number, number, number, number],
+      };
 
   useEffect(() => {
     const SCROLL_ON = 72;
@@ -131,26 +160,28 @@ export function Navigation() {
               </Link>
             </div>
 
-            {/* Logo: mobil — původní výška/obal (items-start, bez fixní výšky obalu); desktop — fixní řádek h-20, samostatné posuny */}
+            {/* Logo: mobil — plynulá výška obalu 132↔80 + items-center; desktop — h-20; motion.img synchronně height+y */}
             <div
-              className={`pointer-events-none absolute left-1/2 top-0 z-[60] flex -translate-x-1/2 justify-center overflow-visible lg:pointer-events-auto lg:relative lg:left-auto lg:top-auto lg:z-auto lg:h-20 lg:w-auto lg:max-w-none lg:translate-x-0 lg:flex-none lg:items-center lg:self-center lg:overflow-visible ${
+              className={`pointer-events-none absolute left-1/2 top-0 z-[60] flex -translate-x-1/2 justify-center overflow-visible max-lg:items-center max-lg:transition-[height] max-lg:duration-[720ms] max-lg:ease-[cubic-bezier(0.2,0.85,0.24,1)] max-lg:motion-reduce:transition-none lg:pointer-events-auto lg:relative lg:left-auto lg:top-auto lg:z-auto lg:h-20 lg:w-auto lg:max-w-none lg:translate-x-0 lg:flex-none lg:items-center lg:self-center lg:overflow-visible ${
                 isScrolled || isMobileMenuOpen
-                  ? 'max-lg:h-20 max-lg:items-center max-lg:w-max max-lg:max-w-[min(300px,calc(100vw-5rem))]'
-                  : 'max-lg:items-start'
+                  ? 'max-lg:h-20 max-lg:w-max max-lg:max-w-[min(300px,calc(100vw-5rem))]'
+                  : 'max-lg:h-[132px] max-lg:w-max max-lg:max-w-[min(300px,calc(100vw-5rem))]'
               }`}
             >
               <Link
                 to="/"
                 className="pointer-events-auto flex items-center justify-center lg:h-full lg:w-full"
               >
-                <img
+                <motion.img
                   src={navLogo}
                   alt="Farma pod Janovou horou"
-                  className={`w-auto max-w-[min(300px,calc(100vw-3rem))] object-contain object-center transition-[height,transform] lg:max-w-none ${navScrollTransition} ${
-                    !isScrolled && !isMobileMenuOpen
-                      ? 'h-[118px] max-lg:translate-y-[10px] lg:translate-y-[26px]'
-                      : 'h-[68px] max-lg:translate-y-0 lg:translate-y-2'
-                  }`}
+                  initial={false}
+                  animate={{
+                    height: logoExpanded ? 118 : 68,
+                    y: logoExpanded ? logoYOffsetExpanded : 0,
+                  }}
+                  transition={logoMotionTransition}
+                  className="block w-auto max-w-[min(300px,calc(100vw-3rem))] object-contain object-center lg:max-w-none"
                 />
               </Link>
             </div>
