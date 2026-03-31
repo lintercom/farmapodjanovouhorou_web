@@ -6,6 +6,7 @@ import { useEffect, useLayoutEffect, useState } from 'react';
 import { SiteLoadingScreen } from '../components/SiteLoadingScreen';
 import { preloadRouteData } from '../utils/preloadRouteData';
 import { RouteSeo } from '../components/RouteSeo';
+import { ScrollToTopFab } from '../components/ScrollToTopFab';
 
 export function Root() {
   const location = useLocation();
@@ -58,6 +59,7 @@ export function Root() {
           <Outlet />
         </main>
         <Footer />
+        <ScrollToTopFab />
         <CookieConsent />
       </div>
     </>

@@ -12,7 +12,10 @@ export function Footer() {
   const footerLogo = settings?.logo?.trim() ? settings.logo : logoImage;
   
   return (
-    <footer className="relative bg-gradient-to-b from-[var(--farm-neutral-900)] to-[var(--farm-neutral-800)] text-white overflow-hidden">
+    <footer
+      id="site-footer"
+      className="relative bg-gradient-to-b from-[var(--farm-neutral-900)] to-[var(--farm-neutral-800)] text-white overflow-hidden"
+    >
       {/* Organic wave top transition */}
       <div className="absolute top-0 left-0 right-0 w-full overflow-hidden leading-[0] transform rotate-180" style={{ filter: 'drop-shadow(0 -20px 25px rgba(0, 0, 0, 0.08)) drop-shadow(0 -8px 10px rgba(0, 0, 0, 0.08))' }}>
         <svg className="relative block w-full h-[60px] md:h-[80px]" viewBox="0 0 1200 120" preserveAspectRatio="none">
