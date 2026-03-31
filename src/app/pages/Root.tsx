@@ -7,6 +7,9 @@ import { SiteLoadingScreen } from '../components/SiteLoadingScreen';
 import { preloadRouteData } from '../utils/preloadRouteData';
 import { RouteSeo } from '../components/RouteSeo';
 import { ScrollToTopFab } from '../components/ScrollToTopFab';
+import { SeoJsonLd } from '../components/SeoJsonLd';
+import { AnalyticsRouteBridge } from '../components/AnalyticsRouteBridge';
+import { EngagementTracker } from '../components/EngagementTracker';
 
 export function Root() {
   const location = useLocation();
@@ -45,6 +48,7 @@ export function Root() {
     return (
       <>
         <RouteSeo />
+        <SeoJsonLd />
         <SiteLoadingScreen />
       </>
     );
@@ -53,6 +57,9 @@ export function Root() {
   return (
     <>
       <RouteSeo />
+      <SeoJsonLd />
+      <AnalyticsRouteBridge />
+      <EngagementTracker />
       <div className="min-h-screen min-w-0 bg-[var(--farm-page-bg)]">
         <Navigation />
         <main className="min-w-0">

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { X } from 'lucide-react';
 import { Button } from './Button';
+import { dispatchCookieConsentChange } from '../utils/cookieConsent';
 
 interface CookiePreferences {
   necessary: boolean;
@@ -53,6 +54,7 @@ export function CookieConsent() {
     localStorage.setItem('cookieConsent', JSON.stringify(prefs));
     setIsVisible(false);
     setShowSettings(false);
+    dispatchCookieConsentChange();
   };
 
   const togglePreference = (key: keyof CookiePreferences) => {

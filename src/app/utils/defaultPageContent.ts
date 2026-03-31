@@ -7,7 +7,8 @@ const defaultPageContentRaw: Record<string, any> = {
     label: 'DomĹŻ',
     hero: {
       title: 'Farma pod Janovou horou',
-      subtitle: 'RodinnĂˇ farma zamÄ›Ĺ™enĂˇ na prĂˇci s dÄ›tmi a koĹmi. NabĂ­zĂ­me jezdeckĂ© krouĹľky, tĂˇbory a vyjĂ­ĹľÄŹky v krĂˇsnĂ© pĹ™Ă­rodÄ›.',
+      subtitle:
+        'Rodinná farma ve Vizovicích ve Zlínském kraji — práce s dětmi a koňmi, jezdecké kroužky, tábory a vyjížďky v přírodě pod Janovou horou.',
       buttonText: 'NaĹˇe sluĹľby',
       buttonLink: '/sluzby',
       secondaryButtonText: 'Kontaktujte nĂˇs',

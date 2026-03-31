@@ -19,6 +19,7 @@ import {
 } from '../utils/contactPageConfig';
 import { resolveCmsImageUrl } from '../utils/media';
 import { normalizeCmsInternalHref } from '../utils/cmsInternalLinks';
+import { trackContactFormLead } from '../utils/analytics/runtime';
 
 export function Contact() {
   const [searchParams] = useSearchParams();
@@ -105,6 +106,7 @@ export function Contact() {
       setSubmitStatus('success');
       setSubmitMessage(contactFormContent.successMessage);
       setFormData({ name: '', email: '', phone: '', message: '' });
+      trackContactFormLead({ transactionId: `contact-${Date.now()}` });
     } catch (error: any) {
       const message = error?.message || '';
       const isMissingEndpoint = message.includes('404');

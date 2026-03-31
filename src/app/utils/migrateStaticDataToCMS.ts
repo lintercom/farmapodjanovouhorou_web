@@ -10,6 +10,7 @@
  */
 
 import { projectId, publicAnonKey } from '/utils/supabase/info';
+import { SEO_DEFAULT_DESCRIPTION } from './seo/regional';
 
 const API_URL = `https://${projectId}.supabase.co/functions/v1/make-server-399cd496`;
 
@@ -28,7 +29,7 @@ const globalSettings = {
   
   // SEO
   defaultMetaTitle: 'Farma pod Janovou horou',
-  defaultMetaDescription: 'Rodinná farma zaměřená na práci s dětmi a koňmi. Nabízíme jezdecké kroužky, tábory a vyjížďky v krásné přírodě.',
+  defaultMetaDescription: SEO_DEFAULT_DESCRIPTION,
   ogImage: '',
   
   // Design

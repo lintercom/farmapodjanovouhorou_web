@@ -16,7 +16,8 @@ export async function seedDefaultContent() {
       email: 'farmapodjanovouhorou@seznam.cz',
       address: 'Janův důl 123, 468 11 Janov nad Nisou',
       defaultMetaTitle: 'Farma pod Janovou horou',
-      defaultMetaDescription: 'Rodinná farma zaměřená na práci s dětmi a koňmi. Nabízíme jezdecké kroužky, tábory a vyjížďky v krásné přírodě.',
+      defaultMetaDescription:
+        'Rodinná farma ve Vizovicích ve Zlínském kraji — práce s dětmi a koňmi, jezdecké kroužky, tábory a vyjížďky v přírodě pod Janovou horou.',
       ogImage: '',
       primaryColor: '#2D5016',
       secondaryColor: '#8B4513',

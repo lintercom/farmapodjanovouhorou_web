@@ -5,6 +5,8 @@ import { preloadPage } from '../utils/siteDataCache';
 import { defaultPageContent } from '../utils/defaultPageContent';
 import { resolveCmsImageUrl } from '../utils/media';
 import { applySeoMetadata } from '../utils/seo';
+import { getSiteBaseUrl } from '../utils/siteUrl';
+import { SEO_DEFAULT_DESCRIPTION } from '../utils/seo/regional';
 
 interface RouteSeoConfig {
   pageId?: string;
@@ -14,8 +16,7 @@ interface RouteSeoConfig {
 }
 
 const DEFAULT_SITE_NAME = 'Farma pod Janovou horou';
-const DEFAULT_DESCRIPTION = 'Rodinná farma zaměřená na práci s dětmi a koňmi. Nabízíme jezdecké kroužky, tábory a vyjížďky v krásné přírodě.';
-const DEFAULT_SITE_URL = 'https://lintercom.github.io/farmapodjanovouhorou_web';
+const DEFAULT_DESCRIPTION = SEO_DEFAULT_DESCRIPTION;
 
 const PUBLIC_ROUTE_SEO: Record<string, RouteSeoConfig> = {
   '/': {
@@ -26,47 +27,49 @@ const PUBLIC_ROUTE_SEO: Record<string, RouteSeoConfig> = {
   '/sluzby': {
     pageId: 'sluzby',
     fallbackTitle: 'Naše služby',
-    fallbackDescription: 'Prohlédněte si jezdecké tábory, kroužky, vyjížďky i akce na míru pro děti i dospělé.',
+    fallbackDescription:
+      'Jezdecké tábory, kroužky, vyjížďky a akce na míru ve Vizovicích ve Zlínském kraji — vhodné i pro návštěvníky ze Zlína a okolí.',
   },
   '/blog': {
     pageId: 'blog',
     fallbackTitle: 'Blog',
-    fallbackDescription: 'Přečtěte si novinky z farmy, články o koních, táborech a našem každodenním životě.',
+    fallbackDescription:
+      'Novinky a články z farmy ve Vizovicích ve Zlínském kraji — koně, tábory, kroužky a život na Janově hoře.',
   },
   '/nasi-kone': {
     pageId: 'nasi-kone',
     fallbackTitle: 'Naši koně',
-    fallbackDescription: 'Seznamte se s koňmi z naší farmy a poznejte jejich povahu, příběhy a zaměření.',
+    fallbackDescription: `Koně naší farmy ve Vizovicích ve Zlínském kraji — seznamte se s jejich povahou, příběhy a zaměřením.`,
   },
   '/o-nas': {
     pageId: 'o-nas',
     fallbackTitle: 'O nás',
-    fallbackDescription: 'Poznejte příběh farmy, naše hodnoty, tým a přístup k dětem i koním.',
+    fallbackDescription: `Příběh farmy ve Vizovicích ve Zlínském kraji, chov koní a přístup k dětem v přírodě pod Janovou horou.`,
   },
   '/kontakt': {
     pageId: 'kontakt',
     fallbackTitle: 'Kontakt',
-    fallbackDescription: 'Kontaktujte Farmu pod Janovou horou, rezervujte tábory, kroužky nebo dárkové poukazy.',
+    fallbackDescription: `Kontakt a rezervace — Farma pod Janovou horou ve Vizovicích ve Zlínském kraji. Tábory, kroužky, dárkové poukazy.`,
   },
   '/ochrana-osobnich-udaju': {
     pageId: 'ochrana',
     fallbackTitle: 'Ochrana osobních údajů',
-    fallbackDescription: 'Informace o zpracování osobních údajů na webu Farmy pod Janovou horou.',
+    fallbackDescription: 'Zpracování osobních údajů — Farma pod Janovou horou, Vizovice, Zlínský kraj.',
   },
   '/cookies': {
     pageId: 'cookies',
     fallbackTitle: 'Cookies',
-    fallbackDescription: 'Přehled používaných cookies a informací o jejich zpracování na tomto webu.',
+    fallbackDescription: 'Cookies na webu farmy ve Vizovicích ve Zlínském kraji — přehled a nastavení.',
   },
   '/obchodni-podminky': {
     pageId: 'podminky',
     fallbackTitle: 'Obchodní podmínky',
-    fallbackDescription: 'Obchodní podmínky Farmy pod Janovou horou pro rezervace služeb a poukazů.',
+    fallbackDescription: 'Obchodní podmínky Farmy pod Janovou horou, Vizovice — rezervace služeb a poukazů.',
   },
   '/reklamacni-rad': {
     pageId: 'reklamace',
     fallbackTitle: 'Reklamační řád',
-    fallbackDescription: 'Podmínky reklamací a postup řešení stížností na webu Farmy pod Janovou horou.',
+    fallbackDescription: 'Reklamační řád farmy ve Vizovicích — postup řešení reklamací a stížností.',
   },
   '/cms-prihlaseni': {
     fallbackTitle: 'CMS přihlášení',
@@ -93,25 +96,6 @@ function toAbsoluteUrl(value?: string) {
   } catch {
     return value;
   }
-}
-
-function getSiteBaseUrl() {
-  const configuredSiteUrl = import.meta.env.VITE_SITE_URL?.trim();
-  if (configuredSiteUrl) {
-    return configuredSiteUrl.replace(/\/+$/, '');
-  }
-
-  if (typeof window === 'undefined') {
-    return DEFAULT_SITE_URL;
-  }
-
-  const isLocalPreview = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-  if (isLocalPreview) {
-    return DEFAULT_SITE_URL;
-  }
-
-  const basePath = import.meta.env.BASE_URL.replace(/\/+$/, '');
-  return `${window.location.origin}${basePath}`;
 }
 
 export function RouteSeo() {
@@ -175,6 +159,8 @@ export function RouteSeo() {
         ? defaultMetaTitle
         : `${contentTitle} | ${siteName}`;
 
+    const noindex = routeConfig?.noindex || !routeConfig;
+
     return {
       title: pageTitle,
       description: contentDescription,
@@ -184,10 +170,9 @@ export function RouteSeo() {
       ).toString(),
       imageUrl,
       siteName,
-      robots: routeConfig?.noindex || !routeConfig
-        ? 'noindex, nofollow'
-        : 'index, follow, max-image-preview:large',
+      robots: noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large',
       faviconUrl: toAbsoluteUrl(settings?.favicon),
+      includeLocalGeo: !noindex,
     };
   }, [pageData, pathname, routeConfig, settings]);
 

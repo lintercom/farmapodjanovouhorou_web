@@ -1,3 +1,9 @@
+import {
+  SEO_GEO_ICBM,
+  SEO_GEO_PLACENAME,
+  SEO_GEO_REGION_CODE,
+} from './seo/regional';
+
 export interface SeoMetadata {
   title: string;
   description: string;
@@ -6,6 +12,8 @@ export interface SeoMetadata {
   siteName: string;
   robots?: string;
   faviconUrl?: string;
+  /** false = nevyplňovat geo meta (např. CMS přihlášení) */
+  includeLocalGeo?: boolean;
 }
 
 function upsertMeta(selector: { name?: string; property?: string }, content: string) {
@@ -45,6 +53,23 @@ function upsertLink(rel: string, href: string) {
   link.setAttribute('href', href);
 }
 
+function upsertHreflang(hreflang: string, href: string) {
+  if (!href) {
+    return;
+  }
+
+  const selector = `link[rel="alternate"][hreflang="${hreflang}"]`;
+  let link = document.head.querySelector<HTMLLinkElement>(selector);
+  if (!link) {
+    link = document.createElement('link');
+    link.setAttribute('rel', 'alternate');
+    link.setAttribute('hreflang', hreflang);
+    document.head.appendChild(link);
+  }
+
+  link.setAttribute('href', href);
+}
+
 export function applySeoMetadata(metadata: SeoMetadata) {
   if (typeof document === 'undefined') {
     return;
@@ -59,6 +84,7 @@ export function applySeoMetadata(metadata: SeoMetadata) {
   upsertMeta({ property: 'og:description' }, metadata.description);
   upsertMeta({ property: 'og:url' }, metadata.canonicalUrl);
   upsertMeta({ property: 'og:site_name' }, metadata.siteName);
+  upsertMeta({ property: 'og:locale' }, 'cs_CZ');
   upsertMeta({ name: 'twitter:card' }, metadata.imageUrl ? 'summary_large_image' : 'summary');
   upsertMeta({ name: 'twitter:title' }, metadata.title);
   upsertMeta({ name: 'twitter:description' }, metadata.description);
@@ -69,8 +95,17 @@ export function applySeoMetadata(metadata: SeoMetadata) {
   }
 
   upsertLink('canonical', metadata.canonicalUrl);
+  upsertHreflang('cs-CZ', metadata.canonicalUrl);
 
   if (metadata.faviconUrl) {
     upsertLink('icon', metadata.faviconUrl);
+  }
+
+  const noindex = metadata.robots?.toLowerCase().includes('noindex');
+  const includeGeo = metadata.includeLocalGeo !== false && !noindex;
+  if (includeGeo) {
+    upsertMeta({ name: 'geo.region' }, SEO_GEO_REGION_CODE);
+    upsertMeta({ name: 'geo.placename' }, SEO_GEO_PLACENAME);
+    upsertMeta({ name: 'ICBM' }, SEO_GEO_ICBM);
   }
 }
