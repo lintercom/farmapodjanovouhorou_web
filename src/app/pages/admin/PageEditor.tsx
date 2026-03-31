@@ -368,7 +368,7 @@ export function PageEditor() {
               {selectedPageId === 'sluzby' && <ServicesPageEditor data={pageData} updateField={updateField} updateArrayItem={updateArrayItem} addArrayItem={addArrayItem} setArrayItem={setArrayItem} removeArrayItem={removeArrayItem} />}
               {selectedPageId === 'blog' && <EventsPageEditor data={pageData} updateField={updateField} updateArrayItem={updateArrayItem} addArrayItem={addArrayItem} setArrayItem={setArrayItem} removeArrayItem={removeArrayItem} />}
               {selectedPageId === 'nasi-kone' && <HorsesPageEditor data={pageData} updateField={updateField} updateArrayItem={updateArrayItem} addArrayItem={addArrayItem} setArrayItem={setArrayItem} removeArrayItem={removeArrayItem} />}
-              {selectedPageId === 'o-nas' && <AboutPageEditor data={pageData} updateField={updateField} updateArrayItem={updateArrayItem} addArrayItem={addArrayItem} setArrayItem={setArrayItem} removeArrayItem={removeArrayItem} />}
+              {selectedPageId === 'o-nas' && <AboutPageEditor data={pageData} updateField={updateField} />}
               {selectedPageId === 'kontakt' && <ContactPageEditor data={pageData} updateField={updateField} />}
               
               {/* Legal pages - structured editor */}

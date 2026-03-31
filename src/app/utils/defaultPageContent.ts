@@ -395,95 +395,14 @@ const defaultPageContentRaw: Record<string, any> = {
     hero: {
       title: 'O nĂˇs',
       subtitle: 'Poznejte nĂˇĹˇ pĹ™Ă­bÄ›h a hodnoty, kterĂ© nĂˇs vedou pĹ™i prĂˇci s koĹmi a dÄ›tmi.',
-      image: '/hero-placeholder.svg',
     },
     story: {
-      title: 'NĂˇĹˇ pĹ™Ă­bÄ›h',
       content: `Jsme malĂˇ rodinnĂˇ BIO farma. ZabĂ˝vĂˇme se chovem skotu plemene Highland cattle (SkotskĂ˝ nĂˇhornĂ­ skot), ovcĂ­ plemene Suffolk a chovu konĂ­ pĹ™evĂˇĹľnÄ› plnokrevnĂ˝ch plemen a mĂˇlo poÄŤetnĂ©ho plemene konĂ­ Achal-teke.
 
 V naĹˇem stĂˇdÄ› najdete konĂ­ky rĹŻznĂ˝ch plemen, vÄ›ku a povah. DÄ›ti, kterĂ© k nĂˇm dochĂˇzejĂ­, pracujĂ­ se vĹˇemi koĹmi. KaĹľdĂ˝ kĹŻĹ je individuĂˇlnĂ­ a dÄ›ti se uÄŤĂ­, jak s kaĹľdĂ˝m konĂ­kem pracovat, navĂˇzat s nĂ­m kontakt, tak aby spolu mohli spolupracovat jak v terĂ©nu, tak na jĂ­zdĂˇrnÄ›.
 
 NaĹˇe stĂˇdeÄŤko je posklĂˇdĂˇno z konĂ­ jezdeckĂ˝ch, chovnĂ˝ch kobylek a staĹ™Ă­kĹŻ, kteĹ™Ă­ si uĹľĂ­vajĂ­ dĹŻchod na rozlehlĂ˝ch pastvinĂˇch.`,
       image: 'https://images.unsplash.com/photo-1732302073237-f677bbc0b48a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxob3JzZXMlMjBncmF6aW5nJTIwZmllbGR8ZW58MXx8fHwxNzcxOTU3MTkxfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-    },
-    valuesSection: {
-      title: 'NaĹˇe hodnoty',
-      subtitle: 'Principy, kterĂ˝mi se Ĺ™Ă­dĂ­me kaĹľdĂ˝ den',
-    },
-    values: [
-      {
-        id: '1',
-        icon: 'Heart',
-        title: 'LĂˇska ke konĂ­m',
-        description: 'KonÄ› jsou naĹˇĂ­ vĂˇĹˇnĂ­. KaĹľdĂ˝ den se o nÄ› starĂˇme s lĂˇskou a respektem.',
-      },
-      {
-        id: '2',
-        icon: 'Users',
-        title: 'RodinnĂ˝ pĹ™Ă­stup',
-        description: 'Jsme rodinnĂˇ farma, kde se kaĹľdĂ˝ cĂ­tĂ­ jako doma. VytvĂˇĹ™Ă­me pĹ™Ăˇtelskou atmosfĂ©ru.',
-      },
-      {
-        id: '3',
-        icon: 'Leaf',
-        title: 'EkologickĂ˝ chov',
-        description: 'DbĂˇme na ekologickĂ˝ pĹ™Ă­stup k hospodaĹ™enĂ­ a pĂ©ÄŤi o pĹ™Ă­rodu.',
-      },
-      {
-        id: '4',
-        icon: 'Award',
-        title: 'KvalitnĂ­ vĂ˝uka',
-        description: 'NaĹˇi instruktoĹ™i majĂ­ dlouholetĂ© zkuĹˇenosti a certifikace.',
-      },
-    ],
-    teamSection: {
-      title: 'NĂˇĹˇ tĂ˝m',
-      subtitle: 'LidĂ©, kteĹ™Ă­ se starajĂ­ o vaĹˇe dÄ›ti a naĹˇe konÄ›',
-    },
-    team: [
-      {
-        id: '1',
-        name: 'Jana a Petr NovĂˇÄŤkovi',
-        role: 'MajitelĂ© a zakladatelĂ©',
-        description: 'Vedou farmu s lĂˇskou a zkuĹˇenostmi z dlouholetĂ© prĂˇce s koĹmi a dÄ›tmi.',
-        photo: '',
-      },
-      {
-        id: '2',
-        name: 'Lucie SvobodovĂˇ',
-        role: 'HlavnĂ­ instruktorka',
-        description: 'MĂˇ certifikaci od ÄŚeskĂ© hipologickĂ© spoleÄŤnosti a miluje prĂˇci s dÄ›tmi.',
-        photo: '',
-      },
-      {
-        id: '3',
-        name: 'TomĂˇĹˇ HorĂˇk',
-        role: 'Instruktor a sprĂˇvce stĂˇjĂ­',
-        description: 'StarĂˇ se o zdravĂ­ a pohodu naĹˇich konĂ­. Vede pokroÄŤilĂ© kurzy a vyjĂ­ĹľÄŹky.',
-        photo: '',
-      },
-    ],
-    location: {
-      title: 'NaĹˇe lokalita',
-      description: `NachĂˇzĂ­me se v nĂˇdhernĂ© krajinÄ› pod Janovou horou v JizerskohorskĂ©m podhĹŻĹ™Ă­. OkolĂ­ farmy nabĂ­zĂ­ ideĂˇlnĂ­ podmĂ­nky pro vyjĂ­ĹľÄŹky â€“ lesy, louky a krĂˇsnĂ© vĂ˝hledy.
-
-Doprava k nĂˇm je snadnĂˇ jak autem, tak i vlakem a autobusem z Liberce.`,
-      image: 'https://images.unsplash.com/photo-1656340359306-da68155ad862?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb3VudHJ5c2lkZSUyMGxhbmRzY2FwZXxlbnwxfHx8fDE3NzIwMjgwMDZ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-      directionsTitle: 'Jak se k nĂˇm dostat',
-      directions: [
-        {
-          id: '1',
-          text: 'Z Liberce po silnici smÄ›r BedĹ™ichov',
-        },
-        {
-          id: '2',
-          text: 'Vlakem do stanice Liberec, dĂˇle autobusem (20 min)',
-        },
-        {
-          id: '3',
-          text: 'ParkovĂˇnĂ­ pĹ™Ă­mo u farmy zdarma',
-        },
-      ],
     },
   },
   kontakt: {

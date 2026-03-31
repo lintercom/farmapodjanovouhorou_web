@@ -505,97 +505,58 @@ export function HorsesPageEditor({ data, updateField, addArrayItem, setArrayItem
   );
 }
 
-// About Page Editor
-export function AboutPageEditor({ data, updateField, addArrayItem, setArrayItem, removeArrayItem }: any) {
-  const values = data?.values || [];
-  const team = data?.team || [];
-  const directions = data?.location?.directions || [];
-
-  const saveValue = (draft: any, editingIndex: number | null) => {
-    if (editingIndex === null) {
-      addArrayItem(['values'], draft);
-      return;
-    }
-
-    setArrayItem(['values'], editingIndex, draft);
-  };
-
-  const saveTeamMember = (draft: any, editingIndex: number | null) => {
-    if (editingIndex === null) {
-      addArrayItem(['team'], draft);
-      return;
-    }
-
-    setArrayItem(['team'], editingIndex, draft);
-  };
-
-  const saveDirection = (draft: any, editingIndex: number | null) => {
-    if (editingIndex === null) {
-      addArrayItem(['location', 'directions'], draft);
-      return;
-    }
-
-    setArrayItem(['location', 'directions'], editingIndex, draft);
-  };
-
+// About Page Editor — zjednodušené: hero (nadpis, podnadpis, pozadí), text stránky, obrázek vedle textu
+export function AboutPageEditor({ data, updateField }: any) {
   return (
     <>
       <FloatingCard hover={false} adminCompact>
         <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-4">Hero sekce</h3>
+        <p className="text-sm text-[var(--farm-secondary-text)] mb-4">
+          Pozadí hero (obrázek nahoře) se bere z globálních nastavení webu, ne z této stránky.
+        </p>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Nadpis</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="O nás"
-              value={data?.hero?.title || ''} 
-              onChange={(e) => updateField(['hero', 'title'], e.target.value)} 
-              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]" 
+              value={data?.hero?.title || ''}
+              onChange={(e) => updateField(['hero', 'title'], e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Podnadpis</label>
-            <textarea 
+            <textarea
               placeholder="Poznejte náš příběh a hodnoty..."
-              value={data?.hero?.subtitle || ''} 
-              onChange={(e) => updateField(['hero', 'subtitle'], e.target.value)} 
-              rows={2} 
-              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none resize-none text-[var(--farm-primary-text)]" 
+              value={data?.hero?.subtitle || ''}
+              onChange={(e) => updateField(['hero', 'subtitle'], e.target.value)}
+              rows={2}
+              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none resize-none text-[var(--farm-primary-text)]"
             />
           </div>
         </div>
       </FloatingCard>
 
       <FloatingCard hover={false} adminCompact>
-        <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-4">Náš příběh</h3>
+        <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-2">Text a obrázek</h3>
+        <p className="text-sm text-[var(--farm-secondary-text)] mb-4">
+          Obsah pod hero (nadpis „Náš příběh“ je na webu fixní). Odstavce oddělte prázdným řádkem.
+        </p>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--farm-primary-text)] mb-2">
-              Nadpis sekce
-            </label>
-            <input 
-              type="text" 
-              placeholder="Náš příběh" 
-              value={data?.story?.title || ''} 
-              onChange={(e) => updateField(['story', 'title'], e.target.value)} 
-              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-4 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all text-[var(--farm-primary-text)]" 
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[var(--farm-primary-text)] mb-2">
-              Text příběhu (3 odstavce oddělené prázdným řádkem)
-            </label>
+            <label className="block text-sm font-medium text-[var(--farm-primary-text)] mb-2">Text</label>
             <textarea
               value={data?.story?.content || ''}
               onChange={(e) => updateField(['story', 'content'], e.target.value)}
-              placeholder="První odstavec o vzniku farmy...&#10;&#10;Druhý odstavec o vizi...&#10;&#10;Třetí odstavec o současnosti..."
-              rows={12}
+              placeholder="První odstavec…&#10;&#10;Druhý odstavec…"
+              rows={14}
               className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-4 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none transition-all resize-none text-[var(--farm-primary-text)]"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-[var(--farm-primary-text)] mb-2">
-              URL obrázku
+              Obrázek vedle textu
             </label>
             <ImageUpload
               value={data?.story?.image || ''}
@@ -603,247 +564,6 @@ export function AboutPageEditor({ data, updateField, addArrayItem, setArrayItem,
             />
           </div>
         </div>
-      </FloatingCard>
-
-      <FloatingCard hover={false} adminCompact>
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-2">Sekce Naše hodnoty</h3>
-          <p className="text-sm text-[var(--farm-secondary-text)]">Nadpis a popis celé sekce</p>
-        </div>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Nadpis sekce</label>
-            <input 
-              type="text" 
-              placeholder="Naše hodnoty"
-              value={data?.valuesSection?.title || ''} 
-              onChange={(e) => updateField(['valuesSection', 'title'], e.target.value)} 
-              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]" 
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Podnadpis sekce</label>
-            <input 
-              type="text" 
-              placeholder="Principy, kterými se řídíme každý den"
-              value={data?.valuesSection?.subtitle || ''} 
-              onChange={(e) => updateField(['valuesSection', 'subtitle'], e.target.value)} 
-              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]" 
-            />
-          </div>
-        </div>
-      </FloatingCard>
-
-      <FloatingCard hover={false} adminCompact>
-        <CmsCollectionEditor
-          title="Hodnoty (jednotlivé karty)"
-          addLabel="Přidat hodnotu"
-          items={values}
-          createItem={() => ({ icon: 'Heart', title: '', description: '' })}
-          getItemTitle={(value: any, index) => value.title || `Hodnota #${index + 1}`}
-          getItemSubtitle={(value: any) => value.description || 'Bez popisu'}
-          emptyStateText="Zatím žádné hodnoty."
-          dialogTitle={{ create: 'Přidat hodnotu', edit: 'Upravit hodnotu' }}
-          onSaveItem={saveValue}
-          onDeleteItem={(index) => removeArrayItem(['values'], index)}
-          renderForm={({ draft, setDraft }) => (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">
-                  Ikona (Heart, Users, Leaf, Award)
-                </label>
-                <input
-                  type="text"
-                  placeholder="Heart"
-                  value={draft.icon || ''}
-                  onChange={(e) => setDraft((prev) => prev ? { ...prev, icon: e.target.value } : prev)}
-                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
-                />
-                <p className="mt-1 text-xs text-[var(--farm-secondary-text)]">
-                  Dostupné: Heart, Users, Leaf, Award, Star, Shield, Zap
-                </p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Nadpis</label>
-                <input
-                  type="text"
-                  placeholder="Láska ke koním"
-                  value={draft.title || ''}
-                  onChange={(e) => setDraft((prev) => prev ? { ...prev, title: e.target.value } : prev)}
-                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Popis</label>
-                <textarea
-                  placeholder="Popis hodnoty..."
-                  value={draft.description || ''}
-                  onChange={(e) => setDraft((prev) => prev ? { ...prev, description: e.target.value } : prev)}
-                  rows={3}
-                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white resize-none text-[var(--farm-primary-text)]"
-                />
-              </div>
-            </div>
-          )}
-        />
-      </FloatingCard>
-
-      <FloatingCard hover={false} adminCompact>
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-2">Sekce Náš tým</h3>
-          <p className="text-sm text-[var(--farm-secondary-text)]">Nadpis a popis celé sekce</p>
-        </div>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Nadpis sekce</label>
-            <input 
-              type="text" 
-              placeholder="Náš tým"
-              value={data?.teamSection?.title || ''} 
-              onChange={(e) => updateField(['teamSection', 'title'], e.target.value)} 
-              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]" 
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Podnadpis sekce</label>
-            <input 
-              type="text" 
-              placeholder="Lidé, kteří se starají o vaše děti a naše koně"
-              value={data?.teamSection?.subtitle || ''} 
-              onChange={(e) => updateField(['teamSection', 'subtitle'], e.target.value)} 
-              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]" 
-            />
-          </div>
-        </div>
-      </FloatingCard>
-
-      <FloatingCard hover={false} adminCompact>
-        <CmsCollectionEditor
-          title="Členové týmu"
-          addLabel="Přidat člena týmu"
-          items={team}
-          createItem={() => ({ name: '', role: '', description: '', photo: '' })}
-          getItemTitle={(member: any, index) => member.name || `Člen týmu #${index + 1}`}
-          getItemSubtitle={(member: any) => member.role || 'Bez pozice'}
-          emptyStateText="Zatím žádní členové týmu."
-          dialogTitle={{ create: 'Přidat člena týmu', edit: 'Upravit člena týmu' }}
-          onSaveItem={saveTeamMember}
-          onDeleteItem={(index) => removeArrayItem(['team'], index)}
-          renderForm={({ draft, setDraft }) => (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Jméno</label>
-                <input
-                  type="text"
-                  placeholder="Jana a Petr Nováčkovi"
-                  value={draft.name || ''}
-                  onChange={(e) => setDraft((prev) => prev ? { ...prev, name: e.target.value } : prev)}
-                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Pozice</label>
-                <input
-                  type="text"
-                  placeholder="Majitelé a zakladatelé"
-                  value={draft.role || ''}
-                  onChange={(e) => setDraft((prev) => prev ? { ...prev, role: e.target.value } : prev)}
-                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Popis</label>
-                <textarea
-                  placeholder="Vedou farmu s láskou a zkušenostmi..."
-                  value={draft.description || ''}
-                  onChange={(e) => setDraft((prev) => prev ? { ...prev, description: e.target.value } : prev)}
-                  rows={3}
-                  className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white resize-none text-[var(--farm-primary-text)]"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">URL fotky (volitelné)</label>
-                <ImageUpload
-                  value={draft.photo || ''}
-                  onChange={(value) => setDraft((prev) => prev ? { ...prev, photo: value } : prev)}
-                />
-              </div>
-            </div>
-          )}
-        />
-      </FloatingCard>
-
-      <FloatingCard hover={false} adminCompact>
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold text-[var(--farm-primary-text)] mb-2">Sekce Naše lokalita</h3>
-          <p className="text-sm text-[var(--farm-secondary-text)]">Informace o umístění farmy</p>
-        </div>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Nadpis sekce</label>
-            <input 
-              type="text" 
-              placeholder="Naše lokalita"
-              value={data?.location?.title || ''} 
-              onChange={(e) => updateField(['location', 'title'], e.target.value)} 
-              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]" 
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Popis lokality (2 odstavce)</label>
-            <textarea 
-              placeholder="První odstavec o lokalitě...&#10;&#10;Druhý odstavec o dostupnosti..."
-              value={data?.location?.description || ''} 
-              onChange={(e) => updateField(['location', 'description'], e.target.value)} 
-              rows={5} 
-              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none resize-none text-[var(--farm-primary-text)]" 
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">URL obrázku</label>
-            <ImageUpload
-              value={data?.location?.image || ''}
-              onChange={(value) => updateField(['location', 'image'], value)}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Nadpis "Jak se k nám dostat"</label>
-            <input 
-              type="text" 
-              placeholder="Jak se k nám dostat"
-              value={data?.location?.directionsTitle || ''} 
-              onChange={(e) => updateField(['location', 'directionsTitle'], e.target.value)} 
-              className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:outline-none text-[var(--farm-primary-text)]" 
-            />
-          </div>
-        </div>
-      </FloatingCard>
-
-      <FloatingCard hover={false} adminCompact>
-        <CmsCollectionEditor
-          title="Dopravní instrukce"
-          addLabel="Přidat instrukci"
-          items={directions}
-          createItem={() => ({ text: '' })}
-          getItemTitle={(direction: any, index) => direction.text || `Instrukce #${index + 1}`}
-          emptyStateText="Zatím žádné instrukce."
-          dialogTitle={{ create: 'Přidat instrukci', edit: 'Upravit instrukci' }}
-          dialogClassName="lg:max-w-2xl"
-          onSaveItem={saveDirection}
-          onDeleteItem={(index) => removeArrayItem(['location', 'directions'], index)}
-          renderForm={({ draft, setDraft }) => (
-            <div>
-              <label className="block text-sm font-medium text-[var(--farm-secondary-text)] mb-1.5">Instrukce</label>
-              <textarea
-                placeholder="Z Liberce po silnici směr Bedřichov"
-                value={draft.text || ''}
-                onChange={(e) => setDraft((prev) => prev ? { ...prev, text: e.target.value } : prev)}
-                rows={4}
-                className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white resize-none text-[var(--farm-primary-text)]"
-              />
-            </div>
-          )}
-        />
       </FloatingCard>
     </>
   );

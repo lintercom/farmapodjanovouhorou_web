@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { Outlet, useNavigate, Link } from 'react-router';
+import { useEffect, useLayoutEffect } from 'react';
+import { Outlet, useNavigate, Link, useLocation } from 'react-router';
 import { useAdmin } from '../../contexts/AdminContext';
 import { LogOut, Settings } from 'lucide-react';
 import logoImg from '/logo-placeholder.svg';
@@ -10,8 +10,15 @@ import '../../../styles/cms-admin.css';
 export function AdminLayout() {
   const { isAuthenticated, logout } = useAdmin();
   const navigate = useNavigate();
+  const location = useLocation();
   const { settings } = useGlobalSettings();
   const adminLogo = settings?.logo?.trim() ? settings.logo : logoImg;
+
+  // Po příchodu z veřejného webu (jiná route větev) zůstává scroll okna dole — srovnat nahoře.
+  // Pouze pathname: přepínání ?page= v editoru scroll nemění.
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   useEffect(() => {
     if (!isAuthenticated) {

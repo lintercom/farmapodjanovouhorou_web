@@ -42,7 +42,7 @@ export function Navigation() {
 
   // Pozice ZVĚTŠENÉHO loga (Motion animuje `y` = posun dolů v px; větší číslo = vizuálně níž).
   // → Mobil (pod lg): měň první číslo — teď 10.
-  // → Desktop (lg+): měň druhé číslo — teď 26.
+  // → Desktop (lg+): měň druhé číslo — teď 30.
   // Zmenšené logo má y: 0; na desktopu ho ve liště vycentruje obal (lg:h-20 + lg:items-center).
   const logoYOffsetExpanded = isBelowLg ? 10 : 30;
 
