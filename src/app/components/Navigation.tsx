@@ -7,6 +7,10 @@ import { useGlobalSettings } from '../hooks/useGlobalSettings';
 /** Veřejný asset z `public/` — bez importu modulu (typy URL řeší TS bez deklarace kořenové cesty). */
 const LOGO_PLACEHOLDER = '/logo-placeholder.svg';
 
+/** Společná křivka a délka pro logo + lištu při scrollu (desktop i mobil). */
+const navScrollTransition =
+  'duration-500 ease-[cubic-bezier(0.33,1,0.68,1)] motion-reduce:duration-150 motion-reduce:ease-linear';
+
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const scrolledRef = useRef(false);
@@ -50,7 +54,7 @@ export function Navigation() {
     <>
       {/* Desktop & Mobile Navigation */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 overflow-visible bg-white transition-shadow duration-300 lg:bg-white/95 lg:backdrop-blur-md ${isScrolled ? 'shadow-[var(--farm-shadow-md)]' : ''}`}
+        className={`fixed top-0 left-0 right-0 z-50 overflow-visible bg-white transition-[box-shadow,padding-top] lg:bg-white/95 lg:backdrop-blur-md ${navScrollTransition} ${isScrolled ? 'shadow-[var(--farm-shadow-md)]' : ''} ${!isScrolled ? 'lg:pt-3' : ''}`}
       >
         <div className="mx-auto max-w-7xl overflow-visible px-4 sm:px-6 lg:px-8">
           <div className="relative flex h-20 items-center justify-between overflow-visible lg:justify-start">
@@ -127,25 +131,25 @@ export function Navigation() {
               </Link>
             </div>
 
-            {/* Center Logo — mobil: po scrollu / otevřeném menu vycentrováno v h-20; velké logo jen mírný posun dolů (desktop ponecháno) */}
+            {/* Center Logo — mobil beze změny; desktop: mezera odshora (nav lg:pt-3), menší výška, spodní hrana řádku = spodní hrana loga */}
             <div
-              className={`pointer-events-none absolute left-1/2 top-0 z-[60] flex -translate-x-1/2 justify-center lg:pointer-events-auto lg:relative lg:left-auto lg:top-auto lg:z-auto lg:h-auto lg:w-auto lg:max-w-none lg:translate-x-0 lg:flex-none lg:items-center ${
+              className={`pointer-events-none absolute left-1/2 top-0 z-[60] flex -translate-x-1/2 justify-center max-lg:transition-[height] lg:pointer-events-auto lg:relative lg:left-auto lg:top-auto lg:z-auto lg:w-auto lg:max-w-none lg:translate-x-0 lg:flex-none max-lg:motion-reduce:transition-none ${navScrollTransition} ${
                 isScrolled || isMobileMenuOpen
-                  ? 'max-lg:h-20 max-lg:items-center max-lg:w-max max-lg:max-w-[min(300px,calc(100vw-5rem))]'
-                  : 'max-lg:items-start'
+                  ? 'max-lg:h-20 max-lg:items-center max-lg:w-max max-lg:max-w-[min(300px,calc(100vw-5rem))] lg:h-auto lg:items-center lg:self-center'
+                  : 'max-lg:items-start lg:h-full lg:items-end lg:self-end'
               }`}
             >
               <Link
                 to="/"
-                className="pointer-events-auto flex items-center justify-center"
+                className="pointer-events-auto flex items-center justify-center lg:h-full lg:items-end"
               >
                 <img
                   src={navLogo}
                   alt="Farma pod Janovou horou"
-                  className={`w-auto max-w-[min(300px,calc(100vw-3rem))] object-contain transition-[height,transform] duration-300 lg:max-w-none ${
+                  className={`w-auto max-w-[min(300px,calc(100vw-3rem))] object-contain transition-[height,transform] lg:max-w-none ${navScrollTransition} ${
                     !isScrolled && !isMobileMenuOpen
-                      ? 'max-lg:h-[118px] lg:h-[143px] max-lg:translate-y-[10px] lg:translate-y-[30px]' //TADY SE NASTAVUJE POZICE LOGA V MOBILNÍM ZOBRAZENÍ - ZVĚTŠENÝ STAV
-                      : 'h-[68px] translate-y-0'
+                      ? 'max-lg:h-[118px] max-lg:translate-y-[10px] lg:h-[112px] lg:translate-y-0 lg:object-bottom'
+                      : 'h-[68px] translate-y-0 lg:object-center'
                   }`}
                 />
               </Link>
