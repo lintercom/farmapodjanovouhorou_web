@@ -2,8 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import logoImage from '/logo-placeholder.svg';
 import { useGlobalSettings } from '../hooks/useGlobalSettings';
+
+/** Veřejný asset z `public/` — bez importu modulu (typy URL řeší TS bez deklarace kořenové cesty). */
+const LOGO_PLACEHOLDER = '/logo-placeholder.svg';
 
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -11,9 +13,8 @@ export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
   const location = useLocation();
-  const isHomePage = location.pathname === '/';
   const { settings } = useGlobalSettings();
-  const navLogo = settings?.logo?.trim() ? settings.logo : logoImage;
+  const navLogo = settings?.logo?.trim() ? settings.logo : LOGO_PLACEHOLDER;
 
   useEffect(() => {
     const SCROLL_ON = 72;
@@ -44,16 +45,6 @@ export function Navigation() {
     setIsScrolled(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [location]);
-
-  const isActive = (path: string) => location.pathname === path;
-
-  const handleNavigation = (path: string) => {
-    if (location.pathname === path) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      Link.to(path);
-    }
-  };
 
   return (
     <>
