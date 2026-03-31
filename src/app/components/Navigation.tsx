@@ -39,7 +39,12 @@ export function Navigation() {
   const isBelowLg = useIsBelowLg();
   const reduceMotion = useReducedMotion();
   const logoExpanded = !isScrolled && !isMobileMenuOpen;
-  const logoYOffsetExpanded = isBelowLg ? 10 : 26;
+
+  // Pozice ZVĚTŠENÉHO loga (Motion animuje `y` = posun dolů v px; větší číslo = vizuálně níž).
+  // → Mobil (pod lg): měň první číslo — teď 10.
+  // → Desktop (lg+): měň druhé číslo — teď 26.
+  // Zmenšené logo má y: 0; na desktopu ho ve liště vycentruje obal (lg:h-20 + lg:items-center).
+  const logoYOffsetExpanded = isBelowLg ? 10 : 30;
 
   const logoMotionTransition = reduceMotion
     ? { duration: 0.12, ease: 'linear' as const }
@@ -160,7 +165,13 @@ export function Navigation() {
               </Link>
             </div>
 
-            {/* Logo: mobil rozbaleno — items-start jako dřív (horní zarovnání); po scrollu items-center v h-20; desktop beze změny */}
+            {/*
+              MOBIL (max-lg) — obal loga / zarovnání:
+              • Rozbaleno: items-start + výška obalu max-lg:h-[132px] — logo odshora; výšku 132px uprav,
+                když měníš výšku obrázku nebo silně měníš `y` výše v kódu.
+              • Po scrollu nebo otevřeném menu: items-center + max-lg:h-20 — logo uprostřed řádku lišty.
+              DESKTOP (lg+) — obal: lg:h-20 + items-center; zvětšené posunuje jen motion `y` (viz logoYOffsetExpanded).
+            */}
             <div
               className={`pointer-events-none absolute left-1/2 top-0 z-[60] flex -translate-x-1/2 justify-center overflow-visible max-lg:transition-[height] max-lg:duration-[720ms] max-lg:ease-[cubic-bezier(0.2,0.85,0.24,1)] max-lg:motion-reduce:transition-none lg:pointer-events-auto lg:relative lg:left-auto lg:top-auto lg:z-auto lg:h-20 lg:w-auto lg:max-w-none lg:translate-x-0 lg:flex-none lg:items-center lg:self-center lg:overflow-visible ${
                 isScrolled || isMobileMenuOpen
@@ -177,6 +188,7 @@ export function Navigation() {
                   alt="Farma pod Janovou horou"
                   initial={false}
                   animate={{
+                    // Výška loga (px): zvětšené | zmenšené — společné pro mobil i desktop.
                     height: logoExpanded ? 118 : 68,
                     y: logoExpanded ? logoYOffsetExpanded : 0,
                   }}
