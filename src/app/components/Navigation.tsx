@@ -54,7 +54,7 @@ export function Navigation() {
     <>
       {/* Desktop & Mobile Navigation */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 overflow-visible bg-white transition-[box-shadow,padding-top] lg:bg-white/95 lg:backdrop-blur-md ${navScrollTransition} ${isScrolled ? 'shadow-[var(--farm-shadow-md)]' : ''} ${!isScrolled ? 'lg:pt-3' : ''}`}
+        className={`fixed top-0 left-0 right-0 z-50 overflow-visible bg-white transition-[box-shadow] lg:bg-white/95 lg:backdrop-blur-md ${navScrollTransition} ${isScrolled ? 'shadow-[var(--farm-shadow-md)]' : ''}`}
       >
         <div className="mx-auto max-w-7xl overflow-visible px-4 sm:px-6 lg:px-8">
           <div className="relative flex h-20 items-center justify-between overflow-visible lg:justify-start">
@@ -131,25 +131,25 @@ export function Navigation() {
               </Link>
             </div>
 
-            {/* Center Logo — mobil beze změny; desktop: mezera odshora (nav lg:pt-3), menší výška, spodní hrana řádku = spodní hrana loga */}
+            {/* Logo: stejné rozměry a translate na mobilu i desktopu; obal na lg vždy self-center → žádný skok při přepnutí object-position / self-end */}
             <div
-              className={`pointer-events-none absolute left-1/2 top-0 z-[60] flex -translate-x-1/2 justify-center max-lg:transition-[height] lg:pointer-events-auto lg:relative lg:left-auto lg:top-auto lg:z-auto lg:w-auto lg:max-w-none lg:translate-x-0 lg:flex-none max-lg:motion-reduce:transition-none ${navScrollTransition} ${
+              className={`pointer-events-none absolute left-1/2 top-0 z-[60] flex -translate-x-1/2 justify-center max-lg:transition-[height] lg:pointer-events-auto lg:relative lg:left-auto lg:top-auto lg:z-auto lg:w-auto lg:max-w-none lg:translate-x-0 lg:flex-none lg:self-center max-lg:motion-reduce:transition-none ${navScrollTransition} ${
                 isScrolled || isMobileMenuOpen
-                  ? 'max-lg:h-20 max-lg:items-center max-lg:w-max max-lg:max-w-[min(300px,calc(100vw-5rem))] lg:h-auto lg:items-center lg:self-center'
-                  : 'max-lg:items-start lg:h-full lg:items-end lg:self-end'
+                  ? 'max-lg:h-20 max-lg:items-center max-lg:w-max max-lg:max-w-[min(300px,calc(100vw-5rem))] lg:items-center'
+                  : 'max-lg:items-start lg:items-center'
               }`}
             >
               <Link
                 to="/"
-                className="pointer-events-auto flex items-center justify-center lg:h-full lg:items-end"
+                className="pointer-events-auto flex items-center justify-center"
               >
                 <img
                   src={navLogo}
                   alt="Farma pod Janovou horou"
-                  className={`w-auto max-w-[min(300px,calc(100vw-3rem))] object-contain transition-[height,transform] lg:max-w-none ${navScrollTransition} ${
+                  className={`w-auto max-w-[min(300px,calc(100vw-3rem))] object-contain object-center transition-[height,transform] lg:max-w-none ${navScrollTransition} ${
                     !isScrolled && !isMobileMenuOpen
-                      ? 'max-lg:h-[118px] max-lg:translate-y-[10px] lg:h-[112px] lg:translate-y-0 lg:object-bottom'
-                      : 'h-[68px] translate-y-0 lg:object-center'
+                      ? 'h-[118px] translate-y-[10px]'
+                      : 'h-[68px] translate-y-0'
                   }`}
                 />
               </Link>
