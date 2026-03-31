@@ -131,25 +131,25 @@ export function Navigation() {
               </Link>
             </div>
 
-            {/* Logo: stejné rozměry a translate na mobilu i desktopu; obal na lg vždy self-center → žádný skok při přepnutí object-position / self-end */}
+            {/* Logo: vždy items-center (žádný skok zarovnání); desktop fixní slot h-20 jen animace img; mobil animovaná výška obalu 132↔80 */}
             <div
-              className={`pointer-events-none absolute left-1/2 top-0 z-[60] flex -translate-x-1/2 justify-center max-lg:transition-[height] lg:pointer-events-auto lg:relative lg:left-auto lg:top-auto lg:z-auto lg:w-auto lg:max-w-none lg:translate-x-0 lg:flex-none lg:self-center max-lg:motion-reduce:transition-none ${navScrollTransition} ${
+              className={`pointer-events-none absolute left-1/2 top-0 z-[60] flex -translate-x-1/2 items-center justify-center overflow-visible max-lg:transition-[height] lg:pointer-events-auto lg:relative lg:left-auto lg:top-auto lg:z-auto lg:h-20 lg:w-auto lg:max-w-none lg:translate-x-0 lg:flex-none lg:self-center lg:overflow-visible max-lg:motion-reduce:transition-none ${navScrollTransition} ${
                 isScrolled || isMobileMenuOpen
-                  ? 'max-lg:h-20 max-lg:items-center max-lg:w-max max-lg:max-w-[min(300px,calc(100vw-5rem))] lg:items-center'
-                  : 'max-lg:items-start lg:items-center'
+                  ? 'max-lg:h-20 max-lg:w-max max-lg:max-w-[min(300px,calc(100vw-5rem))]'
+                  : 'max-lg:h-[132px] max-lg:w-max max-lg:max-w-[min(300px,calc(100vw-5rem))] max-lg:overflow-visible'
               }`}
             >
               <Link
                 to="/"
-                className="pointer-events-auto flex items-center justify-center"
+                className="pointer-events-auto flex h-full w-full items-center justify-center overflow-visible"
               >
                 <img
                   src={navLogo}
                   alt="Farma pod Janovou horou"
                   className={`w-auto max-w-[min(300px,calc(100vw-3rem))] object-contain object-center transition-[height,transform] lg:max-w-none ${navScrollTransition} ${
                     !isScrolled && !isMobileMenuOpen
-                      ? 'h-[118px] translate-y-[10px]'
-                      : 'h-[68px] translate-y-0'
+                      ? `h-[118px] max-lg:translate-y-[10px] lg:translate-y-[18px]`
+                      : 'h-[68px] translate-y-0 lg:translate-y-1.5'
                   }`}
                 />
               </Link>
