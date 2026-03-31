@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -7,6 +7,7 @@ import { useGlobalSettings } from '../hooks/useGlobalSettings';
 
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const scrolledRef = useRef(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
   const location = useLocation();
@@ -15,11 +16,23 @@ export function Navigation() {
   const navLogo = settings?.logo?.trim() ? settings.logo : logoImage;
 
   useEffect(() => {
+    const SCROLL_ON = 72;
+    const SCROLL_OFF = 28;
+
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const y = window.scrollY;
+      const next =
+        scrolledRef.current
+          ? y > SCROLL_OFF
+          : y > SCROLL_ON;
+      if (next !== scrolledRef.current) {
+        scrolledRef.current = next;
+        setIsScrolled(next);
+      }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -27,6 +40,8 @@ export function Navigation() {
   useEffect(() => {
     setIsMobileMenuOpen(false);
     setIsServicesOpen(false);
+    scrolledRef.current = false;
+    setIsScrolled(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [location]);
 
@@ -44,7 +59,7 @@ export function Navigation() {
     <>
       {/* Desktop & Mobile Navigation */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 overflow-visible bg-white/95 backdrop-blur-md transition-all duration-300 ${isScrolled ? 'shadow-[var(--farm-shadow-md)]' : ''}`}
+        className={`fixed top-0 left-0 right-0 z-50 overflow-visible bg-white transition-shadow duration-300 lg:bg-white/95 lg:backdrop-blur-md ${isScrolled ? 'shadow-[var(--farm-shadow-md)]' : ''}`}
       >
         <div className="mx-auto max-w-7xl overflow-visible px-4 sm:px-6 lg:px-8">
           <div className="relative flex h-20 items-center justify-between overflow-visible lg:justify-start">
@@ -136,7 +151,7 @@ export function Navigation() {
                 <img
                   src={navLogo}
                   alt="Farma pod Janovou horou"
-                  className={`w-auto max-w-[min(300px,calc(100vw-3rem))] object-contain transition-all duration-300 lg:max-w-none ${
+                  className={`w-auto max-w-[min(300px,calc(100vw-3rem))] object-contain transition-[height,transform] duration-300 lg:max-w-none ${
                     !isScrolled && !isMobileMenuOpen
                       ? 'max-lg:h-[118px] lg:h-[143px] max-lg:translate-y-[10px] lg:translate-y-[30px]' //TADY SE NASTAVUJE POZICE LOGA V MOBILNÍM ZOBRAZENÍ - ZVĚTŠENÝ STAV
                       : 'h-[68px] translate-y-0'

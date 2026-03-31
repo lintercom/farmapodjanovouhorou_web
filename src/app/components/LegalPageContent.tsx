@@ -163,7 +163,7 @@ export function LegalPageContent({ pageId, defaultTitle, defaultContent }: Legal
       {/* Content Section */}
       <section className="py-16 md:py-24 bg-[var(--farm-page-bg)] relative overflow-hidden">
         {/* Blurred gradient transition from previous section */}
-        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-page-bg)] to-transparent backdrop-blur-sm" />
+        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-page-bg)] to-transparent" />
         
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <FloatingCard hover={false}>

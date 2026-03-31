@@ -184,7 +184,7 @@ export function Home() {
                   </Button>
                 </Link>
                 <Link to={normalizeCmsInternalHref(hero.secondaryButtonLink) || '/kontakt'}>
-                  <Button variant="outline" className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 bg-white/15 backdrop-blur-md border-2 border-white/40 text-white hover:bg-white/15 hover:text-white hover:border-white/40 hover:shadow-xl">
+                  <Button variant="outline" className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 bg-white/20 max-lg:backdrop-blur-none backdrop-blur-md border-2 border-white/40 text-white hover:bg-white/15 hover:text-white hover:border-white/40 hover:shadow-xl">
                     {hero.secondaryButtonText || 'Kontaktujte nás'}
                   </Button>
                 </Link>
@@ -197,7 +197,7 @@ export function Home() {
       {/* Services Section - Modern Asymmetric Layout */}
       <section className="py-20 md:py-28 bg-[var(--farm-section-alt-bg)] relative overflow-hidden">
         {/* Blurred gradient transition from previous section */}
-        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-page-bg)] to-transparent backdrop-blur-sm" />
+        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-page-bg)] to-transparent" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16 md:mb-20">
@@ -243,7 +243,7 @@ export function Home() {
       {/* Horses Preview Section */}
       <section className="py-20 md:py-28 bg-[var(--farm-page-bg)] relative overflow-visible">
         {/* Blurred gradient transition from previous section */}
-        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-section-alt-bg)] to-transparent backdrop-blur-sm" />
+        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-section-alt-bg)] to-transparent" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 overflow-visible">
           <div className="text-center mb-10 md:mb-14">
@@ -319,7 +319,7 @@ export function Home() {
       {/* CTA Section */}
       <section className="py-20 md:py-28 bg-[var(--farm-bg-tertiary)] relative overflow-hidden">
         {/* Blurred gradient transition from previous section */}
-        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-page-bg)] to-transparent backdrop-blur-sm" />
+        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-page-bg)] to-transparent" />
         
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <FloatingCard hover={false} className="px-5 py-8 sm:p-10 md:p-14 lg:p-16 bg-white shadow-[var(--farm-shadow-xl)]">
@@ -398,7 +398,7 @@ export function Home() {
       {/* FAQ Section */}
       <section className="py-20 md:py-28 bg-[var(--farm-section-alt-bg)] relative overflow-hidden">
         {/* Blurred gradient transition from previous section */}
-        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-bg-tertiary)] to-transparent backdrop-blur-sm" />
+        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-bg-tertiary)] to-transparent" />
         
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16 md:mb-20">

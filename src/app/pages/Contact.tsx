@@ -213,7 +213,7 @@ export function Contact() {
       {/* Tabs Navigation */}
       {reservationTabs.length > 0 ? (
         <section className="py-12 bg-[var(--farm-page-bg)] relative overflow-hidden -mt-[1px]">
-          <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-page-bg)] to-transparent backdrop-blur-sm" />
+          <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-page-bg)] to-transparent" />
           
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="flex flex-wrap justify-center gap-4">
@@ -264,7 +264,7 @@ export function Contact() {
       {/* Tab Content */}
       <section className="py-24 bg-[var(--farm-section-alt-bg)] relative overflow-hidden">
         {/* Blurred gradient transition from previous section */}
-        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-page-bg)] to-transparent backdrop-blur-sm" />
+        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-page-bg)] to-transparent" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           
@@ -600,7 +600,7 @@ export function Contact() {
       {/* Map Section */}
       <section className="py-24 md:py-32 bg-[var(--farm-page-bg)] relative overflow-hidden">
         {/* Blurred gradient transition from previous section */}
-        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-section-alt-bg)] to-transparent backdrop-blur-sm" />
+        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-section-alt-bg)] to-transparent" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">

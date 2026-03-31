@@ -158,7 +158,7 @@ export function Services() {
       {services.map((service, index) => (
         <section key={service.id} id={service.id} className={`py-24 md:py-32 ${index % 2 === 0 ? 'bg-[var(--farm-section-alt-bg)]' : 'bg-[var(--farm-page-bg)]'} scroll-mt-20 -mt-[1px] relative overflow-hidden`}>
           {/* Blurred gradient transition from previous section */}
-          <div className={`absolute top-0 left-0 right-0 h-24 bg-gradient-to-b ${index === 0 ? 'from-[var(--farm-page-bg)]' : index % 2 === 0 ? 'from-[var(--farm-page-bg)]' : 'from-[var(--farm-section-alt-bg)]'} to-transparent backdrop-blur-sm`} />
+          <div className={`absolute top-0 left-0 right-0 h-24 bg-gradient-to-b ${index === 0 ? 'from-[var(--farm-page-bg)]' : index % 2 === 0 ? 'from-[var(--farm-page-bg)]' : 'from-[var(--farm-section-alt-bg)]'} to-transparent`} />
           
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -210,7 +210,7 @@ export function Services() {
       {/* CTA Section */}
       <section className="py-24 md:py-32 bg-[var(--farm-bg-tertiary)] relative overflow-hidden">
         {/* Blurred gradient transition from previous section */}
-        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-section-alt-bg)] to-transparent backdrop-blur-sm" />
+        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[var(--farm-section-alt-bg)] to-transparent" />
         
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <FloatingCard hover={false} className="p-12 md:p-16">
