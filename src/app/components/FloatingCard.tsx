@@ -1,5 +1,4 @@
 import { ReactNode } from 'react';
-import { motion } from 'motion/react';
 
 interface FloatingCardProps {
   children: ReactNode;
@@ -10,12 +9,12 @@ interface FloatingCardProps {
   onClick?: () => void;
 }
 
-export function FloatingCard({ 
-  children, 
-  className = '', 
+export function FloatingCard({
+  children,
+  className = '',
   hover = true,
   adminCompact = false,
-  ...props 
+  ...props
 }: FloatingCardProps) {
   const baseStyles = adminCompact
     ? 'bg-white rounded-2xl p-4 transition-all duration-300 lg:p-8'
@@ -24,15 +23,11 @@ export function FloatingCard({
   const hoverStyles = hover ? 'hover:shadow-[var(--farm-shadow-xl)] hover:-translate-y-1' : '';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+    <div
       className={`${baseStyles} ${shadowStyles} ${hoverStyles} ${className}`}
       {...props}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
