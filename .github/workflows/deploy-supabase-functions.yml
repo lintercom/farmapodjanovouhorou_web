@@ -1,0 +1,32 @@
+# Nasazení Edge Function `make-server-399cd496` do projektu Supabase.
+# Před prvním během: v GitHub → Settings → Secrets → Actions přidej
+#   SUPABASE_ACCESS_TOKEN  (Supabase Dashboard → Account → Access Tokens)
+#
+# Spuštění: push do main (jen při změnách ve supabase/functions/) nebo „Run workflow“ ručně.
+
+name: Deploy Supabase Edge Functions
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'supabase/functions/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Deploy make-server-399cd496
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase functions deploy make-server-399cd496 --project-ref zpbsjgmbvfxhmknryuos
