@@ -3,4 +3,20 @@ Allow: /
 Disallow: /admin
 Disallow: /cms-prihlaseni
 
+# Volitelné: veřejný obsah pro běžné AI / výzkumné crawlery (upravte podle politiky domény)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
 Sitemap: https://lintercom.github.io/farmapodjanovouhorou_web/sitemap.xml

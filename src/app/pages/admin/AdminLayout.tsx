@@ -7,6 +7,9 @@ import { useGlobalSettings } from '../../hooks/useGlobalSettings';
 import { applySeoMetadata } from '../../utils/seo';
 import '../../../styles/cms-admin.css';
 
+/** Po ručním odhlášení neprovádět přesměrování na přihlášení (uživatel míří na `/`). */
+const SESSION_INTENTIONAL_ADMIN_EXIT = 'cms:intentional-admin-exit';
+
 export function AdminLayout() {
   const { isAuthenticated, logout } = useAdmin();
   const navigate = useNavigate();
@@ -21,19 +24,27 @@ export function AdminLayout() {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      // Kontrola, zda session vyprĹˇela
-      const sessionExpired = localStorage.getItem('adminSessionExpired');
-      if (sessionExpired === 'true') {
-        // Odstraníme flag a pĹ™esměrujeme s parametrem
-        localStorage.removeItem('adminSessionExpired');
-        navigate('/cms-prihlaseni?expired=true');
-      } else {
-        // Manuální odhláĹˇení
-        navigate('/cms-prihlaseni');
-      }
+    if (isAuthenticated) {
+      return;
     }
-  }, [isAuthenticated, navigate]);
+
+    if (sessionStorage.getItem(SESSION_INTENTIONAL_ADMIN_EXIT) === '1') {
+      sessionStorage.removeItem(SESSION_INTENTIONAL_ADMIN_EXIT);
+      return;
+    }
+
+    if (!location.pathname.startsWith('/admin')) {
+      return;
+    }
+
+    const sessionExpired = localStorage.getItem('adminSessionExpired');
+    if (sessionExpired === 'true') {
+      localStorage.removeItem('adminSessionExpired');
+      navigate('/cms-prihlaseni?expired=true', { replace: true });
+    } else {
+      navigate('/cms-prihlaseni', { replace: true });
+    }
+  }, [isAuthenticated, navigate, location.pathname]);
 
   useEffect(() => {
     const siteName = settings?.siteName?.trim() || 'Farma pod Janovou horou';
@@ -49,7 +60,8 @@ export function AdminLayout() {
   }, [settings?.favicon, settings?.siteName]);
 
   const handleLogout = () => {
-    logout();
+    sessionStorage.setItem(SESSION_INTENTIONAL_ADMIN_EXIT, '1');
+    void logout();
     navigate('/');
   };
 

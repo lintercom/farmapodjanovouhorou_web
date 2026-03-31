@@ -1,0 +1,9 @@
+/* TEAM */
+Site: Farma pod Janovou horou (veřejný web)
+
+/* SITE */
+Stack: Vite, React, TypeScript
+Components: React Router, Tailwind CSS (dle repozitáře)
+
+/* NOTE */
+Kontaktní údaje a provozní informace jsou uvedeny na stránce /kontakt a v globálním nastavení CMS (nejsou duplikovány zde záměrně).

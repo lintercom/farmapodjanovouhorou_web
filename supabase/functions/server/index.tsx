@@ -1,8 +1,14 @@
-import { Hono } from 'npm:hono@4';
+import { Hono, type Context } from 'npm:hono@4';
 import { cors } from 'npm:hono/cors';
 import { logger } from 'npm:hono/logger';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import * as kv from './kv_store.tsx';
+import {
+  hashAdminPassword,
+  normalizePasswordInput,
+  shouldMigratePasswordToBcrypt,
+  verifyAdminPasswordAgainstKv,
+} from './cmsPassword.ts';
 import { seedDefaultContent } from './seed.tsx';
 
 const app = new Hono();
@@ -15,6 +21,10 @@ const supabase = createClient(
 
 // Storage bucket name
 const IMAGES_BUCKET = 'make-399cd496-images';
+
+function trimBodyString(v: unknown): string {
+  return typeof v === 'string' ? normalizePasswordInput(v) : '';
+}
 
 function escapeHtml(value: string) {
   return value
@@ -364,31 +374,65 @@ app.post("/make-server-399cd496/contact-message", async (c) => {
   }
 });
 
-// Change password endpoint
-app.post("/make-server-399cd496/change-password", async (c) => {
+// Ověření hesla správce (účet admin — hodnota v KV nebo výchozí admin)
+const handleVerifyCmsLogin = async (c: Context) => {
   try {
     const body = await c.req.json();
-    const { oldPassword, newPassword } = body;
-    
-    // Get stored admin password
-    const storedPassword = await kv.get("admin:password");
-    
-    // Verify old password
-    if (!storedPassword || storedPassword !== oldPassword) {
+    const password = trimBodyString(body?.password);
+    const stored = await kv.get("admin:password");
+
+    if (password.length > 0 && verifyAdminPasswordAgainstKv(password, stored)) {
+      if (shouldMigratePasswordToBcrypt(stored)) {
+        try {
+          await kv.set("admin:password", hashAdminPassword(password));
+        } catch (e) {
+          console.error("admin:password migrate to bcrypt:", e);
+        }
+      }
+      return c.json({ success: true });
+    }
+    return c.json({ error: "Neplatné údaje" }, 401);
+  } catch (error) {
+    console.error("verify-cms-login:", error);
+    return c.json({ error: "Neplatné údaje" }, 401);
+  }
+};
+
+// Change password endpoint (účet CMS `admin`, ne Supabase Auth)
+const handleChangePassword = async (c: Context) => {
+  try {
+    const body = (await c.req.json()) as Record<string, unknown>;
+    const oldTrim = trimBodyString(body?.oldPassword ?? body?.old_password);
+    const newTrim = trimBodyString(body?.newPassword ?? body?.new_password);
+
+    if (!oldTrim || !newTrim) {
+      return c.json({ error: "Vyplňte staré i nové heslo" }, 400);
+    }
+    if (newTrim.length < 6) {
+      return c.json({ error: "Nové heslo musí mít alespoň 6 znaků" }, 400);
+    }
+
+    const stored = await kv.get("admin:password");
+    if (!verifyAdminPasswordAgainstKv(oldTrim, stored)) {
       return c.json({ error: "Staré heslo je nesprávné" }, 401);
     }
-    
-    // Save new password
-    await kv.set("admin:password", newPassword);
-    
-    return c.json({ 
-      success: true, 
-      message: "Heslo bylo úspěšně změněno" 
+
+    await kv.set("admin:password", hashAdminPassword(newTrim));
+
+    return c.json({
+      success: true,
+      message: "Heslo bylo úspěšně změněno",
     });
   } catch (error) {
     console.error("Error changing password:", error);
     return c.json({ error: "Nepodařilo se změnit heslo" }, 500);
   }
-});
+};
+
+app.post("/make-server-399cd496/verify-cms-login", handleVerifyCmsLogin);
+app.post("/verify-cms-login", handleVerifyCmsLogin);
+
+app.post("/make-server-399cd496/change-password", handleChangePassword);
+app.post("/change-password", handleChangePassword);
 
 Deno.serve(app.fetch);

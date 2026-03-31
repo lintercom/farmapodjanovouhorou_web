@@ -16,9 +16,10 @@ import {
 import { FloatingCard } from '../../components/FloatingCard';
 import { Button } from '../../components/Button';
 import { ImageUpload } from '../../components/admin/ImageUpload';
-import { settingsApi } from '../../utils/api';
+import { API_BASE_URL, settingsApi } from '../../utils/api';
+import { normalizePasswordForCms } from '../../utils/passwordNormalize';
 import { setCachedSettings } from '../../utils/siteDataCache';
-import { projectId, publicAnonKey } from '/utils/supabase/info';
+import { publicAnonKey } from '/utils/supabase/info';
 import {
   Dialog,
   DialogContent,
@@ -191,19 +192,23 @@ export function GlobalSettings() {
     setPasswordError(null);
     setPasswordStatus('idle');
 
-    if (!passwordData.oldPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+    const oldPassword = normalizePasswordForCms(passwordData.oldPassword);
+    const newPassword = normalizePasswordForCms(passwordData.newPassword);
+    const confirmPassword = normalizePasswordForCms(passwordData.confirmPassword);
+
+    if (!oldPassword || !newPassword || !confirmPassword) {
       setPasswordError('Vyplňte všechna pole');
       setPasswordStatus('error');
       return;
     }
 
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
+    if (newPassword !== confirmPassword) {
       setPasswordError('Nová hesla se neshodují');
       setPasswordStatus('error');
       return;
     }
 
-    if (passwordData.newPassword.length < 6) {
+    if (newPassword.length < 6) {
       setPasswordError('Nové heslo musí mít alespoň 6 znaků');
       setPasswordStatus('error');
       return;
@@ -211,20 +216,17 @@ export function GlobalSettings() {
 
     setPasswordSubmitting(true);
     try {
-      const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-399cd496/change-password`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${publicAnonKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            oldPassword: passwordData.oldPassword,
-            newPassword: passwordData.newPassword,
-          }),
+      const response = await fetch(`${API_BASE_URL}/change-password`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${publicAnonKey}`,
+          'Content-Type': 'application/json',
         },
-      );
+        body: JSON.stringify({
+          oldPassword,
+          newPassword,
+        }),
+      });
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
@@ -572,8 +574,13 @@ export function GlobalSettings() {
                   Globální nastavení
                 </div>
                 <DialogTitle className="text-2xl text-[var(--farm-primary-text)]">Bezpečnost</DialogTitle>
-                <DialogDescription className="text-[var(--farm-secondary-text)]">
-                  Změna hesla pro přístup do administrace.
+                <DialogDescription className="text-[var(--farm-secondary-text)] space-y-2">
+                  <span className="block">
+                    Změna hesla pro účet <strong className="text-[var(--farm-primary-text)]">admin</strong> na stránce přihlášení do CMS (ne heslo účtu Supabase).
+                  </span>
+                  <span className="block text-sm">
+                    Dokud jste heslo neměnili, jako staré zadejte výchozí: <strong>admin</strong>.
+                  </span>
                 </DialogDescription>
               </DialogHeader>
               <div className="flex-1 overflow-y-auto overscroll-contain bg-[linear-gradient(180deg,rgba(255,255,255,0.45),rgba(244,252,241,0.35))] px-4 py-4 lg:px-6 lg:py-5">

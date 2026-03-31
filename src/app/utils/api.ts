@@ -1,7 +1,36 @@
 import { projectId, publicAnonKey } from '/utils/supabase/info';
+import { CMS_DEFAULT_PASSWORD } from './cmsCredentials';
+import { normalizePasswordForCms } from './passwordNormalize';
 import { fixMojibakeDeep } from './encoding';
 
-const API_BASE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-399cd496`;
+export const API_BASE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-399cd496`;
+
+/**
+ * Ověří heslo správce přes Edge Function `verify-cms-login`.
+ * Pokud endpoint není nasazený (404/405) nebo síť selže, použije se výhradně výchozí heslo
+ * (stejné chování jako před zavedením API), aby přihlášení nebylo závislé na redeploy.
+ */
+export async function verifyCmsAdminPassword(password: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/verify-cms-login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${publicAnonKey}`,
+      },
+      body: JSON.stringify({ password: normalizePasswordForCms(password) }),
+    });
+    if (res.ok) {
+      return true;
+    }
+    if (res.status === 404 || res.status === 405) {
+      return password === CMS_DEFAULT_PASSWORD;
+    }
+    return false;
+  } catch {
+    return password === CMS_DEFAULT_PASSWORD;
+  }
+}
 
 interface ApiOptions {
   method?: string;

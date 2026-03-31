@@ -1,3 +1,4 @@
+import { hashAdminPassword } from './cmsPassword.ts';
 import { defaultPageContent } from './defaultContent.ts';
 import * as kv from './kv_store.tsx';
 
@@ -26,6 +27,11 @@ export async function seedDefaultContent() {
     
     await kv.set('global:settings', defaultSettings);
     results.push({ pageId: 'global:settings', status: 'success' });
+
+    const existingPw = await kv.get('admin:password');
+    if (!existingPw) {
+      await kv.set('admin:password', hashAdminPassword('admin'));
+    }
   } catch (error) {
     console.error('Error seeding global settings:', error);
     results.push({ pageId: 'global:settings', status: 'error', error: String(error) });

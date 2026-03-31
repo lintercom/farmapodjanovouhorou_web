@@ -1,0 +1,29 @@
+# Farma pod Janovou horou
+
+> Veřejný web rodinné farmy ve Vizovicích (Zlínský kraj). Jezdecké aktivity, tábory, kroužky, kontakt a rezervace.
+> Kanonická základna URL: nastavte `VITE_SITE_URL` při buildu / nasazení tak, aby odpovídala produkční doméně (viz `.env.example`).
+
+## Hlavní stránky
+
+- `/` — úvodní stránka farmy
+- `/sluzby` — přehled služeb (kotvy: `#tabory`, `#krouzky`, `#vyjizdy`, `#akce-na-miru`)
+- `/blog` — články a novinky
+- `/nasi-kone` — koně na farmě
+- `/o-nas` — o farmě
+- `/kontakt` — kontakt a rezervace
+
+## Právní a informační stránky
+
+- `/ochrana-osobnich-udaju` — ochrana osobních údajů
+- `/cookies` — cookies
+- `/obchodni-podminky` — obchodní podmínky
+- `/reklamacni-rad` — reklamační řád
+
+## Nepublicovat do indexu
+
+- `/admin` — administrace
+- `/cms-prihlaseni` — přihlášení do CMS
+
+## Strojově čitelná metadata
+
+Strukturovaná data (JSON-LD) a titulky stránek se nastavují v klientské aplikaci (`RouteSeo`, `buildFullSiteJsonLd`). Statický výstup pro veřejné cesty generuje skript `scripts/prerender.mjs` při nasazení.

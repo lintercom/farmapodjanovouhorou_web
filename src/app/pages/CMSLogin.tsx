@@ -33,17 +33,17 @@ export function CMSLogin() {
     }
 
     setIsLoading(true);
-    
-    // Simulate network delay for better UX
-    setTimeout(() => {
-      const success = login(username, password);
+
+    try {
+      const success = await login(username, password);
       if (success) {
         navigate('/admin?page=domu');
       } else {
         setError('Nesprávné přihlašovací údaje');
-        setIsLoading(false);
       }
-    }, 800);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -77,11 +77,12 @@ export function CMSLogin() {
                 htmlFor="username" 
                 className="block text-sm font-medium text-[var(--farm-primary-text)] mb-2"
               >
-                Uživatelské jméno
+                Jméno
               </label>
               <input
                 type="text"
                 id="username"
+                autoComplete="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className={`w-full px-4 py-3 rounded-xl border text-[var(--farm-text-primary)] ${
@@ -89,7 +90,7 @@ export function CMSLogin() {
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
                     : 'border-[var(--farm-neutral-300)] focus:border-[var(--farm-accent-green)] focus:ring-[var(--farm-accent-green)]/20'
                 } focus:outline-none focus:ring-4 transition-all`}
-                placeholder="Zadejte uživatelské jméno"
+                placeholder="Zadejte jméno"
                 disabled={isLoading}
               />
             </div>
@@ -105,6 +106,7 @@ export function CMSLogin() {
               <input
                 type="password"
                 id="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className={`w-full px-4 py-3 rounded-xl border text-[var(--farm-text-primary)] ${
