@@ -20,6 +20,7 @@ import {
 import { resolveCmsImageUrl } from '../utils/media';
 import { normalizeCmsInternalHref } from '../utils/cmsInternalLinks';
 import { trackContactFormLead } from '../utils/analytics/runtime';
+import { normalizeExternalUrl } from '../utils/externalLinks';
 
 export function Contact() {
   const [searchParams] = useSearchParams();
@@ -139,6 +140,8 @@ export function Contact() {
     .filter(Boolean);
   const mapEmbedSrc = extractEmbedSrc(locationContent.mapEmbedUrl);
   const mapExternalLink = locationContent.mapLink?.trim() || mapEmbedSrc;
+  const facebookUrl = normalizeExternalUrl(contactData?.socialMedia?.facebook);
+  const instagramUrl = normalizeExternalUrl(contactData?.socialMedia?.instagram);
   const resolveAppHref = (href?: string) => {
     const trimmed = normalizeCmsInternalHref(href);
     if (!trimmed) {
@@ -353,25 +356,29 @@ export function Contact() {
                             {contactSection.socialTitle}
                           </h3>
                           <div className="flex gap-3">
-                            <a
-                              href={contactData.socialMedia.facebook}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-2 text-[var(--farm-secondary-text)] hover:text-[var(--farm-accent-green)] transition-colors"
-                            >
-                              <Facebook className="w-4 h-4" />
-                              Facebook
-                            </a>
-                            <span className="text-gray-300">|</span>
-                            <a
-                              href={contactData.socialMedia.instagram}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-2 text-[var(--farm-secondary-text)] hover:text-[var(--farm-accent-green)] transition-colors"
-                            >
-                              <Instagram className="w-4 h-4" />
-                              Instagram
-                            </a>
+                            {facebookUrl ? (
+                              <a
+                                href={facebookUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 text-[var(--farm-secondary-text)] hover:text-[var(--farm-accent-green)] transition-colors"
+                              >
+                                <Facebook className="w-4 h-4" />
+                                Facebook
+                              </a>
+                            ) : null}
+                            {facebookUrl && instagramUrl ? <span className="text-gray-300">|</span> : null}
+                            {instagramUrl ? (
+                              <a
+                                href={instagramUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 text-[var(--farm-secondary-text)] hover:text-[var(--farm-accent-green)] transition-colors"
+                              >
+                                <Instagram className="w-4 h-4" />
+                                Instagram
+                              </a>
+                            ) : null}
                           </div>
                         </div>
                       </div>

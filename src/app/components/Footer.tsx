@@ -4,12 +4,15 @@ import logoImage from '/logo-placeholder.svg';
 import { useAdmin } from '../contexts/AdminContext';
 import { useContactData } from '../hooks/useContactData';
 import { useGlobalSettings } from '../hooks/useGlobalSettings';
+import { normalizeExternalUrl } from '../utils/externalLinks';
 
 export function Footer() {
   const { isAuthenticated } = useAdmin();
   const { contactData } = useContactData();
   const { settings } = useGlobalSettings();
   const footerLogo = settings?.logo?.trim() ? settings.logo : logoImage;
+  const facebookUrl = normalizeExternalUrl(contactData?.socialMedia?.facebook);
+  const instagramUrl = normalizeExternalUrl(contactData?.socialMedia?.instagram);
   
   return (
     <footer
@@ -164,24 +167,28 @@ export function Footer() {
 
             {/* Social Media */}
             <div className="flex gap-3 justify-center sm:justify-start">
-              <a
-                href={contactData.socialMedia.facebook}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-11 h-11 rounded-2xl bg-[var(--farm-neutral-700)] hover:bg-[var(--farm-primary)] flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
-                aria-label="Facebook"
-              >
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a
-                href={contactData.socialMedia.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-11 h-11 rounded-2xl bg-[var(--farm-neutral-700)] hover:bg-[var(--farm-primary)] flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
-                aria-label="Instagram"
-              >
-                <Instagram className="w-5 h-5" />
-              </a>
+              {facebookUrl ? (
+                <a
+                  href={facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-11 h-11 rounded-2xl bg-[var(--farm-neutral-700)] hover:bg-[var(--farm-primary)] flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
+                  aria-label="Facebook"
+                >
+                  <Facebook className="w-5 h-5" />
+                </a>
+              ) : null}
+              {instagramUrl ? (
+                <a
+                  href={instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-11 h-11 rounded-2xl bg-[var(--farm-neutral-700)] hover:bg-[var(--farm-primary)] flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="w-5 h-5" />
+                </a>
+              ) : null}
             </div>
           </div>
         </div>

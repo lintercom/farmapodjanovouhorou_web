@@ -38,7 +38,18 @@ function normalizeContactData(page: any): ContactData {
   const fromContact = page?.contact;
 
   if (fromContactData) {
-    return { ...defaultContactData, ...fromContactData };
+    return {
+      ...defaultContactData,
+      ...fromContactData,
+      openingHours: {
+        ...defaultContactData.openingHours,
+        ...(fromContactData.openingHours ?? {}),
+      },
+      socialMedia: {
+        ...defaultContactData.socialMedia,
+        ...(fromContactData.socialMedia ?? {}),
+      },
+    };
   }
 
   if (fromContact) {

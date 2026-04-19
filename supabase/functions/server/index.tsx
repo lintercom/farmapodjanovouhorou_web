@@ -36,9 +36,11 @@ function escapeHtml(value: string) {
 }
 
 function normalizeContactRecipient(pageData: any, settings: any) {
+  const forcedRecipient = Deno.env.get('CONTACT_FORM_TO_EMAIL')?.trim();
   const pageEmail = pageData?.contactData?.email || pageData?.contact?.email;
   const settingsEmail = settings?.email || settings?.systemEmail;
 
+  if (forcedRecipient) return forcedRecipient;
   return (pageEmail || settingsEmail || '').trim();
 }
 
