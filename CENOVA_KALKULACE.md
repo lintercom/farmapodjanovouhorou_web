@@ -1,159 +1,169 @@
-# Cenová kalkulace projektu — web + CMS (podle PROJECT_MAP.md)
+# Cenova kalkulace projektu - web + CMS
 
-Orientační **odhad nákladů na vývoj** odpovídající popsanému rozsahu v [PROJECT_MAP.md](./PROJECT_MAP.md). Jedná se o **rekonstrukční kalkulaci** („kolik by stálo stejné řešení vyvinout znovu“), nikoli o fakturovanou částku mezi stranami.
+Aktualizovany orientacni odhad hodnoty vyvoje podle realneho stavu projektu k 5. 5. 2026.
+
+Jde o rekonstrukcni kalkulaci, tedy odhad, kolik by stalo podobne reseni znovu navrhnout a vyvinout. Nejde o fakturovanou castku, znalecky posudek ani garanci produkcni pripravenosti.
 
 | Parametr | Hodnota |
 |----------|---------|
-| Měna | **Kč** (bez DPH) |
-| Typ odhadu | hrubý, pro plánování rozpočtu |
-| Základ | moduly a technologie z mapy projektu |
+| Mena | Kc bez DPH |
+| Typ odhadu | realisticky hruby odhad hodnoty dodaneho reseni |
+| Zaklad | aktualni kod, CMS, Supabase, staticky build, verejne stranky |
+| Nezahrnuje | plny test suite, monitoring, bezpecnostni audit, vicejazycnost, platebni branu, vlastni rezervacni backend |
 
 ---
 
-## 1. Analýza, architektura a informační struktura
+## 1. Analyza, architektura a struktura
 
-| Položka | Popis | Částka (Kč) |
-|---------|--------|-------------|
-| 1.1 | Návrh architektury (SPA + headless CMS, Supabase), routování, mapování `pageId`, dokumentace rozhodnutí | 12 000 |
-| 1.2 | Sladění s obsahem (stránky hlavní vs. patička, právní texty) | 6 000 |
+| Polozka | Popis | Castka (Kc) |
+|---------|-------|-------------|
+| 1.1 | Navrh architektury SPA + CMS + Supabase, routovani, rozdeleni obsahu na `pageId` | 9 000 |
+| 1.2 | Sladeni obsahu stranek, pravnich stranek, navigace a paticky | 5 000 |
 
-**Mezisoučet části 1:** **18 000 Kč**
-
----
-
-## 2. Vzhled a design systém
-
-| Položka | Popis | Částka (Kč) |
-|---------|--------|-------------|
-| 2.1 | Design tokeny (`theme.css`), barvy, stíny, sémantické proměnné | 14 000 |
-| 2.2 | Typografie (Plus Jakarta Sans, Lora), Tailwind, základní UI kit (Radix + vlastní komponenty) | 18 000 |
-| 2.3 | Veřejný layout — navigace, patička, cookie lišta, loading stav, konzistence sekcí | 16 000 |
-| 2.4 | Vzhled administrace (sticky header, karty, modaly v souladu s webem) | 12 000 |
-
-**Mezisoučet části 2:** **60 000 Kč**
+**Mezisoucet casti 1:** **14 000 Kc**
 
 ---
 
-## 3. Veřejný web — stránky a šablony
+## 2. Vzhled a design system
 
-| Položka | Popis | Částka (Kč) |
-|---------|--------|-------------|
-| 3.1 | Domů — hero, karusely/sekce, FAQ, reference, napojení na data ze služeb a koní | 28 000 |
-| 3.2 | Služby, Blog (události + modal), Naši koně, O nás | 32 000 |
-| 3.3 | Kontakt — záložky, mapa, vlastní obsah + vložení Reenio (widget / iframe / odkaz) | 22 000 |
-| 3.4 | Právní stránky (GDPR, cookies, obchodní podmínky, reklamační řád) + 404 | 14 000 |
-| 3.5 | Přihlášení do CMS (veřejná routa), chybové stavy, responzivita napříč stránkami | 8 000 |
+| Polozka | Popis | Castka (Kc) |
+|---------|-------|-------------|
+| 2.1 | Design tokeny, barvy, CSS promenne, zakladni vizualni system | 10 000 |
+| 2.2 | Typografie, Tailwind, zakladni sada UI komponent | 14 000 |
+| 2.3 | Verejny layout, navigace, paticka, cookie lista, loading stav | 14 000 |
+| 2.4 | Vzhled administrace, karty, modaly, responzivni upravy CMS | 10 000 |
 
-**Mezisoučet části 3:** **104 000 Kč**
+**Mezisoucet casti 2:** **48 000 Kc**
+
+---
+
+## 3. Verejny web - stranky a sablony
+
+| Polozka | Popis | Castka (Kc) |
+|---------|-------|-------------|
+| 3.1 | Domu - hero, obsahove sekce, FAQ, reference, napojeni na CMS data | 22 000 |
+| 3.2 | Sluzby, Blog, Nasi kone, O nas vcetne responzivnich sablon | 28 000 |
+| 3.3 | Kontakt - zalozky/karty, mapa, formular, Reenio/embed/odkaz, novy typ karty Odkaz | 20 000 |
+| 3.4 | Pravni stranky, 404, zakladni obsahove sablony | 10 000 |
+| 3.5 | Prihlaseni do CMS, chybove stavy, zakladni responzivita | 6 000 |
+
+**Mezisoucet casti 3:** **86 000 Kc**
 
 ---
 
 ## 4. CMS a administrace
 
-| Položka | Popis | Částka (Kč) |
-|---------|--------|-------------|
-| 4.1 | Autentizace, session, timeout, ochrana `/admin` | 10 000 |
-| 4.2 | `PageEditor` — výběr stránek, načtení/uložení, stav ukládání | 14 000 |
-| 4.3 | Specializované editory (domů, služby, blog, koně, o nás, kontakt vč. Reenio polí, právní, 404) | 42 000 |
-| 4.4 | Sdílené admin komponenty (`ImageUpload`, `LinkSelector`, kolekce, bohatý text kde je potřeba) | 18 000 |
-| 4.5 | Globální nastavení (obecné, design obrázků, bezpečnost / změna hesla) | 12 000 |
-| 4.6 | Seed dat, případné migrační nástroje (orientačně v rozsahu mapy) | 6 000 |
+| Polozka | Popis | Castka (Kc) |
+|---------|-------|-------------|
+| 4.1 | Autentizace CMS, Supabase Auth varianta, session, timeout, ochrana `/admin` | 12 000 |
+| 4.2 | `PageEditor` - vyber stranek, nacteni, ulozeni, stav ukladani | 12 000 |
+| 4.3 | Specializovane editory pro hlavni stranky, kontakt, kone, blog a pravni obsah | 34 000 |
+| 4.4 | Sdilene admin komponenty: upload obrazku, kolekce, interni odkazy, editace karet | 16 000 |
+| 4.5 | Globalni nastaveni: logo, hero obrazek, favicon, kontaktni udaje, zmena hesla | 10 000 |
+| 4.6 | Seed/migracni pomocne nastroje a doplnkove admin utility | 4 000 |
 
-**Mezisoučet části 4:** **102 000 Kč**
+**Mezisoucet casti 4:** **88 000 Kc**
 
 ---
 
-## 5. Supabase — Edge Function, databáze, Storage
+## 5. Supabase - API, databaze, Storage
 
-| Položka | Popis | Částka (Kč) |
-|---------|--------|-------------|
-| 5.1 | Hono API — stránky, nastavení, CORS, health | 16 000 |
-| 5.2 | Vrstva KV (`kv_store_399cd496`), konzistence klíčů `page:*`, `global:settings` | 10 000 |
-| 5.3 | Storage bucket, upload, signed URL, validace typů a velikosti | 14 000 |
-| 5.4 | Endpoint změny hesla, seed endpoint | 6 000 |
+| Polozka | Popis | Castka (Kc) |
+|---------|-------|-------------|
+| 5.1 | Hono Edge Function API pro stranky, nastaveni, health a CORS | 13 000 |
+| 5.2 | KV vrstva nad `kv_store_399cd496`, struktura klicu `page:*`, `global:settings` | 8 000 |
+| 5.3 | Storage bucket, upload obrazku, validace typu/velikosti, signed URL | 12 000 |
+| 5.4 | Endpointy pro zmenu hesla, seed a pomocne backend funkce | 5 000 |
 
-**Mezisoučet části 5:** **46 000 Kč**
+**Mezisoucet casti 5:** **38 000 Kc**
 
 ---
 
 ## 6. Integrace a komunikace
 
-| Položka | Popis | Částka (Kč) |
-|---------|--------|-------------|
-| 6.1 | Parsování a vykreslení Reenio (URL, iframe, widget) podle CMS | 10 000 |
-| 6.2 | Kontaktní formulář — API, Resend, výběr příjemce z obsahu / globálního nastavení | 12 000 |
+| Polozka | Popis | Castka (Kc) |
+|---------|-------|-------------|
+| 6.1 | Reenio konfigurace z CMS: URL, iframe, widget snippet, fallback na odkaz | 9 000 |
+| 6.2 | Kontaktni formular pres API + Resend, vyber prijemce z CMS/nastaveni | 11 000 |
 
-**Mezisoučet části 6:** **22 000 Kč**
-
----
-
-## 7. SEO, výkon a nasazení
-
-| Položka | Popis | Částka (Kč) |
-|---------|--------|-------------|
-| 7.1 | `RouteSeo`, canonical, OG, napojení na globální nastavení kde dává smysl | 9 000 |
-| 7.2 | Preload rout, cache (`siteDataCache`), `routeReady` pro prerender | 11 000 |
-| 7.3 | Prerender (Playwright), generování HTML pro veřejné routy | 14 000 |
-| 7.4 | GitHub Actions workflow, GitHub Pages, `base` path, SPA fallback (`404.html`) | 10 000 |
-
-**Mezisoučet části 7:** **44 000 Kč**
+**Mezisoucet casti 6:** **20 000 Kc**
 
 ---
 
-## 8. Podpůrný vývoj a kvalita
+## 7. SEO, build a nasazeni
 
-| Položka | Popis | Částka (Kč) |
-|---------|--------|-------------|
-| 8.1 | Utility — interní odkazy, kódování textů, média (resolve URL) | 8 000 |
-| 8.2 | Build (Vite), závislosti, základní testování toků (CMS, formulář, deploy) | 14 000 |
-| 8.3 | Dokumentace pro tým — např. [PROJECT_MAP.md](./PROJECT_MAP.md) a související poznámky | 6 000 |
+| Polozka | Popis | Castka (Kc) |
+|---------|-------|-------------|
+| 7.1 | Route SEO, canonical, OG metadata, zakladni strukturovana data | 8 000 |
+| 7.2 | Preload dat, cache obsahu a synchronizace `routeReady` pro prerender | 9 000 |
+| 7.3 | Playwright prerender verejnych rout do statickeho HTML | 11 000 |
+| 7.4 | GitHub Pages workflow, SPA fallback, Vite base path, priprava statiky pro hosting | 10 000 |
 
-**Mezisoučet části 8:** **28 000 Kč**
-
----
-
-## Souhrn částí (bez DPH)
-
-| Část | Název | Částka (Kč) |
-|------|--------|-------------|
-| 1 | Analýza a architektura | 18 000 |
-| 2 | Vzhled a design systém | 60 000 |
-| 3 | Veřejný web | 104 000 |
-| 4 | CMS a administrace | 102 000 |
-| 5 | Supabase (API, KV, Storage) | 46 000 |
-| 6 | Integrace (Reenio, e-mail) | 22 000 |
-| 7 | SEO, prerender, CI/CD Pages | 44 000 |
-| 8 | Utility, QA, dokumentace | 28 000 |
-
-### Mezisoučet všech částí
-
-**424 000 Kč** (bez DPH)
+**Mezisoucet casti 7:** **38 000 Kc**
 
 ---
 
-## Konečná částka
+## 8. Podpurny vyvoj, QA a dokumentace
 
-| Položka | Částka (Kč) |
+| Polozka | Popis | Castka (Kc) |
+|---------|-------|-------------|
+| 8.1 | Utility pro interni odkazy, media URL, opravy kodovani textu | 7 000 |
+| 8.2 | Zakladni manualni overeni toku, build kontrola, opravy z provozniho pouziti | 7 000 |
+| 8.3 | Dokumentace projektu, mapa projektu, poznamky k nasazeni | 6 000 |
+
+**Mezisoucet casti 8:** **20 000 Kc**
+
+---
+
+## Souhrn casti bez DPH
+
+| Cast | Nazev | Castka (Kc) |
+|------|-------|-------------|
+| 1 | Analyza a architektura | 14 000 |
+| 2 | Vzhled a design system | 48 000 |
+| 3 | Verejny web | 86 000 |
+| 4 | CMS a administrace | 88 000 |
+| 5 | Supabase API, KV, Storage | 38 000 |
+| 6 | Integrace Reenio a e-mail | 20 000 |
+| 7 | SEO, prerender, nasazeni | 38 000 |
+| 8 | Utility, QA, dokumentace | 20 000 |
+
+### Realisticky odhad hodnoty vyvoje
+
+**352 000 Kc bez DPH**
+
+---
+
+## Konecna orientacni castka
+
+| Polozka | Castka (Kc) |
 |---------|-------------|
-| **Celkový odhad vývoje (bez DPH)** | **424 000** |
-| DPH 21 % (indikativně) | 89 040 |
-| **Indikativně s DPH** | **513 040** |
-
-> **Poznámka:** „Konečná částka“ v kontextu této kalkulace = **součet dílčích odhadů vývoje**. Reálná nabídka by závisela na hodinové sazbě, replikaci designu z Figma, rozsahu revizí obsahu a případném rozšíření (např. vícejazyčnost, platební brána, napojení na BooqMe).
+| Realisticky odhad vyvoje bez DPH | 352 000 |
+| DPH 21 % orientacne | 73 920 |
+| Orientacne s DPH | 425 920 |
 
 ---
 
-## Provoz a služby třetích stran (mimo vývoj)
+## Korekce proti puvodnimu odhadu 424 000 Kc bez DPH
 
-Tyto náklady **nejsou** součástí výše uvedené vývojové kalkulace; typicky měsíční nebo dle tarifu:
+Puvodni kalkulace byla spise horni rekonstrukcni odhad. Aktualni castka je nizsi, protoze realny projekt nema plnou testovaci infrastrukturu, lint/E2E pipeline, produkcni monitoring ani bezpecnostni audit. Cast kodu je take legacy nebo podpurna a neni soucasti aktivniho uzivatelskeho toku.
 
-| Služba | Účel |
+Naopak zustava zapoctena realna hodnota funkcniho CMS, verejneho webu, Supabase backendu, uploadu obrazku, Reenio integrace, kontaktniho formulare, prerenderu a pripraveneho statickeho vystupu pro hosting.
+
+---
+
+## Provoz a sluzby tretich stran mimo vyvoj
+
+Tyto naklady nejsou soucasti vyse uvedene vyvojove kalkulace:
+
+| Sluzba | Ucel |
 |--------|------|
-| Supabase | databáze, Storage, Edge Functions |
-| Resend | transakční e-maily z kontaktu |
-| Reenio | rezervační systém (tarif u provozovatele) |
-| GitHub | hostování repa + GitHub Pages (free tier dle plánu) |
+| Supabase | databaze, Storage, Edge Functions |
+| Resend | transakcni e-maily z kontaktniho formulare |
+| Reenio | rezervacni system a jeho tarif |
+| GitHub | repozitar, GitHub Pages, Actions podle planu |
+| Hosting | produkcni webhosting, pokud se nepouziva GitHub Pages |
 
 ---
 
-*Dokument slouží jako orientační rozpočet. Čísla zaokrouhlena na tisíce Kč.*
+*Cisla jsou zaokrouhlena na tisice Kc. Dokument je orientacni a ma slouzit jako realisticky podklad pro komunikaci o hodnote projektu.*
