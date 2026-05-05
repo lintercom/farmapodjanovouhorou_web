@@ -603,6 +603,7 @@ export function ContactPageEditor({ data, updateField }: any) {
     embedHeight: 1100,
     buttonText: '',
     buttonLink: '',
+    linkText: '',
     openInNewTab: false,
   });
 
@@ -668,6 +669,7 @@ export function ContactPageEditor({ data, updateField }: any) {
           getItemSubtitle={(tab: any) => {
             if (tab.type === 'contact') return 'Typ: Kontakt';
             if (tab.type === 'embed') return `Typ: Vložený formulář${tab.reenioUrl ? ' (URL vyplněna)' : ''}`;
+            if (tab.type === 'link') return `Typ: Odkaz${tab.buttonLink ? ' (URL vyplněna)' : ''}`;
             return 'Typ: Informační karta';
           }}
           emptyStateText="Zatím nejsou přidané žádné karty."
@@ -743,6 +745,7 @@ export function ContactPageEditor({ data, updateField }: any) {
                   className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
                 >
                   <option value="embed">Vložený formulář</option>
+                  <option value="link">Odkaz</option>
                   <option value="content">Informační karta</option>
                   <option value="contact">Kontaktní sekce</option>
                 </select>
@@ -827,6 +830,46 @@ export function ContactPageEditor({ data, updateField }: any) {
                         className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
                       />
                     </div>
+                  </div>
+                  <label className="flex items-center gap-3 text-sm text-[var(--farm-primary-text)]">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(draft.openInNewTab)}
+                      onChange={(e) => setDraft((prev) => (prev ? { ...prev, openInNewTab: e.target.checked } : prev))}
+                      className="h-4 w-4 rounded border-[var(--farm-border)] text-[var(--farm-accent-green)] focus:ring-[var(--farm-accent-green)]"
+                    />
+                    Otevírat odkaz v novém okně
+                  </label>
+                </div>
+              ) : null}
+
+              {draft.type === 'link' ? (
+                <div className="rounded-2xl border border-[var(--farm-border)] bg-white p-4 space-y-4">
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">Text v odkazové kartě</label>
+                    <textarea
+                      placeholder="Text, který se zobrazí nad tlačítkem Otevřít"
+                      value={draft.linkText || ''}
+                      onChange={(e) => setDraft((prev) => (prev ? { ...prev, linkText: e.target.value } : prev))}
+                      rows={3}
+                      className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white resize-none text-[var(--farm-primary-text)]"
+                    />
+                  </div>
+                  <LinkSelector
+                    label="Časté interní odkazy (volitelné)"
+                    value={draft.buttonLink || ''}
+                    onChange={(v) => setDraft((prev) => (prev ? { ...prev, buttonLink: v } : prev))}
+                    contactReservationTabs={reservationTabs}
+                  />
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-[var(--farm-secondary-text)]">URL odkazu</label>
+                    <input
+                      type="text"
+                      placeholder="Např. /kontakt nebo https://…"
+                      value={draft.buttonLink || ''}
+                      onChange={(e) => setDraft((prev) => (prev ? { ...prev, buttonLink: e.target.value } : prev))}
+                      className="w-full px-4 py-3 rounded-xl border border-[var(--farm-border)] focus:border-[var(--farm-accent-green)] focus:ring-2 focus:ring-[var(--farm-accent-green)]/20 focus:outline-none bg-white text-[var(--farm-primary-text)]"
+                    />
                   </div>
                   <label className="flex items-center gap-3 text-sm text-[var(--farm-primary-text)]">
                     <input

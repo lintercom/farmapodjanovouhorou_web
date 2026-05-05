@@ -15,7 +15,7 @@ import {
   Users,
 } from 'lucide-react';
 
-export type ContactTabType = 'contact' | 'embed' | 'content';
+export type ContactTabType = 'contact' | 'embed' | 'content' | 'link';
 
 export interface ContactReservationTab {
   id: string;
@@ -30,6 +30,7 @@ export interface ContactReservationTab {
   embedHeight?: number;
   buttonText?: string;
   buttonLink?: string;
+  linkText?: string;
   openInNewTab?: boolean;
 }
 

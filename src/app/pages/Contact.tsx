@@ -603,6 +603,40 @@ export function Contact() {
             </div>
           )}
 
+          {activeTabConfig?.type === 'link' && (
+            <div className="max-w-5xl mx-auto">
+              <FloatingCard hover={false}>
+                <div className="py-4 text-center">
+                  <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-[var(--farm-accent-green)]/10">
+                    <ActiveTabIcon className="h-10 w-10 text-[var(--farm-accent-green)]" />
+                  </div>
+                  <h2 className="mb-4 text-3xl font-bold text-[var(--farm-primary-text)]">
+                    {activeTabConfig.title}
+                  </h2>
+                  {activeTabConfig.description ? (
+                    <p className="mx-auto mb-8 max-w-2xl text-lg text-[var(--farm-secondary-text)]">
+                      {activeTabConfig.description}
+                    </p>
+                  ) : null}
+                  <div className="rounded-3xl border border-[var(--farm-border)] bg-white px-6 py-10 text-center shadow-[var(--farm-shadow-md)]">
+                    <p className="mx-auto mb-6 max-w-2xl text-[var(--farm-secondary-text)]">
+                      {activeTabConfig.linkText || activeTabConfig.helperText || 'Otevřete odkaz v novém okně.'}
+                    </p>
+                    {activeTabConfig.buttonLink ? (
+                      <a
+                        href={resolveAppHref(activeTabConfig.buttonLink)}
+                        target={activeTabConfig.openInNewTab ? '_blank' : undefined}
+                        rel={activeTabConfig.openInNewTab ? 'noopener noreferrer' : undefined}
+                      >
+                        <Button variant="primary">Otevřít</Button>
+                      </a>
+                    ) : null}
+                  </div>
+                </div>
+              </FloatingCard>
+            </div>
+          )}
+
         </div>
       </section>
 
