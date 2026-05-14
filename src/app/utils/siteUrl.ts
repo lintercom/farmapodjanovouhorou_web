@@ -1,5 +1,5 @@
 /** Výchozí kanonická doména (GitHub Pages) — přepište `VITE_SITE_URL` na produkci. */
-export const DEFAULT_SITE_URL = 'https://lintercom.github.io/farmapodjanovouhorou_web';
+export const DEFAULT_SITE_URL = 'https://farmapodjanovouhorou.cz';
 
 /**
  * Základ URL webu pro kanonické odkazy a JSON-LD (bez koncového lomítka u cesty base).
