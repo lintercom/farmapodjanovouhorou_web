@@ -199,45 +199,55 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3 order-2 lg:order-1">
+        <div className="flex flex-col items-center justify-between gap-6 lg:flex-row lg:items-end">
+          <div className="order-2 flex flex-col items-center gap-2 text-center lg:order-1 lg:flex-shrink-0 lg:items-start lg:text-left">
             <p className="text-[var(--farm-neutral-400)] text-sm text-center lg:text-left">
               © {new Date().getFullYear()} Farma pod Janovou horou z.s. VĹˇechna práva vyhrazena.
             </p>
+            <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 lg:justify-start">
+            <a
+              href="https://www.petrslavikweb.cz"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded text-xs text-[var(--farm-neutral-500)] transition-colors duration-300 hover:text-[var(--farm-primary)] focus:outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-[var(--farm-primary)]"
+            >
+              web vytvořen www.petrslavikweb.cz
+            </a>
             <Link 
               to={isAuthenticated ? "/admin?page=domu" : "/cms-prihlaseni"}
-              className="text-[var(--farm-neutral-600)] hover:text-[var(--farm-neutral-400)] transition-colors duration-300"
+              className="inline-flex h-5 w-5 items-center justify-center rounded-full text-[var(--farm-neutral-600)] transition-colors duration-300 hover:text-[var(--farm-neutral-400)] focus:outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-[var(--farm-primary)]"
               aria-label={isAuthenticated ? "PĹ™ejít do administrace" : "PĹ™ihláĹˇení do administrace"}
               title={isAuthenticated ? "PĹ™ejít do administrace" : "PĹ™ihláĹˇení do administrace"}
             >
               <Lock className="w-3 h-3" />
             </Link>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm order-1 lg:order-2">
+          <div className="order-1 flex w-full flex-wrap items-center justify-center gap-x-3 gap-y-2 text-xs sm:text-sm lg:order-2 lg:flex-1 lg:justify-end">
             <Link 
               to="/ochrana-osobnich-udaju" 
-              className="text-[var(--farm-neutral-400)] hover:text-[var(--farm-primary)] transition-colors duration-300 px-2 py-1 rounded-lg hover:bg-[var(--farm-neutral-700)]/30"
+              className="rounded-lg px-2 py-1 text-[var(--farm-neutral-400)] transition-colors duration-300 hover:bg-[var(--farm-neutral-700)]/30 hover:text-[var(--farm-primary)] focus:outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-[var(--farm-primary)]"
             >
               Ochrana osobních údajĹŻ
             </Link>
             <span className="text-[var(--farm-neutral-600)]">â€˘</span>
             <Link 
               to="/cookies" 
-              className="text-[var(--farm-neutral-400)] hover:text-[var(--farm-primary)] transition-colors duration-300 px-2 py-1 rounded-lg hover:bg-[var(--farm-neutral-700)]/30"
+              className="rounded-lg px-2 py-1 text-[var(--farm-neutral-400)] transition-colors duration-300 hover:bg-[var(--farm-neutral-700)]/30 hover:text-[var(--farm-primary)] focus:outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-[var(--farm-primary)]"
             >
               Cookies
             </Link>
             <span className="text-[var(--farm-neutral-600)]">â€˘</span>
             <Link 
               to="/obchodni-podminky" 
-              className="text-[var(--farm-neutral-400)] hover:text-[var(--farm-primary)] transition-colors duration-300 px-2 py-1 rounded-lg hover:bg-[var(--farm-neutral-700)]/30"
+              className="rounded-lg px-2 py-1 text-[var(--farm-neutral-400)] transition-colors duration-300 hover:bg-[var(--farm-neutral-700)]/30 hover:text-[var(--farm-primary)] focus:outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-[var(--farm-primary)]"
             >
               Obchodní podmínky
             </Link>
             <span className="text-[var(--farm-neutral-600)]">â€˘</span>
             <Link 
               to="/reklamacni-rad" 
-              className="text-[var(--farm-neutral-400)] hover:text-[var(--farm-primary)] transition-colors duration-300 px-2 py-1 rounded-lg hover:bg-[var(--farm-neutral-700)]/30"
+              className="rounded-lg px-2 py-1 text-[var(--farm-neutral-400)] transition-colors duration-300 hover:bg-[var(--farm-neutral-700)]/30 hover:text-[var(--farm-primary)] focus:outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-[var(--farm-primary)]"
             >
               ReklamaÄŤní Ĺ™ád
             </Link>

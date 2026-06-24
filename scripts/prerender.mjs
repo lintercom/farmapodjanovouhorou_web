@@ -89,9 +89,18 @@ async function prerenderRoute(browser, routePath, basePath) {
 async function main() {
   const basePath = normalizeBasePath(process.env.VITE_BASE_PATH || '/');
   const previewPath = joinUrlPath(basePath, '/');
+  const viteCli = path.join(projectRoot, 'node_modules', 'vite', 'bin', 'vite.js');
   const previewServer = spawn(
-    process.platform === 'win32' ? 'npx.cmd' : 'npx',
-    ['vite', 'preview', '--host', previewHost, '--port', String(previewPort), '--strictPort'],
+    process.execPath,
+    [
+      viteCli,
+      'preview',
+      '--host',
+      previewHost,
+      '--port',
+      String(previewPort),
+      '--strictPort',
+    ],
     {
       cwd: projectRoot,
       stdio: 'inherit',

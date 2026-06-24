@@ -6,7 +6,8 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
-    "prerender": "node scripts/prerender.mjs"
+    "prerender": "node scripts/prerender.mjs",
+    "hostinger:bundle": "npm run build && npm run prerender && node scripts/copy-hostinger-bundle.mjs"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",

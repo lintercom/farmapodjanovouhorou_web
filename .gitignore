@@ -1,5 +1,6 @@
 node_modules/
 dist/
+hostinger-public_html/
 .env
 .env.*
 !.env.example
